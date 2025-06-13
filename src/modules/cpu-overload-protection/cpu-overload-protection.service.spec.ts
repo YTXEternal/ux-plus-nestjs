@@ -5,7 +5,6 @@ import { Logger } from '@nestjs/common';
 import * as pidusage from 'pidusage';
 import { ScheduleModule } from '@nestjs/schedule';
 
-// ✅ 正确模拟模块（无默认导出）
 jest.mock('pidusage', () => jest.fn());
 
 describe('CpuOverloadProtectionService', () => {
@@ -50,7 +49,6 @@ describe('CpuOverloadProtectionService', () => {
 
   describe('startCpuMonitor', () => {
     it('should update overloadTimes when CPU usage is above threshold', async () => {
-      // 模拟 CPU 使用率高于阈值
       (pidusage as unknown as jest.Mock).mockResolvedValueOnce({ cpu: 800 });
 
       await service.startCpuMonitor();
@@ -60,10 +58,8 @@ describe('CpuOverloadProtectionService', () => {
     });
 
     it('should decrement overloadTimes when CPU usage is below threshold', async () => {
-      // 设置初始 overloadTimes
       service['overloadTimes'] = 5;
 
-      // 模拟 CPU 使用率低于阈值
       (pidusage as unknown as jest.Mock).mockResolvedValueOnce({ cpu: 300 });
 
       await service.startCpuMonitor();
@@ -73,7 +69,6 @@ describe('CpuOverloadProtectionService', () => {
     });
 
     it('should log error if pidusage fails', async () => {
-      // 模拟 pidusage 抛出错误
       (pidusage as unknown as jest.Mock).mockRejectedValueOnce(
         new Error('Test error'),
       );
@@ -89,39 +84,36 @@ describe('CpuOverloadProtectionService', () => {
 
   describe('shouldDropRequest', () => {
     it('should return false when CPU is below threshold', () => {
-      service['currentCpuPercentage'] = 500; // 低于阈值
+      service['currentCpuPercentage'] = 500;
       const result = service.shouldDropRequest();
       expect(result).toBe(false);
     });
 
     it('should return a boolean based on calculated probability when CPU is above threshold', () => {
-      service['currentCpuPercentage'] = 800; // 超过阈值
+      service['currentCpuPercentage'] = 800;
       service['overloadTimes'] = 50;
 
-      // 固定 Math.random() 以确保结果可预测
       const originalRandom = Math.random;
-      Math.random = () => 0.5; // 设置固定随机数
+      Math.random = () => 0.5;
 
       const result = service.shouldDropRequest();
 
-      // 验证返回值类型
       expect(typeof result).toBe('boolean');
 
-      // 恢复原始 Math.random
       Math.random = originalRandom;
     });
 
     it('should return true when random falls within the calculated probability', () => {
-      service['currentCpuPercentage'] = 800; // 超过阈值
+      service['currentCpuPercentage'] = 800;
       service['overloadTimes'] = 50;
 
       const originalRandom = Math.random;
-      Math.random = () => 0.9; // 超过计算概率 → false
+      Math.random = () => 0.9;
 
       const result = service.shouldDropRequest();
       expect(result).toBe(false);
 
-      Math.random = () => 0.1; // 低于计算概率 → true
+      Math.random = () => 0.1;
       const result2 = service.shouldDropRequest();
       expect(result2).toBe(true);
 

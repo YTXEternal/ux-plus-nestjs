@@ -3,12 +3,11 @@ import { generateDate } from '../generateDate';
 
 describe('generateDate', () => {
   beforeEach(() => {
-    // 固定时间以确保测试结果一致
     jest.useFakeTimers().setSystemTime(new Date(2025, 4, 17, 14, 30, 45)); // 2025-05-17T14:30:45
   });
 
   afterEach(() => {
-    jest.useRealTimers(); // 恢复真实时间
+    jest.useRealTimers();
   });
 
   test('should return current date in default format (YYYY-MM-DD)', () => {
@@ -35,7 +34,7 @@ describe('generateDate', () => {
   });
 
   test('should throw TypeError for invalid date input', () => {
-    // @ts-ignore - 测试非法类型
+    // @ts-ignore
     expect(() => generateDate({ date: 'invalid' })).toThrow(TypeError);
     // @ts-ignore
     expect(() => generateDate({ date: NaN })).toThrow(TypeError);
@@ -58,7 +57,6 @@ describe('generateDate', () => {
   });
 
   test('should pad with leading zeros for single-digit values', () => {
-    // 设置一个单数月份、日期、小时等来验证补零
     jest.useFakeTimers().setSystemTime(new Date(2025, 0, 5, 3, 8, 9)); // 2025-01-05T03:08:09
 
     const result = generateDate({ format: 'YYYY-MM-DD hh:mm:ss' });
