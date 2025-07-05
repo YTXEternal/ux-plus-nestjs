@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UxCryptoRsaService } from './ux-crypto-rsa.service'; // 根据你的实际路径调整
+import { UxCryptoRsaService } from './ux-crypto-rsa.service';
 import { EnvConfigModule } from '../../modules/env-config/env-config.module';
 import { ConfigService } from '@nestjs/config';
 describe('UxPasswordService Integration', () => {

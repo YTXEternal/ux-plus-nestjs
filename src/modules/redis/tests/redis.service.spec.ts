@@ -238,7 +238,7 @@ describe('RedisService (Integration)', () => {
 
       expect(results).toHaveLength(0);
 
-      // 根据业务需求决定是否缓存空结果
+      // Decide whether to cache empty results based on business requirements
       const cached = await redisService.getCatche<TestInter[]>(key);
       expect(cached).toBeUndefined();
     });
@@ -246,20 +246,20 @@ describe('RedisService (Integration)', () => {
     it('should refresh cache after expiration', async () => {
       const key = 'tests:temp_cache';
 
-      // 初始查询
+      // Initial query
       await redisService.selectAll<TestInter[], TestModel>(TestModel, {
         key,
         expiretime: 2,
       });
 
-      // 等待缓存过期
+      // Wait for cache to expire
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      // 验证缓存失效
+      // Verify cache invalidation
       const expired = await redisService.getCatche(key);
       expect(expired).toBeUndefined();
 
-      // 二次查询应重新缓存
+      // The second query should be re-cached
       const freshData = await redisService.selectAll<TestInter[], TestModel>(
         TestModel,
         {
