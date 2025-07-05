@@ -60,7 +60,7 @@ describe('UxJwtService (Integration)', () => {
       expect(token).toBeDefined();
       expect(typeof token).toBe('string');
 
-      // 验证生成的 token 是否可以被正确解析
+      // Verify whether the generated token can be parsed correctly
       const decoded = jwtService.decode(token);
       expect(decoded).toHaveProperty('account', payload.account);
       expect(decoded).toHaveProperty('id', payload.id);

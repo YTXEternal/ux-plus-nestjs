@@ -1,6 +1,6 @@
 ## 简介
 
-根据RESTful API软件设计风格并基于NestJS框架开发的一款后端开发模板集成了数据库(Mysql，Mongodb)、缓存(Redis)、非对称算法RSA，实现了基本的身份验证守卫以及CPU过载保护。
+根据RESTful API软件设计风格并基于NestJS框架开发的一款后端开发模板集成了数据库(Mysql，Mongodb)、缓存(Redis)、非对称算法RSA，实现了基本的身份验证守卫以及CPU过载保护。它帮你集成了大部分基础功能让你可以专注于主要的业务开发
 
 **接口：**
 - 注册账号
@@ -36,4 +36,4 @@
 - 端到端测试
 
 使用文档：
-[ux-plus-nestjs](https://www.ux-plus-nestjs.cn "ux-plus-nestjs")
+[ux-plus-nestjs](www.ux-plus-nestjs.cn "ux-plus-nestjs")

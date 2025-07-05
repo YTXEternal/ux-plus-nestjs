@@ -3,7 +3,7 @@ import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { XssSanitizeInterceptor } from './xss-sanitize.interceptor';
 import { Request } from 'express';
-import { filterXss } from '@/tools'; // ✅ 使用真实 filterXss（基于 xss 库）
+import { filterXss } from '@/tools';
 
 describe('XssSanitizeInterceptor', () => {
   let interceptor: XssSanitizeInterceptor;
@@ -13,7 +13,6 @@ describe('XssSanitizeInterceptor', () => {
   beforeEach(() => {
     interceptor = new XssSanitizeInterceptor();
 
-    // 模拟请求数据
     const mockRequest = {
       body: {
         name: '<script>alert("xss")</script>',
@@ -29,14 +28,12 @@ describe('XssSanitizeInterceptor', () => {
       },
     } as unknown as Request;
 
-    // 创建 ExecutionContext 模拟
     context = {
       switchToHttp: () => ({
         getRequest: () => mockRequest,
       }),
     } as unknown as ExecutionContext;
 
-    // 创建 CallHandler 模拟
     callHandler = {
       handle: () => of({ data: 'response' }).pipe(map((data) => data)),
     } as unknown as CallHandler;
@@ -52,7 +49,6 @@ describe('XssSanitizeInterceptor', () => {
         .intercept(context, callHandler)
         .toPromise();
 
-      // 验证 filterXss 是否被应用
       const expectedBody = {
         name: filterXss('<script>alert("xss")</script>'),
         nested: {
@@ -66,14 +62,12 @@ describe('XssSanitizeInterceptor', () => {
         id: filterXss('<div>evil</div>'),
       };
 
-      // 验证数据被正确修改
       expect(context.switchToHttp().getRequest().body).toEqual(expectedBody);
       expect(context.switchToHttp().getRequest().query).toEqual(expectedQuery);
       expect(context.switchToHttp().getRequest().params).toEqual(
         expectedParams,
       );
 
-      // 验证响应未被修改
       expect(result).toEqual({ data: 'response' });
     });
 
@@ -92,7 +86,6 @@ describe('XssSanitizeInterceptor', () => {
 
       await interceptor.intercept(context, callHandler).toPromise();
 
-      // 验证数据未被修改
       expect(context.switchToHttp().getRequest().body).toBe(null);
       expect(context.switchToHttp().getRequest().query).toBe(undefined);
       expect(context.switchToHttp().getRequest().params).toBe(123);
@@ -113,7 +106,6 @@ describe('XssSanitizeInterceptor', () => {
 
       await interceptor.intercept(context, callHandler).toPromise();
 
-      // 验证数据未被修改
       expect(context.switchToHttp().getRequest().body).toEqual({});
       expect(context.switchToHttp().getRequest().query).toEqual({});
       expect(context.switchToHttp().getRequest().params).toEqual({});
@@ -138,7 +130,6 @@ describe('XssSanitizeInterceptor', () => {
 
       await interceptor.intercept(context, callHandler).toPromise();
 
-      // 验证嵌套对象被递归处理
       expect(mockRequest.body.user.profile.bio).toBe(
         filterXss('<a href="javascript:alert(1)">link</a>'),
       );
@@ -160,7 +151,6 @@ describe('XssSanitizeInterceptor', () => {
 
       await interceptor.intercept(context, callHandler).toPromise();
 
-      // 非字符串值应保持不变
       expect(mockRequest.body.age).toBe(25);
       expect(mockRequest.body.isActive).toBe(true);
     });

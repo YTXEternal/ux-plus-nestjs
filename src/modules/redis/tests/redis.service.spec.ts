@@ -68,7 +68,7 @@ describe('RedisService (Integration)', () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     let testRecord: TestModel;
-    const testId = 'e9c7a82b-1d4e-4f6a-8c3b-5d6e7f8a9b0c'; // 示例 UUID
+    const testId = 'e9c7a82b-1d4e-4f6a-8c3b-5d6e7f8a9b0c';
     const redisKey = `test:${testId}`;
     const data = {
       id: testId,
@@ -80,31 +80,26 @@ describe('RedisService (Integration)', () => {
       await redisService.redis.del('test:complex_query');
     };
     beforeAll(async () => {
-      // 创建测试数据
       testRecord = await TestModel.create(data);
     });
 
     afterAll(async () => {
-      // 清理数据
       await clear();
     });
 
     it('should fetch from DB and cache with field filtering', async () => {
       const key = redisKey;
 
-      // 第一次调用（无缓存）
       const result = await redisService.selectOne<TestInter, TestModel>(
         TestModel,
         {
           key,
           where: { id: testId },
-          attrs: ['id'], // 过滤掉 message 字段
+          attrs: ['id'],
         },
       );
-      // 验证数据库结果
       expect(result!.id).toBe(testId);
 
-      // 验证缓存内容
       const cached = await redisService.getCatche<TestInter>(key);
       expect(cached).toEqual({
         id: testId,
@@ -114,7 +109,6 @@ describe('RedisService (Integration)', () => {
     it('should return cached data without DB query', async () => {
       const key = redisKey;
 
-      // 第二次调用（命中缓存）
       const cachedResult = await redisService.selectOne<TestInter, TestModel>(
         TestModel,
         {
@@ -122,12 +116,10 @@ describe('RedisService (Integration)', () => {
         },
       );
 
-      // 验证缓存结果
       expect(cachedResult).toEqual({
         id: testId,
       });
 
-      // 可以通过以下方式验证未触发数据库查询：
       const spy = jest.spyOn(TestModel, 'findOne');
       await redisService.selectOne<TestInter, TestModel>(TestModel, { key });
       expect(spy).not.toHaveBeenCalled();
@@ -167,7 +159,6 @@ describe('RedisService (Integration)', () => {
     });
     it('should handle complex where conditions', async () => {
       const key = 'test:complex_query';
-      // 未命中缓存
       const result = await redisService.selectOne<TestInter, TestModel>(
         TestModel,
         {
@@ -182,10 +173,8 @@ describe('RedisService (Integration)', () => {
         },
       );
 
-      // 验证查询结果
       expect(result!.id).toBe(testId);
 
-      // 验证缓存 TTL
       const ttl = await redisService.redis.ttl(key);
       expect(ttl).toBeGreaterThan(0);
     });
@@ -216,7 +205,6 @@ describe('RedisService (Integration)', () => {
     it('should cache paginated results', async () => {
       const key = 'tests:pagination';
 
-      // 第一次查询（带分页）
       const firstPage = await redisService.selectAll<TestInter, TestModel>(
         TestModel,
         {
@@ -228,11 +216,9 @@ describe('RedisService (Integration)', () => {
         },
       );
 
-      // 验证分页结果
       expect(firstPage).toHaveLength(2);
       expect(firstPage[0].message).toBe('msg_1');
 
-      // 验证缓存内容
       const cached = await redisService.getCatche<Test[]>(key);
       expect(cached).toHaveLength(2);
     });
@@ -252,7 +238,7 @@ describe('RedisService (Integration)', () => {
 
       expect(results).toHaveLength(0);
 
-      // 根据业务需求决定是否缓存空结果
+      // Decide whether to cache empty results based on business requirements
       const cached = await redisService.getCatche<TestInter[]>(key);
       expect(cached).toBeUndefined();
     });
@@ -260,20 +246,20 @@ describe('RedisService (Integration)', () => {
     it('should refresh cache after expiration', async () => {
       const key = 'tests:temp_cache';
 
-      // 初始查询
+      // Initial query
       await redisService.selectAll<TestInter[], TestModel>(TestModel, {
         key,
         expiretime: 2,
       });
 
-      // 等待缓存过期
+      // Wait for cache to expire
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      // 验证缓存失效
+      // Verify cache invalidation
       const expired = await redisService.getCatche(key);
       expect(expired).toBeUndefined();
 
-      // 二次查询应重新缓存
+      // The second query should be re-cached
       const freshData = await redisService.selectAll<TestInter[], TestModel>(
         TestModel,
         {

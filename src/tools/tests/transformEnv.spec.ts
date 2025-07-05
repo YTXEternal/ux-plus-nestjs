@@ -36,6 +36,6 @@ describe('toObject', () => {
 
   test('should throw error on invalid JSON', () => {
     expect(() => toObject('invalid json')).toThrow();
-    expect(() => toObject('{name: "Alice"}')).toThrow(); // 不合法的 JSON
+    expect(() => toObject('{name: "Alice"}')).toThrow();
   });
 });
