@@ -1,0 +1,113 @@
+# 代码风格和命名规范
+
+## 文件命名规范
+
+### 模块文件
+- **模块**: `*.module.ts` (如 `auth.module.ts`, `registry.module.ts`)
+- **控制器**: `*.controller.ts` (如 `auth.controller.ts`)
+- **服务**: `*.service.ts` (如 `auth.service.ts`, `registry.service.ts`)
+- **守卫**: `*.guard.ts` (如 `auth-token.guard.ts`)
+- **拦截器**: `*.interceptor.ts` (如 `xss-sanitize.interceptor.ts`)
+- **过滤器**: `*.filter.ts` (如 `http-exception.filter.ts`)
+- **中间件**: `*.middleware.ts` (如 `uniform-response-header.middleware.ts`)
+- **DTO**: `*.dto.ts` (放在对应模块的 `dto/` 目录下)
+- **模型**: `*.model.ts` (数据库模型)
+- **测试文件**: `*.spec.ts` (与源文件同目录或在 `tests/` 目录)
+- **工具函数**: `*.ts` (放在 `tools/` 目录)
+- **类型定义**: `*.inter.ts` 或 `*.type.ts` (接口和类型定义)
+
+## 类命名规范
+
+### 类名格式（PascalCase）
+- **模块类**: 以 `Module` 结尾 (如 `AuthModule`, `UxJwtModule`)
+- **控制器类**: 以 `Controller` 结尾 (如 `AuthController`)
+- **服务类**: 以 `Service` 结尾 (如 `AuthService`, `UxCryptoRsaService`)
+- **守卫类**: 以 `Guard` 结尾 (如 `AuthTokenGuard`)
+- **拦截器类**: 以 `Interceptor` 结尾 (如 `XssSanitizeInterceptor`)
+- **过滤器类**: 以 `Filter` 结尾 (如 `HttpExceptionFilter`)
+- **DTO 类**: 以 `Dto` 结尾 (如 `AuthLoginDto`, `RegistryUserDto`)
+- **异常类**: 以 `Exception` 结尾 (如 `ValidateDtoException`)
+
+### 模块命名约定
+- **UX 系列模块**: 使用 `ux-*` 前缀 (如 `ux-jwt`, `ux-password`)
+- **业务模块**: 直接使用业务名称 (如 `auth`, `registry`)
+- **数据库模块**: 使用描述性名称 (如 `mysql-database`, `mongodb`)
+
+## 变量和函数命名规范
+
+### 命名格式（camelCase）
+- **私有属性**: 使用 `private` 或 `private readonly`
+  ```typescript
+  private readonly logger = new Logger(ServiceName.name);
+  private baseProbability = 0.7;
+  ```
+- **公共方法**: 使用 camelCase，动词开头
+  ```typescript
+  findOne()
+  registryUser()
+  encrypt()
+  ```
+- **私有方法**: 使用 `private` + camelCase
+  ```typescript
+  private sanitize()
+  private insertRegistryAndUser()
+  ```
+- **常量**: 使用 UPPER_SNAKE_CASE
+  ```typescript
+  CPU_MAX_THRESHOLD
+  JWT_LOGIN_TOKEN_EXPIRES
+  ```
+
+## 导入顺序规范
+
+```typescript
+// 1. NestJS 核心模块
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+// 2. 第三方库
+import * as pidusage from 'pidusage';
+import { Transaction, WhereOptions } from 'sequelize';
+
+// 3. 本地模块（使用 @/ 路径别名）
+import { UxJwtService } from '@/modules/ux-jwt/ux-jwt.service';
+import { ApiResponse } from '@/dto/api-response';
+import { generateId } from '@/tools';
+
+// 4. 相对路径导入
+import { RegistryService } from './registry.service';
+import { AuthLoginDto } from './dto/auth.dto';
+```
+
+## TypeScript 类型规范
+
+- 使用明确的类型定义，避免使用 `any`（除非必要）
+- 接口类型定义放在 `types/` 目录或使用 `.inter.ts` 后缀
+- 使用 `type` 关键字定义类型别名
+- 函数参数和返回值明确类型
+
+```typescript
+type RequestParams = Record<string, any>;
+type InsertRegistryAndUser = { id: string; account: string; ... };
+
+findOne(where?: WhereOptions<any>, attributes?: string[]): Promise<Registry | null>
+```
+
+## 代码注释规范
+
+### JSDoc 注释
+- 公共方法必须添加 JSDoc 注释
+- 注释使用英文
+- 说明方法用途、参数、返回值
+
+```typescript
+/**
+ * Perform the actual write operation to the registry and user tables
+ *
+ * @private
+ * @async
+ * @param {InsertRegistryAndUser} insertRegistryAndUser
+ * @returns {Promise<void>}
+ */
+private async insertRegistryAndUser(insertRegistryAndUser: InsertRegistryAndUser) { }
+```
