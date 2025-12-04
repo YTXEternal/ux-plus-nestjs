@@ -1,0 +1,261 @@
+# NestJS 开发规范
+
+## 装饰器使用规范
+
+### 必需装饰器
+```typescript
+// 服务类
+@Injectable()
+export class AuthService { }
+
+// 控制器类（必须指定 path 和 version）
+@Controller({
+  path: 'auth',
+  version: '1',
+})
+export class AuthController { }
+
+// 模块类
+@Module({
+  imports: [...],
+  providers: [...],
+  controllers: [...],
+  exports: [...],
+})
+export class AuthModule { }
+
+// 守卫（实现 CanActivate）
+@Injectable()
+export class AuthTokenGuard implements CanActivate { }
+
+// 拦截器（实现 NestInterceptor）
+@Injectable()
+export class XssSanitizeInterceptor implements NestInterceptor { }
+
+// 过滤器（实现 ExceptionFilter）
+@Catch()
+export class HttpExceptionFilter implements ExceptionFilter { }
+```
+
+### 控制器装饰器
+```typescript
+@Controller({
+  path: 'auth',
+  version: '1',
+})
+export class AuthController {
+  @Post('/login')
+  @HttpCode(200)
+  async login(@Body() dto: AuthLoginDto) { }
+  
+  @Get('list')
+  @UseGuards(AuthTokenGuard)
+  list() { }
+}
+```
+
+## 依赖注入规范
+
+### 构造函数注入
+```typescript
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly registryService: RegistryService,
+    private readonly uxPasswordService: UxPasswordService,
+  ) {}
+}
+```
+
+### 模型注入
+```typescript
+@Injectable()
+export class RegistryService {
+  constructor(
+    @InjectModel(Registry)
+    public registryModel: typeof Registry,
+    @InjectModel(Users)
+    public usersModel: typeof Users,
+  ) {}
+}
+```
+
+### 循环依赖处理
+```typescript
+constructor(
+  @Inject(forwardRef(() => UxCryptoRsaService))
+  private readonly uxCryptoRsaService: UxCryptoRsaService,
+) {}
+```
+
+## DTO 验证规范
+
+### DTO 定义
+```typescript
+import { IsString, IsNotEmpty, IsEmail } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+
+export class RegistryUserDto {
+  @ApiProperty({
+    description: 'User account',
+    example: 'johndoe',
+  })
+  @IsString({ message: 'The account must be a string' })
+  @IsNotEmpty({ message: 'Account cannot be empty' })
+  account: string;
+
+  @IsEmail({}, { message: 'Please enter a valid email address' })
+  email: string;
+}
+```
+
+### 验证规则
+- 使用 `class-validator` 装饰器
+- 为每个验证规则提供明确的错误消息
+- 使用 `@ApiProperty()` 为 Swagger 添加文档
+- DTO 放在对应模块的 `dto/` 目录
+
+## API 响应格式规范
+
+### 统一响应类
+```typescript
+// 成功响应
+return new ApiResponse(HttpStatus.OK, 'Login successful', { token });
+
+// 错误响应（通过异常抛出）
+throw new HttpException('Account does not exist', HttpStatus.BAD_REQUEST);
+```
+
+### 响应结构
+```typescript
+{
+  code: number,      // HTTP 状态码
+  message: string,   // 响应消息
+  data?: T          // 响应数据（可选）
+}
+```
+
+## 错误处理规范
+
+### 异常抛出
+```typescript
+// 使用 HttpException
+if (!result)
+  throw new HttpException('Account does not exist', HttpStatus.BAD_REQUEST);
+
+// 使用自定义异常（验证失败）
+throw new ValidateDtoException({
+  status: HttpStatus.BAD_REQUEST,
+  message: 'Invalid parameters',
+  errors: ['Account cannot be empty', 'Password cannot be empty'],
+});
+```
+
+### 全局异常过滤
+- 统一使用 `HttpExceptionFilter` 处理异常
+- 错误消息使用英文
+- 状态码使用 `HttpStatus` 枚举
+
+## 数据库操作规范
+
+### Sequelize 事务
+```typescript
+let transaction: Transaction;
+try {
+  transaction = await this.sequelize.transaction();
+  await this.usersModel.create(data, { transaction });
+  await this.registryModel.create(data, { transaction });
+  await transaction.commit();
+} catch (err) {
+  if (transaction) await transaction.rollback();
+  throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+}
+```
+
+### 查询方法
+```typescript
+// 支持 attributes 和 where 参数
+findOne(where?: WhereOptions<any>, attributes?: string[]): Promise<Registry | null> {
+  return this.registryModel.findOne({
+    where,
+    attributes,
+  });
+}
+```
+
+### 模型定义
+```typescript
+@Table({ tableName: 'registry' })
+export class Registry extends Model {
+  @IsUUID(4)
+  @PrimaryKey
+  @Column
+  declare id: string;
+
+  @Column({ unique: true })
+  declare account: string;
+}
+```
+
+## 日志规范
+
+```typescript
+@Injectable()
+export class RegistryService {
+  private readonly logger = new Logger(RegistryService.name);
+
+  someMethod() {
+    this.logger.error('Failed to obtain CPU usage rate', err);
+    this.logger.log('User registered successfully');
+  }
+}
+```
+
+## 环境配置规范
+
+```typescript
+// 使用 ConfigService 获取环境变量
+constructor(private readonly configService: ConfigService) {
+  this.baseProbability = toNumber(
+    this.configService.get('CPU_BASE_PROBABILITY')!,
+  );
+}
+
+// 通过工厂函数配置
+JwtModule.registerAsync({
+  imports: [EnvConfigModule],
+  useFactory: (configService: ConfigService) => {
+    return {
+      privateKey: readFileSync(privateKeyPath, 'utf-8'),
+      signOptions: {
+        expiresIn: configService.get('JWT_GLOBAL_EXPIRES_IN'),
+      },
+    };
+  },
+  inject: [ConfigService],
+})
+```
+
+## 模块导出规范
+
+```typescript
+@Module({
+  imports: [SequelizeModule.forFeature([Registry, Users])],
+  providers: [RegistryService, EmailService],
+  controllers: [RegistryController],
+  exports: [RegistryService],  // 导出供其他模块使用
+})
+export class RegistryModule {}
+```
+
+## 定时任务规范
+
+```typescript
+@Injectable()
+export class CpuOverloadProtectionService {
+  @Interval('CPUSTATE', 3000)  // 每 3 秒执行一次
+  async startCpuMonitor() {
+    // 监控逻辑
+  }
+}
+```
