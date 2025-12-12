@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, type JwtModuleOptions } from '@nestjs/jwt';
 import { UxJwtService } from './ux-jwt.service';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfigModule } from '@/modules/env-config/env-config.module';
@@ -9,7 +9,7 @@ import { resolve } from 'node:path';
   imports: [
     JwtModule.registerAsync({
       imports: [EnvConfigModule],
-      useFactory: (configService: ConfigService) => {
+      useFactory: (configService: ConfigService): JwtModuleOptions => {
         const privateKeyPath = resolve(
           __dirname,
           `../../../${configService.get<string>('JWT_PRIVATEKEYPATH')!}`,
@@ -24,7 +24,7 @@ import { resolve } from 'node:path';
           privateKey,
           publicKey,
           signOptions: {
-            expiresIn: configService.get<string>('JWT_GLOBAL_EXPIRES_IN'),
+            expiresIn: configService.get('JWT_GLOBAL_EXPIRES_IN'),
             algorithm: 'RS256',
           },
         };
