@@ -14,7 +14,34 @@ on:
       - 'master'
 
 jobs:
+  check-branch-rules:
+    name: Enforce Branch Merge Rules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Source Branch
+        run: |
+          TARGET_BRANCH="${{ github.base_ref }}"
+          EVENT="${{ github.event_name }}"
+          
+          if [[ "$EVENT" == "pull_request" && "$TARGET_BRANCH" == "master" ]]; then
+            SOURCE_BRANCH="${{ github.head_ref }}"
+            echo "🔍 Verifying PR from '$SOURCE_BRANCH' to 'master'..."
+            
+            if [[ "$SOURCE_BRANCH" == hotfix/* ]] || [[ "$SOURCE_BRANCH" == release/* ]]; then
+              echo "✅ Check Passed: Source branch matches allowed patterns (hotfix/*, release/*)."
+              exit 0
+            else
+              echo "❌ Check Failed: Direct merge from '$SOURCE_BRANCH' to 'master' is forbidden."
+              echo "👉 Rule: Only 'hotfix/*' or 'release/*' branches can be merged into 'master'."
+              exit 1
+            fi
+          else
+            echo "✅ Skipping check: Not a Pull Request to master."
+            exit 0
+          fi
+
   test-integration:
+    needs: check-branch-rules
     runs-on: ubuntu-latest
     services:
       mongodb:
@@ -68,6 +95,7 @@ jobs:
           report_paths: reports/report.xml
           check_name: Generate test report
   test-e2e:
+    needs: check-branch-rules
     runs-on: ubuntu-latest
     services:
       mongodb:
