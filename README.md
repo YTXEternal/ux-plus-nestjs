@@ -36,4 +36,4 @@
 - 端到端测试
 
 使用文档：
-[ux-plus-nestjs](https://www.ux-plus-nestjs.cn "ux-plus-nestjs")
+[指导文档](./guide.md "指导文档")

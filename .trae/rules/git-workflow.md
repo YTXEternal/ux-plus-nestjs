@@ -1,3 +1,7 @@
+---
+alwaysApply: false
+description: 描述Git提交和工作流规范
+---
 # Git 提交和工作流规范
 
 ## Git Flow 工作流

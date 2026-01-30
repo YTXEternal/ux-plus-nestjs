@@ -1,3 +1,7 @@
+---
+alwaysApply: false
+description: 描述安全和最佳实践规范
+---
 # 安全和最佳实践
 
 ## 密码处理规范
