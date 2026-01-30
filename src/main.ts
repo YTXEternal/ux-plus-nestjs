@@ -6,6 +6,7 @@ import { setupPlugins } from './plugins';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
   setupPlugins(app);
   app.use(cookieParser());
   app.use(uniformResponseHeaderMiddleware);
