@@ -5,17 +5,29 @@ const path = require('node:path');
 function parseClassProperties(fileContent) {
   const properties = [];
   
-  // 匹配屬性聲明，包括裝飾器
-  const propertyRegex = /@[^@\n]*\n\s*declare\s+(\w+):\s+(\w+);/g;
+  // Normalize newlines to \n
+  const content = fileContent.replace(/\r\n/g, '\n');
+  
+  // Regex explanation:
+  // (?:^\s*@.*(?:\n|$))*  -> Match preceding lines that start with @ (decorators), zero or more times.
+  // ^\s*                 -> Start of property line, optional whitespace
+  // (?:declare\s+)?      -> Optional 'declare' keyword
+  // (\w+)                -> Capture Property Name (word characters only)
+  // \??                  -> Optional question mark (optional property)
+  // \s*:\s*              -> Colon and whitespace
+  // ([^;\n]+)            -> Capture Property Type (anything until semicolon or newline)
+  // ;                    -> End with semicolon
+  const propertyRegex = /(?:^\s*@.*(?:\n|$))*\s*(?:declare\s+)?(\w+)\??\s*:\s*([^;\n]+);/gm;
+  
   let match;
   
-  while ((match = propertyRegex.exec(fileContent)) !== null) {
+  while ((match = propertyRegex.exec(content)) !== null) {
     const fullMatch = match[0];
     const propertyName = match[1];
-    const propertyType = match[2];
+    const propertyType = match[2].trim();
     
-    // 檢查是否有關聯裝飾器
-    const hasAssociationDecorator = ['HasOne', 'HasMany', 'BelongsTo'].some(decorator => 
+    // 檢查是否有關聯裝飾器 in the full match (which includes decorators)
+    const hasAssociationDecorator = ['HasOne', 'HasMany', 'BelongsTo', 'BelongsToMany'].some(decorator => 
       fullMatch.includes(`@${decorator}`)
     );
     
@@ -66,13 +78,18 @@ function generateInterfaceFromModel(modelFilePath) {
     // 寫入文件
     const outputPath = path.join(outputDir, `${className}.interface.ts`);
     fs.writeFileSync(outputPath, interfaceString);
+    console.log(`Generated interface for ${className}: ${outputPath}`);
   } catch (error) {
-    console.error('生成接口時發生錯誤：', error);
+    console.error(`Error generating interface for ${modelFilePath}:`, error);
   }
 }
 
 function main(dirPath) {
     const filePath = path.resolve(process.cwd(),dirPath);
+    if (!fs.existsSync(filePath)) {
+        console.error(`Directory not found: ${filePath}`);
+        return;
+    }
     const files = fs.readdirSync(filePath);
     files.forEach((fileName)=>{
         if(!fileName.includes('.model.ts')) return void 0;
