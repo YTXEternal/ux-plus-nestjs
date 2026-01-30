@@ -5,8 +5,8 @@ import { MysqlDatabaseModule } from './databases/mysql-database/mysql-database.m
 import { AuthModule } from './routes/auth/auth.module';
 import { UxCryptoRsaService } from './services/ux-crypto-rsa/ux-crypto-rsa.service';
 import { UxJwtModule } from './modules/ux-jwt/ux-jwt.module';
-import { RegistryModule } from './routes/registry/registry.module';
-import { RegistryCodeModule } from './routes/registry-code/registry-code.module';
+// import { RegistryModule } from './routes/registry/registry.module';
+// import { RegistryCodeModule } from './routes/registry-code/registry-code.module';
 import { EmailService } from './services/email/email.service';
 import { HttpExceptionFilter } from './filter';
 import {
@@ -26,6 +26,21 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
 import { EnvConfigModule } from './modules/env-config/env-config.module';
 import { UxPasswordModule } from './modules/ux-password/ux-password.module';
+
+// System Modules
+import { SysUserModule } from './routes/system/user/sys-user.module';
+import { SysRoleModule } from './routes/system/role/sys-role.module';
+import { SysMenuModule } from './routes/system/menu/sys-menu.module';
+import { SysDeptModule } from './routes/system/dept/sys-dept.module';
+import { SysPostModule } from './routes/system/post/sys-post.module';
+import { SysDictModule } from './routes/system/dict/sys-dict.module';
+import { SysConfigModule } from './routes/system/config/sys-config.module';
+import { SysNoticeModule } from './routes/system/notice/sys-notice.module';
+// Monitor Modules
+import { SysOperLogModule } from './routes/monitor/operlog/sys-oper-log.module';
+import { SysLogininforModule } from './routes/monitor/logininfor/sys-logininfor.module';
+import { SysOnlineModule } from './routes/monitor/online/sys-online.module';
+
 const staticPath = join(__dirname, '../static');
 
 const useProviders = () => {
@@ -76,12 +91,25 @@ const useProviders = () => {
     UxJwtModule,
     MysqlDatabaseModule,
     AuthModule,
-    RegistryCodeModule,
+    // RegistryCodeModule,
     RedisModule,
-    RegistryModule,
+    // RegistryModule,
     StoreModule,
     MongodbModule,
     UxPasswordModule,
+    // System
+    SysUserModule,
+    SysRoleModule,
+    SysMenuModule,
+    SysDeptModule,
+    SysPostModule,
+    SysDictModule,
+    SysConfigModule,
+    SysNoticeModule,
+    // Monitor
+    SysOperLogModule,
+    SysLogininforModule,
+    SysOnlineModule,
   ],
   controllers: [AppController],
   providers: useProviders(),

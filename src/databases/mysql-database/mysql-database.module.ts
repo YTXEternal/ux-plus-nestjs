@@ -1,6 +1,22 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { Test, RegistryCode, Users, Registry } from './model';
+import {
+  SysUser,
+  SysRole,
+  SysMenu,
+  SysDept,
+  SysPost,
+  SysDictType,
+  SysDictData,
+  SysConfig,
+  SysNotice,
+  SysOperLog,
+  SysLogininfor,
+  SysUserRole,
+  SysRoleMenu,
+  SysRoleDept,
+  SysUserPost,
+} from './model';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfigModule } from '@/modules/env-config/env-config.module';
 
@@ -16,7 +32,23 @@ import { EnvConfigModule } from '@/modules/env-config/env-config.module';
           username: configService.get('MYSQL_USERNAME'),
           password: configService.get('MYSQL_PASSWORD'),
           database: configService.get('MYSQL_DATABASE'),
-          models: [Test, Registry, Users, RegistryCode],
+          models: [
+            SysUser,
+            SysRole,
+            SysMenu,
+            SysDept,
+            SysPost,
+            SysDictType,
+            SysDictData,
+            SysConfig,
+            SysNotice,
+            SysOperLog,
+            SysLogininfor,
+            SysUserRole,
+            SysRoleMenu,
+            SysRoleDept,
+            SysUserPost,
+          ],
           synchronize: true,
           define: {
             timestamps: false,

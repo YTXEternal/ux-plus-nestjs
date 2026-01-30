@@ -16,7 +16,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     // const request = ctx.getRequest<Request>();
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let errors: string[] | undefined = void 0;
-    let message = 'Internal server error';
+    console.log('exception', exception);
+    let message = 'Internal server error:';
 
     if (exception instanceof ValidateDtoException) {
       const { selfError } = exception;
@@ -26,6 +27,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     } else if (exception instanceof HttpException) {
       message = exception.message;
       status = exception.getStatus();
+    } else {
+      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+      message = 'Internal server error:' + exception;
     }
 
     response.status(status).json({

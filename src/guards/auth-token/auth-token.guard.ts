@@ -6,14 +6,14 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { UxJwtService } from '@/modules/ux-jwt/ux-jwt.service';
-import { RegistryService } from '@/routes/registry/registry.service';
+import { RedisService } from '@/modules/redis/redis.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthTokenGuard implements CanActivate {
   constructor(
     private readonly uxJwtService: UxJwtService,
-    private readonly registryService: RegistryService,
+    private readonly redisService: RedisService,
     private readonly configService: ConfigService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -30,19 +30,29 @@ export class AuthTokenGuard implements CanActivate {
       !token
     )
       throw new UnauthorizedException(message);
-    const deToken = this.uxJwtService.parseLoginToken(token);
+
+    let deToken;
+    try {
+      deToken = this.uxJwtService.parseLoginToken(token);
+    } catch (e) {
+      throw new UnauthorizedException(message);
+    }
 
     if (deToken.sub !== this.configService.get('JWT_LOGIN_TOKEN_SUBJECT'))
       throw new UnauthorizedException(message);
-    const exist = await this.registryService.findOne(
-      {
-        id: deToken.id,
-        account: deToken.account,
-        secureid: deToken.secureid,
-      },
-      ['account'],
-    );
-    if (!exist) throw new UnauthorizedException(message);
+
+    // Check Redis for online user
+    const tokenId = deToken.tokenId;
+    const redisKey = `login_tokens:${tokenId}`;
+    // getCatche returns parsed object or undefined
+    const user = await this.redisService.getCatche(redisKey);
+    if (!user) {
+      throw new UnauthorizedException('Token expired or user forced logout.');
+    }
+
+    // Attach user to request if needed
+    request['user'] = user;
+
     return true;
   }
 }

@@ -5,6 +5,7 @@
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "useDefineForClassFields": false,
     "allowSyntheticDefaultImports": true,
     "target": "esnext",
     "sourceMap": true,
