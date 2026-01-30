@@ -20,7 +20,7 @@ import { ConfigModule } from '@nestjs/config';
             m.push('.env.development');
             break;
         }
-        return [...m];
+        return [...m, '.env'];
       })(),
       isGlobal: true,
       cache: true,
