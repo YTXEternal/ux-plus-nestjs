@@ -19,7 +19,11 @@ import { RedisModule } from './modules/redis/redis.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CpuOverloadProtectionService } from './modules/cpu-overload-protection/cpu-overload-protection.service';
 import { StoreModule } from './modules/store/store.module';
-import { IsProvideServiceGuard } from './guards';
+import {
+  IsProvideServiceGuard,
+  AuthTokenGuard,
+  PermissionsGuard,
+} from './guards';
 import { XssSanitizeInterceptor } from './interceptors';
 import { MongodbModule } from './databases/mongodb/mongodb.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -29,6 +33,7 @@ import { UxPasswordModule } from './modules/ux-password/ux-password.module';
 
 // System Modules
 import { SysUserModule } from './routes/system/user/sys-user.module';
+import { SysPermissionModule } from './modules/permission/sys-permission.module';
 import { SysRoleModule } from './routes/system/role/sys-role.module';
 import { SysMenuModule } from './routes/system/menu/sys-menu.module';
 import { SysDeptModule } from './routes/system/dept/sys-dept.module';
@@ -49,6 +54,14 @@ const useProviders = () => {
     {
       provide: APP_GUARD,
       useClass: IsProvideServiceGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AuthTokenGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
     },
     {
       provide: APP_INTERCEPTOR,
@@ -99,6 +112,7 @@ const useProviders = () => {
     UxPasswordModule,
     // System
     SysUserModule,
+    SysPermissionModule,
     SysRoleModule,
     SysMenuModule,
     SysDeptModule,

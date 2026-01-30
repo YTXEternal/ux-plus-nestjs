@@ -14,7 +14,7 @@ export const generateDate = (opt?: {
     date: new Date(),
   };
   const { date, format } = Object.assign(defaultOption, opt);
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
   // @ts-ignore
   if (isNaN(date)) throw new TypeError('Invalid date value');
 

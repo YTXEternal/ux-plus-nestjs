@@ -18,9 +18,8 @@ export class SysOnlineService {
       const user = await this.redisService.getCatche<any>(key);
       if (user) {
         try {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           if (ipaddr && !user.ipaddr.includes(ipaddr)) continue;
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
           if (userName && !user.userName.includes(userName)) continue;
           onlineUsers.push({
             tokenId: token,

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { generateDate } from '../generateDate';
 
 describe('generateDate', () => {

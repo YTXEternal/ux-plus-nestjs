@@ -4,7 +4,6 @@ import {
   Body,
   HttpStatus,
   HttpCode,
-  UseGuards,
   Get,
   Req,
 } from '@nestjs/common';
@@ -12,10 +11,10 @@ import { AuthService } from './auth.service';
 import { AuthLoginDto } from './dto/auth.dto';
 import { UxJwtService } from '@/modules/ux-jwt/ux-jwt.service';
 import { ApiResponse } from '@/dto/api-response';
-import { AuthTokenGuard } from '@/guards';
 import { RedisService } from '@/modules/redis/redis.service';
 import { generateId } from '@/tools';
 import { Request } from 'express';
+import { Public } from '@/guards';
 
 @Controller({
   path: 'auth',
@@ -28,6 +27,7 @@ export class AuthController {
     private readonly redisService: RedisService,
   ) {}
 
+  @Public()
   @HttpCode(200)
   @Post('/login')
   async login(@Body() authLoginDto: AuthLoginDto, @Req() request: Request) {
@@ -42,6 +42,7 @@ export class AuthController {
 
     // Store online user info
     const onlineUser = {
+      user_id: user.user_id,
       tokenId,
       userName: user.user_name,
       ipaddr: request.ip || request.socket.remoteAddress,
@@ -71,7 +72,6 @@ export class AuthController {
   }
 
   @Get('list')
-  @UseGuards(AuthTokenGuard)
   list() {
     const list = [];
     return new ApiResponse(200, 'success', list);
