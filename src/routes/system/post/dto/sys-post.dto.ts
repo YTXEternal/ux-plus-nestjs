@@ -14,11 +14,11 @@ export class ListPostDto {
 
   @IsOptional()
   @IsString()
-  postCode?: string;
+  post_code?: string;
 
   @IsOptional()
   @IsString()
-  postName?: string;
+  post_name?: string;
 
   @IsOptional()
   @IsString()
@@ -27,13 +27,13 @@ export class ListPostDto {
 
 export class CreatePostDto {
   @IsString()
-  postCode: string;
+  post_code: string;
 
   @IsString()
-  postName: string;
+  post_name: string;
 
   @IsNumber()
-  postSort: number;
+  post_sort: number;
 
   @IsString()
   status: string;

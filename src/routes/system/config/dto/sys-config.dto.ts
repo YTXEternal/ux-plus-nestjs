@@ -14,30 +14,30 @@ export class ListConfigDto {
 
   @IsOptional()
   @IsString()
-  configName?: string;
+  config_name?: string;
 
   @IsOptional()
   @IsString()
-  configKey?: string;
+  config_key?: string;
 
   @IsOptional()
   @IsString()
-  configType?: string;
+  config_type?: string;
 }
 
 export class CreateConfigDto {
   @IsString()
-  configName: string;
+  config_name: string;
 
   @IsString()
-  configKey: string;
+  config_key: string;
 
   @IsString()
-  configValue: string;
+  config_value: string;
 
   @IsOptional()
   @IsString()
-  configType?: string;
+  config_type?: string;
 
   @IsOptional()
   @IsString()

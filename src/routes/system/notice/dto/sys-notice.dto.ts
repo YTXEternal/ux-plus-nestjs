@@ -14,27 +14,27 @@ export class ListNoticeDto {
 
   @IsOptional()
   @IsString()
-  noticeTitle?: string;
+  notice_title?: string;
 
   @IsOptional()
   @IsString()
-  noticeType?: string;
+  notice_type?: string;
 
   @IsOptional()
   @IsString()
-  createBy?: string;
+  create_by?: string;
 }
 
 export class CreateNoticeDto {
   @IsString()
-  noticeTitle: string;
+  notice_title: string;
 
   @IsString()
-  noticeType: string;
+  notice_type: string;
 
   @IsOptional()
   @IsString()
-  noticeContent?: string;
+  notice_content?: string;
 
   @IsOptional()
   @IsString()

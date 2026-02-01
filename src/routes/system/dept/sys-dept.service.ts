@@ -13,11 +13,11 @@ export class SysDeptService {
   ) {}
 
   async findAll(query: ListDeptDto) {
-    const { deptName, status } = query;
+    const { dept_name, status } = query;
 
     // @ts-ignore
     const where: any = { del_flag: '0' };
-    if (deptName) where.dept_name = { [Op.like]: `%${deptName}%` };
+    if (dept_name) where.dept_name = { [Op.like]: `%${dept_name}%` };
     if (status) where.status = status;
 
     const depts = await this.sysDeptModel.findAll({

@@ -12,6 +12,7 @@ import {
 import { SysUserService } from './sys-user.service';
 import { RequirePermissions } from '@/guards';
 import { ApiResponse } from '@/dto/api-response';
+import { formatPagination } from '@/tools';
 
 import {
   ListUserDto,
@@ -31,20 +32,22 @@ export class SysUserController {
   @RequirePermissions('system:user:list')
   @Get('list')
   async findAll(@Query() query: ListUserDto) {
-    const data = await this.sysUserService.findAll(query);
+    const { rows, total } = await this.sysUserService.findAll(query);
+    const data = formatPagination(rows, total, query.pageNum, query.pageSize);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:user:query')
   @Get(':userId')
   async findOne(@Param('userId') userId: string) {
-    const data = await this.sysUserService.findOne(+userId);
+    const { data } = await this.sysUserService.findOne(+userId);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:user:add')
   @Post()
   async create(@Body() body: CreateUserDto) {
+    console.log('body', body);
     const data = await this.sysUserService.create(body);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
@@ -57,10 +60,11 @@ export class SysUserController {
   }
 
   @RequirePermissions('system:user:remove')
-  @Delete(':userIds')
-  async remove(@Param('userIds') userIds: string) {
-    const data = await this.sysUserService.delete(userIds);
-    return new ApiResponse(HttpStatus.OK, '操作成功', data);
+  @Delete()
+  async remove(@Body() body: { user_ids: number[] }) {
+    const [result] = await this.sysUserService.delete(body.user_ids.join(','));
+    const message = result === body.user_ids.length ? '删除成功' : '删除失败';
+    return new ApiResponse(HttpStatus.OK, message, null);
   }
 
   @RequirePermissions('system:user:resetPwd')

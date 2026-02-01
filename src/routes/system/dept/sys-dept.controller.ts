@@ -51,9 +51,9 @@ export class SysDeptController {
   }
 
   @RequirePermissions('system:dept:remove')
-  @Delete(':deptId')
-  async remove(@Param('deptId') deptId: string) {
-    const data = await this.sysDeptService.delete(+deptId);
+  @Delete()
+  async remove(@Body() body: { dept_id: number }) {
+    const data = await this.sysDeptService.delete(body.dept_id);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

@@ -12,6 +12,7 @@ import {
 import { SysNoticeService } from './sys-notice.service';
 import { RequirePermissions } from '@/guards';
 import { ApiResponse } from '@/dto/api-response';
+import { formatPagination } from '@/tools';
 
 import {
   ListNoticeDto,
@@ -29,7 +30,8 @@ export class SysNoticeController {
   @RequirePermissions('system:notice:list')
   @Get('list')
   async findAll(@Query() query: ListNoticeDto) {
-    const data = await this.sysNoticeService.findAll(query);
+    const { rows, total } = await this.sysNoticeService.findAll(query);
+    const data = formatPagination(rows, total, query.pageNum, query.pageSize);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
@@ -55,9 +57,9 @@ export class SysNoticeController {
   }
 
   @RequirePermissions('system:notice:remove')
-  @Delete(':noticeIds')
-  async remove(@Param('noticeIds') noticeIds: string) {
-    const data = await this.sysNoticeService.delete(noticeIds);
+  @Delete()
+  async remove(@Body() body: { notice_ids: number[] }) {
+    const data = await this.sysNoticeService.delete(body.notice_ids.join(','));
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

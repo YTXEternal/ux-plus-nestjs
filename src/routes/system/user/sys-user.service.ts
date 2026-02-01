@@ -30,19 +30,19 @@ export class SysUserService {
   async findAll(query: ListUserDto) {
     const {
       pageNum = 1,
-      pageSize = 10,
-      userName,
+      pageSize = 20,
+      user_name,
       phonenumber,
       status,
-      deptId,
+      dept_id,
     } = query;
 
     // @ts-ignore
     const where: any = { del_flag: '0' };
-    if (userName) where.user_name = { [Op.like]: `%${userName}%` };
+    if (user_name) where.user_name = { [Op.like]: `%${user_name}%` };
     if (phonenumber) where.phonenumber = { [Op.like]: `%${phonenumber}%` };
     if (status) where.status = status;
-    if (deptId) where.dept_id = deptId;
+    if (dept_id) where.dept_id = dept_id;
 
     const { rows, count } = await this.sysUserModel.findAndCountAll({
       where,
@@ -69,6 +69,7 @@ export class SysUserService {
         createUserDto.password,
       );
     }
+    console.log('createUserDto', createUserDto);
     return this.sysUserModel.create(createUserDto as any);
   }
 
@@ -90,9 +91,7 @@ export class SysUserService {
 
   async resetPwd(body: ResetPwdDto) {
     const { user_id, password } = body;
-    const hashedPassword = this.uxPasswordService.encryptedPassword(
-      password || '',
-    );
+    const hashedPassword = this.uxPasswordService.encryptedPassword(password);
     return this.sysUserModel.update(
       { password: hashedPassword },
       { where: { user_id } },

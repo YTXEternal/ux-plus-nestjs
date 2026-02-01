@@ -43,6 +43,10 @@ export class SysPost extends Model<SysPost> {
   @Column({ type: DataType.CHAR(1), allowNull: false })
   status: string;
 
+  @Comment('删除标志（0代表存在，2代表删除）')
+  @Column({ type: DataType.CHAR(1), defaultValue: '0' })
+  del_flag: string;
+
   @Comment('创建者')
   @Column({ type: DataType.STRING(64), defaultValue: '' })
   create_by: string;

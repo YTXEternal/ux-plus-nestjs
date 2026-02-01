@@ -13,12 +13,12 @@ export class SysPostService {
   ) {}
 
   async findAll(query: ListPostDto) {
-    const { pageNum = 1, pageSize = 10, postCode, postName, status } = query;
+    const { pageNum = 1, pageSize = 20, post_code, post_name, status } = query;
 
     // @ts-ignore
     const where: any = { del_flag: '0' };
-    if (postCode) where.post_code = { [Op.like]: `%${postCode}%` };
-    if (postName) where.post_name = { [Op.like]: `%${postName}%` };
+    if (post_code) where.post_code = { [Op.like]: `%${post_code}%` };
+    if (post_name) where.post_name = { [Op.like]: `%${post_name}%` };
     if (status) where.status = status;
 
     const { rows, count } = await this.sysPostModel.findAndCountAll({

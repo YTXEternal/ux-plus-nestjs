@@ -4,7 +4,7 @@ import { Type } from 'class-transformer';
 export class ListMenuDto {
   @IsOptional()
   @IsString()
-  menuName?: string;
+  menu_name?: string;
 
   @IsOptional()
   @IsString()
@@ -14,13 +14,13 @@ export class ListMenuDto {
 export class CreateMenuDto {
   @IsOptional()
   @IsNumber()
-  parentId?: number;
+  parent_id?: number;
 
   @IsString()
-  menuName: string;
+  menu_name: string;
 
   @IsNumber()
-  orderNum: number;
+  order_num: number;
 
   @IsOptional()
   @IsString()
@@ -32,14 +32,14 @@ export class CreateMenuDto {
 
   @IsOptional()
   @IsNumber()
-  isFrame?: number;
+  is_frame?: number;
 
   @IsOptional()
   @IsNumber()
-  isCache?: number;
+  is_cache?: number;
 
   @IsString()
-  menuType: string;
+  menu_type: string;
 
   @IsOptional()
   @IsString()

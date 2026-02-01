@@ -16,9 +16,9 @@ export class SysMenuService {
   ) {}
 
   async findAll(query: ListMenuDto) {
-    const { menuName, status } = query;
+    const { menu_name, status } = query;
     const where: any = { status: '0' }; // TODO: handle del_flag/status logic better
-    if (menuName) where.menu_name = { [Op.like]: `%${menuName}%` };
+    if (menu_name) where.menu_name = { [Op.like]: `%${menu_name}%` };
     if (status) where.status = status;
 
     const menus = await this.sysMenuModel.findAll({
@@ -49,19 +49,5 @@ export class SysMenuService {
     });
     if (count > 0) throw new Error('Exist child menu, can not delete');
     return this.sysMenuModel.destroy({ where: { menu_id: menuId } });
-  }
-
-  async getTreeSelect() {
-    // Should build tree structure
-    const menus = await this.sysMenuModel.findAll({
-      order: [['order_num', 'ASC']],
-    });
-    return this.buildTree(menus);
-  }
-
-  private buildTree(menus: SysMenu[]) {
-    // Simple implementation
-    // Ideally use a recursive function to build tree
-    return menus;
   }
 }

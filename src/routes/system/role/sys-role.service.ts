@@ -24,12 +24,12 @@ export class SysRoleService {
   ) {}
 
   async findAll(query: ListRoleDto) {
-    const { pageNum = 1, pageSize = 10, roleName, roleKey, status } = query;
+    const { pageNum = 1, pageSize = 20, role_name, role_key, status } = query;
 
     // @ts-ignore
     const where: any = { del_flag: '0' };
-    if (roleName) where.role_name = { [Op.like]: `%${roleName}%` };
-    if (roleKey) where.role_key = { [Op.like]: `%${roleKey}%` };
+    if (role_name) where.role_name = { [Op.like]: `%${role_name}%` };
+    if (role_key) where.role_key = { [Op.like]: `%${role_key}%` };
     if (status) where.status = status;
 
     const { rows, count } = await this.sysRoleModel.findAndCountAll({
@@ -49,8 +49,8 @@ export class SysRoleService {
   async create(createRoleDto: CreateRoleDto) {
     // @ts-ignore
     const role = await this.sysRoleModel.create(createRoleDto);
-    if (createRoleDto.menuIds && createRoleDto.menuIds.length > 0) {
-      const roleMenus = createRoleDto.menuIds.map((menuId) => ({
+    if (createRoleDto.menu_ids && createRoleDto.menu_ids.length > 0) {
+      const roleMenus = createRoleDto.menu_ids.map((menuId) => ({
         role_id: role.role_id,
         menu_id: menuId,
       }));
@@ -62,13 +62,13 @@ export class SysRoleService {
   }
 
   async update(updateRoleDto: UpdateRoleDto) {
-    const { role_id, menuIds, ...data } = updateRoleDto;
+    const { role_id, menu_ids, ...data } = updateRoleDto;
     await this.sysRoleModel.update(data, { where: { role_id } });
 
-    if (menuIds) {
+    if (menu_ids) {
       await this.sysRoleMenuModel.destroy({ where: { role_id } });
-      if (menuIds.length > 0) {
-        const roleMenus = menuIds.map((menuId) => ({
+      if (menu_ids.length > 0) {
+        const roleMenus = menu_ids.map((menuId) => ({
           role_id,
           menu_id: menuId,
         }));

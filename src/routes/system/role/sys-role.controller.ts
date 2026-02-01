@@ -12,6 +12,7 @@ import {
 import { SysRoleService } from './sys-role.service';
 import { RequirePermissions } from '@/guards';
 import { ApiResponse } from '@/dto/api-response';
+import { formatPagination } from '@/tools';
 
 import {
   ListRoleDto,
@@ -30,7 +31,8 @@ export class SysRoleController {
   @RequirePermissions('system:role:list')
   @Get('list')
   async findAll(@Query() query: ListRoleDto) {
-    const data = await this.sysRoleService.findAll(query);
+    const { rows, total } = await this.sysRoleService.findAll(query);
+    const data = formatPagination(rows, total, query.pageNum, query.pageSize);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
@@ -56,9 +58,9 @@ export class SysRoleController {
   }
 
   @RequirePermissions('system:role:remove')
-  @Delete(':roleIds')
-  async remove(@Param('roleIds') roleIds: string) {
-    const data = await this.sysRoleService.delete(roleIds);
+  @Delete()
+  async remove(@Body() body: { role_ids: number[] }) {
+    const data = await this.sysRoleService.delete(body.role_ids.join(','));
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 

@@ -19,17 +19,17 @@ export class SysNoticeService {
   async findAll(query: ListNoticeDto) {
     const {
       pageNum = 1,
-      pageSize = 10,
-      noticeTitle,
-      noticeType,
-      createBy,
+      pageSize = 20,
+      notice_title,
+      notice_type,
+      create_by,
     } = query;
 
     // @ts-ignore
     const where: any = { del_flag: '0' };
-    if (noticeTitle) where.notice_title = { [Op.like]: `%${noticeTitle}%` };
-    if (noticeType) where.notice_type = noticeType;
-    if (createBy) where.create_by = { [Op.like]: `%${createBy}%` };
+    if (notice_title) where.notice_title = { [Op.like]: `%${notice_title}%` };
+    if (notice_type) where.notice_type = notice_type;
+    if (create_by) where.create_by = { [Op.like]: `%${create_by}%` };
 
     const { rows, count } = await this.sysNoticeModel.findAndCountAll({
       where,

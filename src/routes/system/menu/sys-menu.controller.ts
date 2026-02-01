@@ -51,16 +51,9 @@ export class SysMenuController {
   }
 
   @RequirePermissions('system:menu:remove')
-  @Delete(':menuId')
-  async remove(@Param('menuId') menuId: string) {
-    const data = await this.sysMenuService.delete(+menuId);
-    return new ApiResponse(HttpStatus.OK, '操作成功', data);
-  }
-
-  @RequirePermissions('system:menu:list')
-  @Get('treeselect')
-  async treeselect() {
-    const data = await this.sysMenuService.getTreeSelect();
+  @Delete()
+  async remove(@Body() body: { menu_id: number }) {
+    const data = await this.sysMenuService.delete(body.menu_id);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

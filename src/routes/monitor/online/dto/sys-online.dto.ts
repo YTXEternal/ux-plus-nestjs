@@ -18,5 +18,5 @@ export class ListOnlineDto {
 
   @IsOptional()
   @IsString()
-  userName?: string;
+  user_name?: string;
 }

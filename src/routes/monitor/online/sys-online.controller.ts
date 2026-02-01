@@ -4,11 +4,13 @@ import {
   Delete,
   Query,
   Param,
+  Body,
   HttpStatus,
 } from '@nestjs/common';
 import { SysOnlineService } from './sys-online.service';
 import { RequirePermissions } from '@/guards';
 import { ApiResponse } from '@/dto/api-response';
+import { formatPagination } from '@/tools';
 import { ListOnlineDto } from './dto/sys-online.dto';
 
 @Controller({
@@ -21,14 +23,15 @@ export class SysOnlineController {
   @RequirePermissions('monitor:online:list')
   @Get('list')
   async findAll(@Query() query: ListOnlineDto) {
-    const data = await this.sysOnlineService.findAll(query);
+    const { rows, total } = await this.sysOnlineService.findAll(query);
+    const data = formatPagination(rows, total, query.pageNum, query.pageSize);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('monitor:online:forceLogout')
-  @Delete(':tokenId')
-  async forceLogout(@Param('tokenId') tokenId: string) {
-    const data = await this.sysOnlineService.forceLogout(tokenId);
+  @Delete()
+  async forceLogout(@Body() body: { token_id: string }) {
+    const data = await this.sysOnlineService.forceLogout(body.token_id);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

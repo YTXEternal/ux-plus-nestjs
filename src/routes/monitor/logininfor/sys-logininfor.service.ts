@@ -15,10 +15,10 @@ export class SysLogininforService {
   ) {}
 
   async findAll(query: ListLogininforDto) {
-    const { pageNum = 1, pageSize = 10, ipaddr, userName, status } = query;
+    const { pageNum = 1, pageSize = 20, ipaddr, user_name, status } = query;
     const where: any = {};
     if (ipaddr) where.ipaddr = { [Op.like]: `%${ipaddr}%` };
-    if (userName) where.user_name = { [Op.like]: `%${userName}%` };
+    if (user_name) where.user_name = { [Op.like]: `%${user_name}%` };
     if (status) where.status = status;
 
     const { rows, count } = await this.sysLogininforModel.findAndCountAll({
@@ -40,8 +40,8 @@ export class SysLogininforService {
     return this.sysLogininforModel.destroy({ truncate: true });
   }
 
-  async unlock(userName: string) {
+  async unlock(user_name: string) {
     // TODO: implement unlock logic, maybe remove from redis block list
-    return { userName };
+    return { user_name };
   }
 }

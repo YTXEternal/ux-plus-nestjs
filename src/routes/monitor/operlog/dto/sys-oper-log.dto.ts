@@ -18,11 +18,11 @@ export class ListOperLogDto {
 
   @IsOptional()
   @IsString()
-  operName?: string;
+  oper_name?: string;
 
   @IsOptional()
   @IsString()
-  businessType?: string;
+  business_type?: string;
 
   @IsOptional()
   @IsString()

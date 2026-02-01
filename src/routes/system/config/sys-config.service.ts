@@ -21,17 +21,17 @@ export class SysConfigService {
   async findAll(query: ListConfigDto) {
     const {
       pageNum = 1,
-      pageSize = 10,
-      configName,
-      configKey,
-      configType,
+      pageSize = 20,
+      config_name,
+      config_key,
+      config_type,
     } = query;
 
     // @ts-ignore
     const where: any = { del_flag: '0' };
-    if (configName) where.config_name = { [Op.like]: `%${configName}%` };
-    if (configKey) where.config_key = { [Op.like]: `%${configKey}%` };
-    if (configType) where.config_type = configType;
+    if (config_name) where.config_name = { [Op.like]: `%${config_name}%` };
+    if (config_key) where.config_key = { [Op.like]: `%${config_key}%` };
+    if (config_type) where.config_type = config_type;
 
     const { rows, count } = await this.sysConfigModel.findAndCountAll({
       where,

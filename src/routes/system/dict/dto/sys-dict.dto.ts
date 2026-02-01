@@ -15,11 +15,11 @@ export class ListDictTypeDto {
 
   @IsOptional()
   @IsString()
-  dictName?: string;
+  dict_name?: string;
 
   @IsOptional()
   @IsString()
-  dictType?: string;
+  dict_type?: string;
 
   @IsOptional()
   @IsString()
@@ -28,10 +28,10 @@ export class ListDictTypeDto {
 
 export class CreateDictTypeDto {
   @IsString()
-  dictName: string;
+  dict_name: string;
 
   @IsString()
-  dictType: string;
+  dict_type: string;
 
   @IsString()
   status: string;
@@ -60,11 +60,11 @@ export class ListDictDataDto {
 
   @IsOptional()
   @IsString()
-  dictType?: string;
+  dict_type?: string;
 
   @IsOptional()
   @IsString()
-  dictLabel?: string;
+  dict_label?: string;
 
   @IsOptional()
   @IsString()
@@ -73,24 +73,24 @@ export class ListDictDataDto {
 
 export class CreateDictDataDto {
   @IsString()
-  dictType: string;
+  dict_type: string;
 
   @IsString()
-  dictLabel: string;
+  dict_label: string;
 
   @IsString()
-  dictValue: string;
-
-  @IsOptional()
-  @IsString()
-  cssClass?: string;
+  dict_value: string;
 
   @IsOptional()
   @IsString()
-  listClass?: string;
+  css_class?: string;
+
+  @IsOptional()
+  @IsString()
+  list_class?: string;
 
   @IsNumber()
-  dictSort: number;
+  dict_sort: number;
 
   @IsString()
   status: string;

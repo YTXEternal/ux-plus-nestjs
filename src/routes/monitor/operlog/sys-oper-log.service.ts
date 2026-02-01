@@ -15,16 +15,16 @@ export class SysOperLogService {
   async findAll(query: ListOperLogDto) {
     const {
       pageNum = 1,
-      pageSize = 10,
+      pageSize = 20,
       title,
-      operName,
-      businessType,
+      oper_name,
+      business_type,
       status,
     } = query;
     const where: any = {};
     if (title) where.title = { [Op.like]: `%${title}%` };
-    if (operName) where.oper_name = { [Op.like]: `%${operName}%` };
-    if (businessType) where.business_type = businessType;
+    if (oper_name) where.oper_name = { [Op.like]: `%${oper_name}%` };
+    if (business_type) where.business_type = business_type;
     if (status) where.status = status;
 
     const { rows, count } = await this.sysOperLogModel.findAndCountAll({

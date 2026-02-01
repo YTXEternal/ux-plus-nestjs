@@ -20,11 +20,11 @@ export class ListRoleDto {
 
   @IsOptional()
   @IsString()
-  roleName?: string;
+  role_name?: string;
 
   @IsOptional()
   @IsString()
-  roleKey?: string;
+  role_key?: string;
 
   @IsOptional()
   @IsString()
@@ -33,13 +33,13 @@ export class ListRoleDto {
 
 export class CreateRoleDto {
   @IsString()
-  roleName: string;
+  role_name: string;
 
   @IsString()
-  roleKey: string;
+  role_key: string;
 
   @IsNumber()
-  roleSort: number;
+  role_sort: number;
 
   @IsString()
   status: string;
@@ -50,15 +50,15 @@ export class CreateRoleDto {
 
   @IsOptional()
   @IsArray()
-  menuIds?: number[];
+  menu_ids?: number[];
 
   @IsOptional()
   @IsBoolean()
-  menuCheckStrictly?: boolean;
+  menu_check_strictly?: boolean;
 
   @IsOptional()
   @IsBoolean()
-  deptCheckStrictly?: boolean;
+  dept_check_strictly?: boolean;
 }
 
 export class UpdateRoleDto extends CreateRoleDto {

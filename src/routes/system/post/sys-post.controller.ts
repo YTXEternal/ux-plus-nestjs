@@ -12,6 +12,7 @@ import {
 import { SysPostService } from './sys-post.service';
 import { RequirePermissions } from '@/guards';
 import { ApiResponse } from '@/dto/api-response';
+import { formatPagination } from '@/tools';
 
 import { ListPostDto, CreatePostDto, UpdatePostDto } from './dto/sys-post.dto';
 
@@ -25,7 +26,8 @@ export class SysPostController {
   @RequirePermissions('system:post:list')
   @Get('list')
   async findAll(@Query() query: ListPostDto) {
-    const data = await this.sysPostService.findAll(query);
+    const { rows, total } = await this.sysPostService.findAll(query);
+    const data = formatPagination(rows, total, query.pageNum, query.pageSize);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
@@ -51,9 +53,9 @@ export class SysPostController {
   }
 
   @RequirePermissions('system:post:remove')
-  @Delete(':postIds')
-  async remove(@Param('postIds') postIds: string) {
-    const data = await this.sysPostService.delete(postIds);
+  @Delete()
+  async remove(@Body() body: { post_ids: number[] }) {
+    const data = await this.sysPostService.delete(body.post_ids.join(','));
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

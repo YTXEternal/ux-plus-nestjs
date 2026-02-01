@@ -18,7 +18,7 @@ export class ListLogininforDto {
 
   @IsOptional()
   @IsString()
-  userName?: string;
+  user_name?: string;
 
   @IsOptional()
   @IsString()

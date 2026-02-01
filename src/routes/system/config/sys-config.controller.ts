@@ -12,6 +12,7 @@ import {
 import { SysConfigService } from './sys-config.service';
 import { RequirePermissions } from '@/guards';
 import { ApiResponse } from '@/dto/api-response';
+import { formatPagination } from '@/tools';
 
 import {
   ListConfigDto,
@@ -29,7 +30,8 @@ export class SysConfigController {
   @RequirePermissions('system:config:list')
   @Get('list')
   async findAll(@Query() query: ListConfigDto) {
-    const data = await this.sysConfigService.findAll(query);
+    const { rows, total } = await this.sysConfigService.findAll(query);
+    const data = formatPagination(rows, total, query.pageNum, query.pageSize);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
@@ -62,9 +64,9 @@ export class SysConfigController {
   }
 
   @RequirePermissions('system:config:remove')
-  @Delete(':configIds')
-  async remove(@Param('configIds') configIds: string) {
-    const data = await this.sysConfigService.delete(configIds);
+  @Delete()
+  async remove(@Body() body: { config_ids: number[] }) {
+    const data = await this.sysConfigService.delete(body.config_ids.join(','));
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

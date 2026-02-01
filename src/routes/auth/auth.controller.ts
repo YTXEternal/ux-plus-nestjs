@@ -33,7 +33,7 @@ export class AuthController {
   async login(@Body() authLoginDto: AuthLoginDto, @Req() request: Request) {
     console.log('login', authLoginDto);
     const user = await this.authService.validateCredentials(
-      authLoginDto.account,
+      authLoginDto.user_name,
       authLoginDto.password,
     );
 

@@ -20,7 +20,7 @@ export class ListUserDto {
 
   @IsOptional()
   @IsString()
-  userName?: string;
+  user_name?: string;
 
   @IsOptional()
   @IsString()
@@ -33,15 +33,15 @@ export class ListUserDto {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  deptId?: number;
+  dept_id?: number;
 }
 
 export class CreateUserDto {
   @IsString()
-  userName: string;
+  user_name: string;
 
   @IsString()
-  nickName: string;
+  nick_name: string;
 
   @IsOptional()
   @IsString()
@@ -49,7 +49,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsNumber()
-  deptId?: number;
+  dept_id?: number;
 
   @IsOptional()
   @IsString()
@@ -74,11 +74,11 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsArray()
-  postIds?: number[];
+  post_ids?: number[];
 
   @IsOptional()
   @IsArray()
-  roleIds?: number[];
+  role_ids?: number[];
 }
 
 export class UpdateUserDto extends CreateUserDto {
@@ -91,7 +91,7 @@ export class ResetPwdDto {
   user_id: number;
 
   @IsString()
-  password?: string;
+  password: string;
 }
 
 export class ChangeStatusDto {

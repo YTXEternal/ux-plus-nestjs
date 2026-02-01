@@ -12,6 +12,7 @@ import {
 import { SysDictService } from './sys-dict.service';
 import { RequirePermissions } from '@/guards';
 import { ApiResponse } from '@/dto/api-response';
+import { formatPagination } from '@/tools';
 
 import {
   ListDictTypeDto,
@@ -33,7 +34,8 @@ export class SysDictController {
   @RequirePermissions('system:dict:list')
   @Get('type/list')
   async findAllType(@Query() query: ListDictTypeDto) {
-    const data = await this.sysDictService.findAllType(query);
+    const { rows, total } = await this.sysDictService.findAllType(query);
+    const data = formatPagination(rows, total, query.pageNum, query.pageSize);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
@@ -59,9 +61,9 @@ export class SysDictController {
   }
 
   @RequirePermissions('system:dict:remove')
-  @Delete('type/:dictIds')
-  async removeType(@Param('dictIds') dictIds: string) {
-    const data = await this.sysDictService.deleteType(dictIds);
+  @Delete('type')
+  async removeType(@Body() body: { dict_ids: number[] }) {
+    const data = await this.sysDictService.deleteType(body.dict_ids.join(','));
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
@@ -69,7 +71,8 @@ export class SysDictController {
   @RequirePermissions('system:dict:list')
   @Get('data/list')
   async findAllData(@Query() query: ListDictDataDto) {
-    const data = await this.sysDictService.findAllData(query);
+    const { rows, total } = await this.sysDictService.findAllData(query);
+    const data = formatPagination(rows, total, query.pageNum, query.pageSize);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
@@ -102,9 +105,11 @@ export class SysDictController {
   }
 
   @RequirePermissions('system:dict:remove')
-  @Delete('data/:dictCodes')
-  async removeData(@Param('dictCodes') dictCodes: string) {
-    const data = await this.sysDictService.deleteData(dictCodes);
+  @Delete('data')
+  async removeData(@Body() body: { dict_codes: number[] }) {
+    const data = await this.sysDictService.deleteData(
+      body.dict_codes.join(','),
+    );
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

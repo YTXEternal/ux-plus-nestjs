@@ -4,7 +4,7 @@ import { Type } from 'class-transformer';
 export class ListDeptDto {
   @IsOptional()
   @IsString()
-  deptName?: string;
+  dept_name?: string;
 
   @IsOptional()
   @IsString()
@@ -14,13 +14,13 @@ export class ListDeptDto {
 export class CreateDeptDto {
   @IsOptional()
   @IsNumber()
-  parentId?: number;
+  parent_id?: number;
 
   @IsString()
-  deptName: string;
+  dept_name: string;
 
   @IsNumber()
-  orderNum: number;
+  order_num: number;
 
   @IsOptional()
   @IsString()

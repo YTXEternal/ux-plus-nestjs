@@ -26,12 +26,12 @@ export class SysDictService {
 
   // Type
   async findAllType(query: ListDictTypeDto) {
-    const { pageNum = 1, pageSize = 10, dictName, dictType, status } = query;
+    const { pageNum = 1, pageSize = 20, dict_name, dict_type, status } = query;
 
     // @ts-ignore
     const where: any = { del_flag: '0' };
-    if (dictName) where.dict_name = { [Op.like]: `%${dictName}%` };
-    if (dictType) where.dict_type = { [Op.like]: `%${dictType}%` };
+    if (dict_name) where.dict_name = { [Op.like]: `%${dict_name}%` };
+    if (dict_type) where.dict_type = { [Op.like]: `%${dict_type}%` };
     if (status) where.status = status;
 
     const { rows, count } = await this.sysDictTypeModel.findAndCountAll({
@@ -69,12 +69,12 @@ export class SysDictService {
 
   // Data
   async findAllData(query: ListDictDataDto) {
-    const { pageNum = 1, pageSize = 10, dictType, dictLabel, status } = query;
+    const { pageNum = 1, pageSize = 20, dict_type, dict_label, status } = query;
 
     // @ts-ignore
     const where: any = { del_flag: '0' };
-    if (dictType) where.dict_type = dictType;
-    if (dictLabel) where.dict_label = { [Op.like]: `%${dictLabel}%` };
+    if (dict_type) where.dict_type = dict_type;
+    if (dict_label) where.dict_label = { [Op.like]: `%${dict_label}%` };
     if (status) where.status = status;
 
     const { rows, count } = await this.sysDictDataModel.findAndCountAll({

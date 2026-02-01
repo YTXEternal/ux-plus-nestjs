@@ -8,7 +8,7 @@ export class SysOnlineService {
   constructor(private readonly redisService: RedisService) {}
 
   async findAll(query: ListOnlineDto) {
-    const { pageNum = 1, pageSize = 10, ipaddr, userName } = query;
+    const { pageNum = 1, pageSize = 20, ipaddr, user_name } = query;
     const keys = await this.redisService.redis.keys('login_tokens:*');
     const onlineUserList = [];
     for (const key of keys) {
@@ -16,7 +16,7 @@ export class SysOnlineService {
       if (ipaddr && user.ipaddr.indexOf(ipaddr) === -1) {
         continue;
       }
-      if (userName && user.userName.indexOf(userName) === -1) {
+      if (user_name && user.userName.indexOf(user_name) === -1) {
         continue;
       }
 

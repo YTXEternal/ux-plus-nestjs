@@ -16,13 +16,13 @@ export class AuthService {
    * validate account and password
    *
    * @async
-   * @param {string} account
+   * @param {string} user_name
    * @param {string} enPassword
    * @returns {any}
    */
-  async validateCredentials(account: string, enPassword: string) {
+  async validateCredentials(user_name: string, enPassword: string) {
     const user = await this.sysUserModel.findOne({
-      where: { user_name: account, del_flag: '0' },
+      where: { user_name: user_name, del_flag: '0' },
       include: [{ model: SysRole }],
     });
     if (!user) {
