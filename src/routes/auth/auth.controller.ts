@@ -11,6 +11,7 @@ import {
   ApiTags,
   ApiOperation,
   ApiResponse as ApiSwaggerResponse,
+  ApiHeader,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthLoginDto } from './dto/auth.dto';

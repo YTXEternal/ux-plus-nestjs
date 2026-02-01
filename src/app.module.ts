@@ -24,7 +24,7 @@ import {
   AuthTokenGuard,
   PermissionsGuard,
 } from './guards';
-import { XssSanitizeInterceptor } from './interceptors';
+import { XssSanitizeInterceptor, TimeoutInterceptor } from './interceptors';
 import { MongodbModule } from './databases/mongodb/mongodb.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
@@ -67,6 +67,10 @@ const useProviders = () => {
       provide: APP_INTERCEPTOR,
       useClass: XssSanitizeInterceptor,
     },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TimeoutInterceptor,
+    },
     AppService,
     UxCryptoRsaService,
     EmailService,
@@ -80,6 +84,10 @@ const useProviders = () => {
     {
       provide: APP_INTERCEPTOR,
       useClass: XssSanitizeInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TimeoutInterceptor,
     },
     AppService,
     UxCryptoRsaService,
