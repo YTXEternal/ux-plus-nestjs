@@ -7,3 +7,4 @@ export * from './filterXss';
 export * from './isObject';
 export * from './generateNickName';
 export * from './pagination';
+export * from './getEnvPaths';

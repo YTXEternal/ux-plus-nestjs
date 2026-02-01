@@ -110,7 +110,7 @@ const useProviders = () => {
     }),
     ScheduleModule.forRoot(),
     UxJwtModule,
-    MysqlDatabaseModule,
+    MysqlDatabaseModule.forRoot(),
     AuthModule,
     // RegistryCodeModule,
     RedisModule,
