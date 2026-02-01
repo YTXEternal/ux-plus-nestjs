@@ -11,7 +11,11 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 const isRedisBootUp = process.env.REDIS_BOOT_UP === 'true';
-
+const warning = () => {
+  console.warn('REDIS_BOOT_UP = false, Redis 模块将不会被加载');
+};
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+isRedisBootUp ?? warning();
 @Global()
 @Module({
   imports: [
@@ -43,10 +47,22 @@ const isRedisBootUp = process.env.REDIS_BOOT_UP === 'true';
           {
             provide: getRedisConnectionToken('default'),
             useValue: {
-              get: () => Promise.resolve(null),
-              set: () => Promise.resolve('OK'),
-              del: () => Promise.resolve(1),
-              keys: () => Promise.resolve([]),
+              get: () => {
+                warning();
+                return Promise.resolve(null);
+              },
+              set: () => {
+                warning();
+                return Promise.resolve('OK');
+              },
+              del: () => {
+                warning();
+                return Promise.resolve(1);
+              },
+              keys: () => {
+                warning();
+                return Promise.resolve([]);
+              },
             },
           },
         ]
