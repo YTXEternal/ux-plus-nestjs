@@ -9,6 +9,11 @@ import {
   Param,
   HttpStatus,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse as ApiSwaggerResponse,
+} from '@nestjs/swagger';
 import { SysUserService } from './sys-user.service';
 import { RequirePermissions } from '@/guards';
 import { ApiResponse } from '@/dto/api-response';
@@ -20,8 +25,10 @@ import {
   UpdateUserDto,
   ResetPwdDto,
   ChangeStatusDto,
+  DeleteUserDto,
 } from './dto/sys-user.dto';
 
+@ApiTags('系统管理-用户管理')
 @Controller({
   path: 'system/user',
   version: '1',
@@ -29,6 +36,8 @@ import {
 export class SysUserController {
   constructor(private readonly sysUserService: SysUserService) {}
 
+  @ApiOperation({ summary: '获取用户列表' })
+  @ApiSwaggerResponse({ status: 200, description: '获取成功' })
   @RequirePermissions('system:user:list')
   @Get('list')
   async findAll(@Query() query: ListUserDto) {
@@ -37,6 +46,8 @@ export class SysUserController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @ApiOperation({ summary: '获取用户详情' })
+  @ApiSwaggerResponse({ status: 200, description: '获取成功' })
   @RequirePermissions('system:user:query')
   @Get(':userId')
   async findOne(@Param('userId') userId: string) {
@@ -44,6 +55,8 @@ export class SysUserController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @ApiOperation({ summary: '新增用户' })
+  @ApiSwaggerResponse({ status: 200, description: '新增成功' })
   @RequirePermissions('system:user:add')
   @Post()
   async create(@Body() body: CreateUserDto) {
@@ -52,6 +65,8 @@ export class SysUserController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @ApiOperation({ summary: '修改用户' })
+  @ApiSwaggerResponse({ status: 200, description: '修改成功' })
   @RequirePermissions('system:user:edit')
   @Put()
   async update(@Body() body: UpdateUserDto) {
@@ -59,14 +74,18 @@ export class SysUserController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @ApiOperation({ summary: '删除用户' })
+  @ApiSwaggerResponse({ status: 200, description: '删除成功' })
   @RequirePermissions('system:user:remove')
   @Delete()
-  async remove(@Body() body: { user_ids: number[] }) {
+  async remove(@Body() body: DeleteUserDto) {
     const [result] = await this.sysUserService.delete(body.user_ids.join(','));
     const message = result === body.user_ids.length ? '删除成功' : '删除失败';
     return new ApiResponse(HttpStatus.OK, message, null);
   }
 
+  @ApiOperation({ summary: '重置密码' })
+  @ApiSwaggerResponse({ status: 200, description: '重置成功' })
   @RequirePermissions('system:user:resetPwd')
   @Put('resetPwd')
   async resetPwd(@Body() body: ResetPwdDto) {
@@ -74,6 +93,8 @@ export class SysUserController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @ApiOperation({ summary: '修改状态' })
+  @ApiSwaggerResponse({ status: 200, description: '修改成功' })
   @RequirePermissions('system:user:edit')
   @Put('changeStatus')
   async changeStatus(@Body() body: ChangeStatusDto) {

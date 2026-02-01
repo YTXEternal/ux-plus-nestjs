@@ -1,30 +1,43 @@
-import { IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ListOperLogDto {
+  @ApiPropertyOptional({ description: '页码' })
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
   pageNum?: number;
 
+  @ApiPropertyOptional({ description: '每页数量' })
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
   pageSize?: number;
 
+  @ApiPropertyOptional({ description: '系统模块' })
   @IsOptional()
   @IsString()
   title?: string;
 
+  @ApiPropertyOptional({ description: '操作人员' })
   @IsOptional()
   @IsString()
   oper_name?: string;
 
+  @ApiPropertyOptional({ description: '业务类型' })
   @IsOptional()
   @IsString()
   business_type?: string;
 
+  @ApiPropertyOptional({ description: '状态' })
   @IsOptional()
   @IsString()
   status?: string;
+}
+
+export class DeleteOperLogDto {
+  @ApiProperty({ description: '操作ID列表' })
+  @IsArray()
+  oper_ids: number[];
 }

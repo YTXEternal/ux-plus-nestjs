@@ -7,6 +7,11 @@ import {
   Get,
   Req,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse as ApiSwaggerResponse,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthLoginDto } from './dto/auth.dto';
 import { UxJwtService } from '@/modules/ux-jwt/ux-jwt.service';
@@ -16,6 +21,7 @@ import { generateId } from '@/tools';
 import { Request } from 'express';
 import { Public } from '@/guards';
 
+@ApiTags('认证管理')
 @Controller({
   path: 'auth',
   version: '1',
@@ -27,6 +33,8 @@ export class AuthController {
     private readonly redisService: RedisService,
   ) {}
 
+  @ApiOperation({ summary: '用户登录' })
+  @ApiSwaggerResponse({ status: 200, description: '登录成功' })
   @Public()
   @HttpCode(200)
   @Post('/login')
