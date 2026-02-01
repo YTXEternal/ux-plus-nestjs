@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { SysOperLog } from '@/databases/mysql-database/model/sys-oper-log.model';
 import { Op } from 'sequelize';
 
+import { ListOperLogDto } from './dto/sys-oper-log.dto';
+
 @Injectable()
 export class SysOperLogService {
   constructor(
@@ -10,11 +12,19 @@ export class SysOperLogService {
     private readonly sysOperLogModel: typeof SysOperLog,
   ) {}
 
-  async findAll(query: any) {
-    const { pageNum = 1, pageSize = 10, title, operName, status } = query;
+  async findAll(query: ListOperLogDto) {
+    const {
+      pageNum = 1,
+      pageSize = 10,
+      title,
+      operName,
+      businessType,
+      status,
+    } = query;
     const where: any = {};
     if (title) where.title = { [Op.like]: `%${title}%` };
     if (operName) where.oper_name = { [Op.like]: `%${operName}%` };
+    if (businessType) where.business_type = businessType;
     if (status) where.status = status;
 
     const { rows, count } = await this.sysOperLogModel.findAndCountAll({
@@ -23,6 +33,7 @@ export class SysOperLogService {
       limit: +pageSize,
       order: [['oper_time', 'DESC']],
     });
+
     return { rows, total: count };
   }
 
@@ -32,6 +43,6 @@ export class SysOperLogService {
   }
 
   async clean() {
-    return this.sysOperLogModel.destroy({ where: {}, truncate: true });
+    return this.sysOperLogModel.destroy({ truncate: true });
   }
 }

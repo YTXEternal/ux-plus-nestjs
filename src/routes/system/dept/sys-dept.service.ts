@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { SysDept } from '@/databases/mysql-database/model/sys-dept.model';
 import { Op } from 'sequelize';
 
+import { ListDeptDto, CreateDeptDto, UpdateDeptDto } from './dto/sys-dept.dto';
+
 @Injectable()
 export class SysDeptService {
   constructor(
@@ -10,23 +12,31 @@ export class SysDeptService {
     private readonly sysDeptModel: typeof SysDept,
   ) {}
 
-  async findAll(query: any) {
+  async findAll(query: ListDeptDto) {
     const { deptName, status } = query;
+
+    // @ts-ignore
     const where: any = { del_flag: '0' };
     if (deptName) where.dept_name = { [Op.like]: `%${deptName}%` };
     if (status) where.status = status;
-    return this.sysDeptModel.findAll({ where, order: [['order_num', 'ASC']] });
+
+    const depts = await this.sysDeptModel.findAll({
+      where,
+      order: [['order_num', 'ASC']],
+    });
+    return depts;
   }
 
   async findOne(deptId: number) {
     return this.sysDeptModel.findByPk(deptId);
   }
 
-  async create(createDeptDto: any) {
+  async create(createDeptDto: CreateDeptDto) {
+    // @ts-ignore
     return this.sysDeptModel.create(createDeptDto);
   }
 
-  async update(updateDeptDto: any) {
+  async update(updateDeptDto: UpdateDeptDto) {
     const { dept_id, ...data } = updateDeptDto;
     return this.sysDeptModel.update(data, { where: { dept_id } });
   }

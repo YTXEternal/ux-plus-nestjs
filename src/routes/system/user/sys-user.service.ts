@@ -4,8 +4,16 @@ import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
 import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
 import { SysPost } from '@/databases/mysql-database/model/sys-post.model';
 import { SysDept } from '@/databases/mysql-database/model/sys-dept.model';
-import * as bcrypt from 'bcryptjs';
+import { UxPasswordService } from '@/modules/ux-password/ux-password.service';
 import { Op } from 'sequelize';
+
+import {
+  ListUserDto,
+  CreateUserDto,
+  UpdateUserDto,
+  ResetPwdDto,
+  ChangeStatusDto,
+} from './dto/sys-user.dto';
 
 @Injectable()
 export class SysUserService {
@@ -16,9 +24,10 @@ export class SysUserService {
     private readonly sysRoleModel: typeof SysRole,
     @InjectModel(SysPost)
     private readonly sysPostModel: typeof SysPost,
+    private readonly uxPasswordService: UxPasswordService,
   ) {}
 
-  async findAll(query: any) {
+  async findAll(query: ListUserDto) {
     const {
       pageNum = 1,
       pageSize = 10,
@@ -27,6 +36,8 @@ export class SysUserService {
       status,
       deptId,
     } = query;
+
+    // @ts-ignore
     const where: any = { del_flag: '0' };
     if (userName) where.user_name = { [Op.like]: `%${userName}%` };
     if (phonenumber) where.phonenumber = { [Op.like]: `%${phonenumber}%` };
@@ -51,15 +62,17 @@ export class SysUserService {
     return { data: user };
   }
 
-  async create(createUserDto: any) {
-    // Hash password
+  async create(createUserDto: CreateUserDto) {
+    // Encrypt password
     if (createUserDto.password) {
-      createUserDto.password = bcrypt.hashSync(createUserDto.password, 10);
+      createUserDto.password = this.uxPasswordService.encryptedPassword(
+        createUserDto.password,
+      );
     }
-    return this.sysUserModel.create(createUserDto);
+    return this.sysUserModel.create(createUserDto as any);
   }
 
-  async update(updateUserDto: any) {
+  async update(updateUserDto: UpdateUserDto) {
     const { user_id, ...data } = updateUserDto;
     // Don't update password here usually, separate API
     if (data.password) delete data.password;
@@ -69,21 +82,24 @@ export class SysUserService {
   async delete(userIds: string) {
     const ids = userIds.split(',');
     return this.sysUserModel.update(
+      // @ts-ignore
       { del_flag: '2' },
       { where: { user_id: ids } },
     );
   }
 
-  async resetPwd(body: any) {
+  async resetPwd(body: ResetPwdDto) {
     const { user_id, password } = body;
-    const hashedPassword = bcrypt.hashSync(password, 10);
+    const hashedPassword = this.uxPasswordService.encryptedPassword(
+      password || '',
+    );
     return this.sysUserModel.update(
       { password: hashedPassword },
       { where: { user_id } },
     );
   }
 
-  async changeStatus(body: any) {
+  async changeStatus(body: ChangeStatusDto) {
     const { user_id, status } = body;
     return this.sysUserModel.update({ status }, { where: { user_id } });
   }

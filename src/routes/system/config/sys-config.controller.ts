@@ -7,9 +7,17 @@ import {
   Body,
   Query,
   Param,
+  HttpStatus,
 } from '@nestjs/common';
 import { SysConfigService } from './sys-config.service';
 import { RequirePermissions } from '@/guards';
+import { ApiResponse } from '@/dto/api-response';
+
+import {
+  ListConfigDto,
+  CreateConfigDto,
+  UpdateConfigDto,
+} from './dto/sys-config.dto';
 
 @Controller({
   path: 'system/config',
@@ -20,37 +28,43 @@ export class SysConfigController {
 
   @RequirePermissions('system:config:list')
   @Get('list')
-  findAll(@Query() query: any) {
-    return this.sysConfigService.findAll(query);
+  async findAll(@Query() query: ListConfigDto) {
+    const data = await this.sysConfigService.findAll(query);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:config:query')
   @Get(':configId')
-  findOne(@Param('configId') configId: string) {
-    return this.sysConfigService.findOne(+configId);
+  async findOne(@Param('configId') configId: string) {
+    const data = await this.sysConfigService.findOne(+configId);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:config:query')
   @Get('configKey/:configKey')
-  findByKey(@Param('configKey') configKey: string) {
-    return this.sysConfigService.findByKey(configKey);
+  async findByKey(@Param('configKey') configKey: string) {
+    const data = await this.sysConfigService.findByKey(configKey);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:config:add')
   @Post()
-  create(@Body() body: any) {
-    return this.sysConfigService.create(body);
+  async create(@Body() body: CreateConfigDto) {
+    const data = await this.sysConfigService.create(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:config:edit')
   @Put()
-  update(@Body() body: any) {
-    return this.sysConfigService.update(body);
+  async update(@Body() body: UpdateConfigDto) {
+    const data = await this.sysConfigService.update(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:config:remove')
   @Delete(':configIds')
-  remove(@Param('configIds') configIds: string) {
-    return this.sysConfigService.delete(configIds);
+  async remove(@Param('configIds') configIds: string) {
+    const data = await this.sysConfigService.delete(configIds);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

@@ -7,9 +7,20 @@ import {
   Body,
   Query,
   Param,
+  HttpStatus,
 } from '@nestjs/common';
 import { SysDictService } from './sys-dict.service';
 import { RequirePermissions } from '@/guards';
+import { ApiResponse } from '@/dto/api-response';
+
+import {
+  ListDictTypeDto,
+  CreateDictTypeDto,
+  UpdateDictTypeDto,
+  ListDictDataDto,
+  CreateDictDataDto,
+  UpdateDictDataDto,
+} from './dto/sys-dict.dto';
 
 @Controller({
   path: 'system/dict',
@@ -21,68 +32,79 @@ export class SysDictController {
   // Type
   @RequirePermissions('system:dict:list')
   @Get('type/list')
-  findAllType(@Query() query: any) {
-    return this.sysDictService.findAllType(query);
+  async findAllType(@Query() query: ListDictTypeDto) {
+    const data = await this.sysDictService.findAllType(query);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:dict:query')
   @Get('type/:dictId')
-  findType(@Param('dictId') dictId: string) {
-    return this.sysDictService.findType(+dictId);
+  async findType(@Param('dictId') dictId: string) {
+    const data = await this.sysDictService.findType(+dictId);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:dict:add')
   @Post('type')
-  createType(@Body() body: any) {
-    return this.sysDictService.createType(body);
+  async createType(@Body() body: CreateDictTypeDto) {
+    const data = await this.sysDictService.createType(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:dict:edit')
   @Put('type')
-  updateType(@Body() body: any) {
-    return this.sysDictService.updateType(body);
+  async updateType(@Body() body: UpdateDictTypeDto) {
+    const data = await this.sysDictService.updateType(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:dict:remove')
   @Delete('type/:dictIds')
-  removeType(@Param('dictIds') dictIds: string) {
-    return this.sysDictService.deleteType(dictIds);
+  async removeType(@Param('dictIds') dictIds: string) {
+    const data = await this.sysDictService.deleteType(dictIds);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   // Data
   @RequirePermissions('system:dict:list')
   @Get('data/list')
-  findAllData(@Query() query: any) {
-    return this.sysDictService.findAllData(query);
+  async findAllData(@Query() query: ListDictDataDto) {
+    const data = await this.sysDictService.findAllData(query);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:dict:query')
   @Get('data/:dictCode')
-  findData(@Param('dictCode') dictCode: string) {
-    return this.sysDictService.findData(+dictCode);
+  async findData(@Param('dictCode') dictCode: string) {
+    const data = await this.sysDictService.findData(+dictCode);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:dict:list')
   @Get('data/type/:dictType')
-  findDataByType(@Param('dictType') dictType: string) {
-    return this.sysDictService.findDataByType(dictType);
+  async findDataByType(@Param('dictType') dictType: string) {
+    const data = await this.sysDictService.findDataByType(dictType);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:dict:add')
   @Post('data')
-  createData(@Body() body: any) {
-    return this.sysDictService.createData(body);
+  async createData(@Body() body: CreateDictDataDto) {
+    const data = await this.sysDictService.createData(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:dict:edit')
   @Put('data')
-  updateData(@Body() body: any) {
-    return this.sysDictService.updateData(body);
+  async updateData(@Body() body: UpdateDictDataDto) {
+    const data = await this.sysDictService.updateData(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:dict:remove')
   @Delete('data/:dictCodes')
-  removeData(@Param('dictCodes') dictCodes: string) {
-    return this.sysDictService.deleteData(dictCodes);
+  async removeData(@Param('dictCodes') dictCodes: string) {
+    const data = await this.sysDictService.deleteData(dictCodes);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

@@ -7,9 +7,18 @@ import {
   Body,
   Query,
   Param,
+  HttpStatus,
 } from '@nestjs/common';
 import { SysRoleService } from './sys-role.service';
 import { RequirePermissions } from '@/guards';
+import { ApiResponse } from '@/dto/api-response';
+
+import {
+  ListRoleDto,
+  CreateRoleDto,
+  UpdateRoleDto,
+  ChangeRoleStatusDto,
+} from './dto/sys-role.dto';
 
 @Controller({
   path: 'system/role',
@@ -20,37 +29,43 @@ export class SysRoleController {
 
   @RequirePermissions('system:role:list')
   @Get('list')
-  findAll(@Query() query: any) {
-    return this.sysRoleService.findAll(query);
+  async findAll(@Query() query: ListRoleDto) {
+    const data = await this.sysRoleService.findAll(query);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:role:query')
   @Get(':roleId')
-  findOne(@Param('roleId') roleId: string) {
-    return this.sysRoleService.findOne(+roleId);
+  async findOne(@Param('roleId') roleId: string) {
+    const data = await this.sysRoleService.findOne(+roleId);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:role:add')
   @Post()
-  create(@Body() body: any) {
-    return this.sysRoleService.create(body);
+  async create(@Body() body: CreateRoleDto) {
+    const data = await this.sysRoleService.create(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:role:edit')
   @Put()
-  update(@Body() body: any) {
-    return this.sysRoleService.update(body);
+  async update(@Body() body: UpdateRoleDto) {
+    const data = await this.sysRoleService.update(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:role:remove')
   @Delete(':roleIds')
-  remove(@Param('roleIds') roleIds: string) {
-    return this.sysRoleService.delete(roleIds);
+  async remove(@Param('roleIds') roleIds: string) {
+    const data = await this.sysRoleService.delete(roleIds);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:role:edit')
   @Put('changeStatus')
-  changeStatus(@Body() body: any) {
-    return this.sysRoleService.changeStatus(body);
+  async changeStatus(@Body() body: ChangeRoleStatusDto) {
+    const data = await this.sysRoleService.changeStatus(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

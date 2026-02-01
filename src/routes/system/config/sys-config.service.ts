@@ -1,16 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { SysConfig } from '@/databases/mysql-database/model/sys-config.model';
+import { RedisService } from '@/modules/redis/redis.service';
 import { Op } from 'sequelize';
+
+import {
+  ListConfigDto,
+  CreateConfigDto,
+  UpdateConfigDto,
+} from './dto/sys-config.dto';
 
 @Injectable()
 export class SysConfigService {
   constructor(
     @InjectModel(SysConfig)
     private readonly sysConfigModel: typeof SysConfig,
+    private readonly redisService: RedisService,
   ) {}
 
-  async findAll(query: any) {
+  async findAll(query: ListConfigDto) {
     const {
       pageNum = 1,
       pageSize = 10,
@@ -18,7 +26,9 @@ export class SysConfigService {
       configKey,
       configType,
     } = query;
-    const where: any = {};
+
+    // @ts-ignore
+    const where: any = { del_flag: '0' };
     if (configName) where.config_name = { [Op.like]: `%${configName}%` };
     if (configKey) where.config_key = { [Op.like]: `%${configKey}%` };
     if (configType) where.config_type = configType;
@@ -27,7 +37,9 @@ export class SysConfigService {
       where,
       offset: (pageNum - 1) * pageSize,
       limit: +pageSize,
+      order: [['create_time', 'DESC']],
     });
+
     return { rows, total: count };
   }
 
@@ -36,14 +48,19 @@ export class SysConfigService {
   }
 
   async findByKey(configKey: string) {
-    return this.sysConfigModel.findOne({ where: { config_key: configKey } });
+    // @ts-ignore
+    return this.sysConfigModel.findOne({
+      // @ts-ignore
+      where: { config_key: configKey, del_flag: '0' },
+    });
   }
 
-  async create(createConfigDto: any) {
+  async create(createConfigDto: CreateConfigDto) {
+    // @ts-ignore
     return this.sysConfigModel.create(createConfigDto);
   }
 
-  async update(updateConfigDto: any) {
+  async update(updateConfigDto: UpdateConfigDto) {
     const { config_id, ...data } = updateConfigDto;
     return this.sysConfigModel.update(data, { where: { config_id } });
   }

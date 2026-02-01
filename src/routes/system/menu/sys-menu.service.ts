@@ -1,32 +1,43 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { SysMenu } from '@/databases/mysql-database/model/sys-menu.model';
+import { SysRoleMenu } from '@/databases/mysql-database/model/sys-role-menu.model';
 import { Op } from 'sequelize';
+
+import { ListMenuDto, CreateMenuDto, UpdateMenuDto } from './dto/sys-menu.dto';
 
 @Injectable()
 export class SysMenuService {
   constructor(
     @InjectModel(SysMenu)
     private readonly sysMenuModel: typeof SysMenu,
+    @InjectModel(SysRoleMenu)
+    private readonly sysRoleMenuModel: typeof SysRoleMenu,
   ) {}
 
-  async findAll(query: any) {
+  async findAll(query: ListMenuDto) {
     const { menuName, status } = query;
-    const where: any = {};
+    const where: any = { status: '0' }; // TODO: handle del_flag/status logic better
     if (menuName) where.menu_name = { [Op.like]: `%${menuName}%` };
     if (status) where.status = status;
-    return this.sysMenuModel.findAll({ where, order: [['order_num', 'ASC']] });
+
+    const menus = await this.sysMenuModel.findAll({
+      where,
+      order: [['order_num', 'ASC']],
+    });
+    return menus;
   }
 
   async findOne(menuId: number) {
     return this.sysMenuModel.findByPk(menuId);
   }
 
-  async create(createMenuDto: any) {
+  async create(createMenuDto: CreateMenuDto) {
+    // @ts-ignore
     return this.sysMenuModel.create(createMenuDto);
   }
 
-  async update(updateMenuDto: any) {
+  async update(updateMenuDto: UpdateMenuDto) {
     const { menu_id, ...data } = updateMenuDto;
     return this.sysMenuModel.update(data, { where: { menu_id } });
   }

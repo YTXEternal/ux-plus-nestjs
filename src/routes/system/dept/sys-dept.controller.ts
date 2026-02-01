@@ -7,9 +7,13 @@ import {
   Body,
   Query,
   Param,
+  HttpStatus,
 } from '@nestjs/common';
 import { SysDeptService } from './sys-dept.service';
 import { RequirePermissions } from '@/guards';
+import { ApiResponse } from '@/dto/api-response';
+
+import { ListDeptDto, CreateDeptDto, UpdateDeptDto } from './dto/sys-dept.dto';
 
 @Controller({
   path: 'system/dept',
@@ -20,31 +24,36 @@ export class SysDeptController {
 
   @RequirePermissions('system:dept:list')
   @Get('list')
-  findAll(@Query() query: any) {
-    return this.sysDeptService.findAll(query);
+  async findAll(@Query() query: ListDeptDto) {
+    const data = await this.sysDeptService.findAll(query);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:dept:query')
   @Get(':deptId')
-  findOne(@Param('deptId') deptId: string) {
-    return this.sysDeptService.findOne(+deptId);
+  async findOne(@Param('deptId') deptId: string) {
+    const data = await this.sysDeptService.findOne(+deptId);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:dept:add')
   @Post()
-  create(@Body() body: any) {
-    return this.sysDeptService.create(body);
+  async create(@Body() body: CreateDeptDto) {
+    const data = await this.sysDeptService.create(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:dept:edit')
   @Put()
-  update(@Body() body: any) {
-    return this.sysDeptService.update(body);
+  async update(@Body() body: UpdateDeptDto) {
+    const data = await this.sysDeptService.update(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:dept:remove')
   @Delete(':deptId')
-  remove(@Param('deptId') deptId: string) {
-    return this.sysDeptService.delete(+deptId);
+  async remove(@Param('deptId') deptId: string) {
+    const data = await this.sysDeptService.delete(+deptId);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

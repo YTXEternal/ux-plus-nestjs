@@ -1,6 +1,16 @@
-import { Controller, Get, Post, Delete, Query, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Query,
+  Param,
+  HttpStatus,
+} from '@nestjs/common';
 import { SysOperLogService } from './sys-oper-log.service';
 import { RequirePermissions } from '@/guards';
+import { ApiResponse } from '@/dto/api-response';
+import { ListOperLogDto } from './dto/sys-oper-log.dto';
 
 @Controller({
   path: 'monitor/operlog',
@@ -11,19 +21,22 @@ export class SysOperLogController {
 
   @RequirePermissions('monitor:operlog:list')
   @Get('list')
-  findAll(@Query() query: any) {
-    return this.sysOperLogService.findAll(query);
+  async findAll(@Query() query: ListOperLogDto) {
+    const data = await this.sysOperLogService.findAll(query);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('monitor:operlog:remove')
   @Delete(':operIds')
-  remove(@Param('operIds') operIds: string) {
-    return this.sysOperLogService.delete(operIds);
+  async remove(@Param('operIds') operIds: string) {
+    const data = await this.sysOperLogService.delete(operIds);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('monitor:operlog:remove')
   @Delete('clean')
-  clean() {
-    return this.sysOperLogService.clean();
+  async clean() {
+    const data = await this.sysOperLogService.clean();
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

@@ -1,36 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { RedisService } from '@/modules/redis/redis.service';
 
+import { ListOnlineDto } from './dto/sys-online.dto';
+
 @Injectable()
 export class SysOnlineService {
   constructor(private readonly redisService: RedisService) {}
 
-  async findAll(query: any) {
-    const { ipaddr, userName } = query;
-    // Get all keys matching login tokens
-    // Design says CacheConstants.LOGIN_TOKEN_KEY, assuming it's 'login_tokens:'
+  async findAll(query: ListOnlineDto) {
+    const { pageNum = 1, pageSize = 10, ipaddr, userName } = query;
     const keys = await this.redisService.redis.keys('login_tokens:*');
-    const onlineUsers: any[] = [];
-
+    const onlineUserList = [];
     for (const key of keys) {
-      const token = key.replace('login_tokens:', '');
-      // Assuming we store user info in Redis value
       const user = await this.redisService.getCatche<any>(key);
-      if (user) {
-        try {
-          if (ipaddr && !user.ipaddr.includes(ipaddr)) continue;
-
-          if (userName && !user.userName.includes(userName)) continue;
-          onlineUsers.push({
-            tokenId: token,
-            ...user,
-          });
-          // eslint-disable-next-line no-empty
-        } catch (e) {}
+      if (ipaddr && user.ipaddr.indexOf(ipaddr) === -1) {
+        continue;
       }
-    }
+      if (userName && user.userName.indexOf(userName) === -1) {
+        continue;
+      }
 
-    return { rows: onlineUsers, total: onlineUsers.length };
+      // @ts-ignore
+      onlineUserList.push(user);
+    }
+    // pagination
+    const total = onlineUserList.length;
+    const start = (pageNum - 1) * pageSize;
+    const end = pageNum * pageSize;
+    const rows = onlineUserList.slice(start, end);
+
+    return { rows, total };
   }
 
   async forceLogout(tokenId: string) {

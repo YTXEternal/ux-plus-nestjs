@@ -7,9 +7,13 @@ import {
   Body,
   Query,
   Param,
+  HttpStatus,
 } from '@nestjs/common';
 import { SysMenuService } from './sys-menu.service';
 import { RequirePermissions } from '@/guards';
+import { ApiResponse } from '@/dto/api-response';
+
+import { ListMenuDto, CreateMenuDto, UpdateMenuDto } from './dto/sys-menu.dto';
 
 @Controller({
   path: 'system/menu',
@@ -20,37 +24,43 @@ export class SysMenuController {
 
   @RequirePermissions('system:menu:list')
   @Get('list')
-  findAll(@Query() query: any) {
-    return this.sysMenuService.findAll(query);
+  async findAll(@Query() query: ListMenuDto) {
+    const data = await this.sysMenuService.findAll(query);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:menu:query')
   @Get(':menuId')
-  findOne(@Param('menuId') menuId: string) {
-    return this.sysMenuService.findOne(+menuId);
+  async findOne(@Param('menuId') menuId: string) {
+    const data = await this.sysMenuService.findOne(+menuId);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:menu:add')
   @Post()
-  create(@Body() body: any) {
-    return this.sysMenuService.create(body);
+  async create(@Body() body: CreateMenuDto) {
+    const data = await this.sysMenuService.create(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:menu:edit')
   @Put()
-  update(@Body() body: any) {
-    return this.sysMenuService.update(body);
+  async update(@Body() body: UpdateMenuDto) {
+    const data = await this.sysMenuService.update(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:menu:remove')
   @Delete(':menuId')
-  remove(@Param('menuId') menuId: string) {
-    return this.sysMenuService.delete(+menuId);
+  async remove(@Param('menuId') menuId: string) {
+    const data = await this.sysMenuService.delete(+menuId);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('system:menu:list')
   @Get('treeselect')
-  treeselect() {
-    return this.sysMenuService.getTreeSelect();
+  async treeselect() {
+    const data = await this.sysMenuService.getTreeSelect();
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

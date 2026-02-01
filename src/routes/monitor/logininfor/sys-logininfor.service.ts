@@ -1,16 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { SysLogininfor } from '@/databases/mysql-database/model/sys-logininfor.model';
+import { RedisService } from '@/modules/redis/redis.service';
 import { Op } from 'sequelize';
+
+import { ListLogininforDto } from './dto/sys-logininfor.dto';
 
 @Injectable()
 export class SysLogininforService {
   constructor(
     @InjectModel(SysLogininfor)
     private readonly sysLogininforModel: typeof SysLogininfor,
+    private readonly redisService: RedisService,
   ) {}
 
-  async findAll(query: any) {
+  async findAll(query: ListLogininforDto) {
     const { pageNum = 1, pageSize = 10, ipaddr, userName, status } = query;
     const where: any = {};
     if (ipaddr) where.ipaddr = { [Op.like]: `%${ipaddr}%` };
@@ -23,6 +27,7 @@ export class SysLogininforService {
       limit: +pageSize,
       order: [['login_time', 'DESC']],
     });
+
     return { rows, total: count };
   }
 
@@ -32,11 +37,11 @@ export class SysLogininforService {
   }
 
   async clean() {
-    return this.sysLogininforModel.destroy({ where: {}, truncate: true });
+    return this.sysLogininforModel.destroy({ truncate: true });
   }
 
   async unlock(userName: string) {
-    // Implement unlock logic (e.g. clear failed login count in Redis)
-    return { message: 'Unlocked successfully' };
+    // TODO: implement unlock logic, maybe remove from redis block list
+    return { userName };
   }
 }
