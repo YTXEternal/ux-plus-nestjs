@@ -7,7 +7,11 @@ import {
   Body,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse as ApiSwaggerResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse as ApiSwaggerResponse,
+} from '@nestjs/swagger';
 import { SysOnlineService } from './sys-online.service';
 import { RequirePermissions } from '@/guards';
 import { ApiResponse } from '@/dto/api-response';

@@ -9,12 +9,21 @@ import {
   Param,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse as ApiSwaggerResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse as ApiSwaggerResponse,
+} from '@nestjs/swagger';
 import { SysDeptService } from './sys-dept.service';
 import { RequirePermissions } from '@/guards';
 import { ApiResponse } from '@/dto/api-response';
 
-import { ListDeptDto, CreateDeptDto, UpdateDeptDto, DeleteDeptDto } from './dto/sys-dept.dto';
+import {
+  ListDeptDto,
+  CreateDeptDto,
+  UpdateDeptDto,
+  DeleteDeptDto,
+} from './dto/sys-dept.dto';
 
 @ApiTags('系统管理-部门管理')
 @Controller({
