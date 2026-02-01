@@ -3,9 +3,10 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { SysMenuService } from './sys-menu.service';
 import { SysMenuController } from './sys-menu.controller';
 import { SysMenu } from '@/databases/mysql-database/model/sys-menu.model';
+import { SysRoleMenu } from '@/databases/mysql-database/model/sys-role-menu.model';
 
 @Module({
-  imports: [SequelizeModule.forFeature([SysMenu])],
+  imports: [SequelizeModule.forFeature([SysMenu, SysRoleMenu])],
   controllers: [SysMenuController],
   providers: [SysMenuService],
 })
