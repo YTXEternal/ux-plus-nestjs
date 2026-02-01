@@ -116,7 +116,7 @@ const useProviders = () => {
     RedisModule,
     // RegistryModule,
     StoreModule,
-    MongodbModule,
+    MongodbModule.register(),
     UxPasswordModule,
     // System
     SysUserModule,
