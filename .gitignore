@@ -50,3 +50,6 @@ docker-compose.yaml
 
 # pnpm
 pnpm-lock.yaml
+
+# Swagger
+swagger.json
