@@ -18,6 +18,14 @@
           "outputDirectory": "reports",
           "outputName": "report.e2e.xml"
         }
+      ],
+      [
+        "jest-html-reporters",
+        {
+          "publicPath": "./reports/html",
+          "filename": "e2e-report.html",
+          "openReport": false
+        }
       ]
   ]
 }

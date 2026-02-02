@@ -4,6 +4,7 @@ import { UxCryptoRsaService } from '@/services/ux-crypto-rsa/ux-crypto-rsa.servi
 import { EnvConfigModule } from '@/modules/env-config/env-config.module';
 import { ConfigService } from '@nestjs/config';
 import { UxPasswordModule } from '@/modules/ux-password/ux-password.module';
+import { md5 } from '@/tools';
 describe('UxPasswordService Integration', () => {
   let uxPasswordService: UxPasswordService;
   let uxCryptoRsaService: UxCryptoRsaService;
@@ -32,7 +33,7 @@ describe('UxPasswordService Integration', () => {
     const pwd = '123456';
     const result = uxPasswordService.verifyPassword(
       uxPasswordService.encryptedPassword(pwd),
-      uxCryptoRsaService.encrypt(pwd),
+      uxCryptoRsaService.encrypt(md5(pwd)),
     );
     expect(result).toBe(true);
   });

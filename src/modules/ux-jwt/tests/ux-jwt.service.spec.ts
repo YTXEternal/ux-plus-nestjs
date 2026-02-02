@@ -54,7 +54,7 @@ describe('UxJwtService (Integration)', () => {
 
   describe('loginToken', () => {
     it('should generate a valid login token', () => {
-      const payload = { account: 'testuser', id: 'user123', secureid: 'xxx' };
+      const payload = { account: 'testuser', id: 123, tokenId: 'token-id' };
       const token = uxJwtService.loginToken(payload);
 
       expect(token).toBeDefined();
@@ -69,7 +69,7 @@ describe('UxJwtService (Integration)', () => {
 
   describe('parseLoginToken', () => {
     it('should verify a valid login token and return the payload', () => {
-      const payload = { account: 'testuser', id: 'user123', secureid: 'xxx' };
+      const payload = { account: 'testuser', id: 123, tokenId: 'token-id' };
       const token = uxJwtService.loginToken(payload);
 
       const verifiedPayload = uxJwtService.parseLoginToken(token);

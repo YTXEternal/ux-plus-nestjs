@@ -84,7 +84,7 @@ describe('HttpExceptionFilter', () => {
     );
     expect(mockResponse.json).toHaveBeenCalledWith({
       code: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: 'Internal server error',
+      message: 'Internal server error:Error: Unexpected error',
       errors: undefined,
     });
   });
