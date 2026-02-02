@@ -57,6 +57,7 @@ export class MongodbModule {
               autoCreate: true,
               uri: `mongodb://${configService.get('MONGODB_HOST')}:${configService.get('MONGODB_PORT')}`,
               authSource: 'admin',
+              dbName: configService.get('MONGODB_DATABASE'),
             };
             return r;
           },

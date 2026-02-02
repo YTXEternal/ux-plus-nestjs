@@ -21,7 +21,13 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "ts-node test/setup-e2e.ts && jest --config ./test/jest-e2e.json",
-    "start:prod": "pm2 start ./ecosystem.config.js"
+    "start:prod": "pm2 start ./ecosystem.config.js",
+    "mysql:g":"npx ts-node scripts/database/mysql/generate.ts",
+    "mongo:g":"npx ts-node scripts/database/mongodb/generate.ts",
+    "mysql:init":"npx ts-node scripts/database/mysql/execute.ts",
+    "mongo:init":"npx ts-node scripts/database/mongodb/execute.ts",
+    "mysql:c:latest":"pnpm mysql:g && pnpm mysql:i --type=latest",
+    "mongo:c:latest":"pnpm mongo:g && pnpm mongo:i --type=latest"
   },
   "dependencies": {
     "@jest/types": "^29.6.3",
