@@ -1,18 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { RedisService } from '@/modules/redis/redis.service';
+import { ConfigService } from '@nestjs/config';
 
 import { ListOnlineDto } from './dto/sys-online.dto';
 
 @Injectable()
 export class SysOnlineService {
-  constructor(private readonly redisService: RedisService) {}
+  constructor(
+    private readonly redisService: RedisService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async findAll(query: ListOnlineDto) {
     const { pageNum = 1, pageSize = 20, ipaddr, user_name } = query;
-    const keys = await this.redisService.redis.keys('login_tokens:*');
+    const redisBootUp = this.configService.get('REDIS_BOOT_UP') === 'true';
+    if (!redisBootUp) {
+      return { rows: [], total: 0 };
+    }
+
+    let keys: string[] = [];
+    try {
+      keys = await this.redisService.redis.keys('login_tokens:*');
+    } catch (e) {
+      void e;
+      return { rows: [], total: 0 };
+    }
     const onlineUserList = [];
     for (const key of keys) {
-      const user = await this.redisService.getCatche<any>(key);
+      let user: any;
+      try {
+        user = await this.redisService.getCatche<any>(key);
+      } catch (e) {
+        void e;
+        continue;
+      }
       if (ipaddr && user.ipaddr.indexOf(ipaddr) === -1) {
         continue;
       }
@@ -33,6 +54,15 @@ export class SysOnlineService {
   }
 
   async forceLogout(tokenId: string) {
-    return this.redisService.redis.del(`login_tokens:${tokenId}`);
+    const redisBootUp = this.configService.get('REDIS_BOOT_UP') === 'true';
+    if (!redisBootUp) {
+      return 0;
+    }
+    try {
+      return await this.redisService.redis.del(`login_tokens:${tokenId}`);
+    } catch (e) {
+      void e;
+      return 0;
+    }
   }
 }

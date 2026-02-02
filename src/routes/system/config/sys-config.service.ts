@@ -27,8 +27,7 @@ export class SysConfigService {
       config_type,
     } = query;
 
-    // @ts-ignore
-    const where: any = { del_flag: '0' };
+    const where: any = {};
     if (config_name) where.config_name = { [Op.like]: `%${config_name}%` };
     if (config_key) where.config_key = { [Op.like]: `%${config_key}%` };
     if (config_type) where.config_type = config_type;
@@ -48,11 +47,19 @@ export class SysConfigService {
   }
 
   async findByKey(configKey: string) {
-    // @ts-ignore
-    return this.sysConfigModel.findOne({
-      // @ts-ignore
-      where: { config_key: configKey, del_flag: '0' },
+    const cacheKey = `sys_config:${configKey}`;
+    const cached = await this.redisService.getCatche<SysConfig>(cacheKey);
+    if (cached) return cached;
+
+    const config = await this.sysConfigModel.findOne({
+      where: { config_key: configKey },
     });
+
+    if (config) {
+      await this.redisService.setCache(cacheKey, config, 60);
+    }
+
+    return config;
   }
 
   async create(createConfigDto: CreateConfigDto) {

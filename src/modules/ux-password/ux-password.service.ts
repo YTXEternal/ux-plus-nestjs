@@ -2,6 +2,13 @@ import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { UxCryptoRsaService } from '@/services/ux-crypto-rsa/ux-crypto-rsa.service';
 import { md5 } from '@/tools';
 
+/**
+ * 真正处理密码加密解密的模块关于账号的密码加密/解密永远只用这个
+ *
+ * @export
+ * @class UxPasswordService
+ * @typedef {UxPasswordService}
+ */
 @Injectable()
 export class UxPasswordService {
   constructor(

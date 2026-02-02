@@ -21,6 +21,7 @@ import { RedisService } from '@/modules/redis/redis.service';
 import { generateId } from '@/tools';
 import { Request } from 'express';
 import { Public } from '@/guards';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('认证管理')
 @Controller({
@@ -32,6 +33,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly uxJwtService: UxJwtService,
     private readonly redisService: RedisService,
+    private readonly configService: ConfigService,
   ) {}
 
   @ApiOperation({ summary: '用户登录' })
@@ -40,7 +42,6 @@ export class AuthController {
   @HttpCode(200)
   @Post('/login')
   async login(@Body() authLoginDto: AuthLoginDto, @Req() request: Request) {
-    console.log('login', authLoginDto);
     const user = await this.authService.validateCredentials(
       authLoginDto.user_name,
       authLoginDto.password,
@@ -61,12 +62,18 @@ export class AuthController {
       loginTime: new Date(),
     };
 
-    // 保存到 Redis
-    await this.redisService.setCache(
-      `login_tokens:${tokenId}`,
-      onlineUser,
-      loginTokenExpires,
-    );
+    const redisBootUp = this.configService.get('REDIS_BOOT_UP') === 'true';
+    if (redisBootUp) {
+      try {
+        await this.redisService.setCache(
+          `login_tokens:${tokenId}`,
+          onlineUser,
+          loginTokenExpires,
+        );
+      } catch (e) {
+        void e;
+      }
+    }
 
     // 生成 Token
     const token = this.uxJwtService.loginToken({

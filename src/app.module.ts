@@ -82,6 +82,19 @@ const useProviders = () => {
     },
   ];
   const testData = [
+    CpuOverloadProtectionService,
+    {
+      provide: APP_GUARD,
+      useClass: IsProvideServiceGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AuthTokenGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: XssSanitizeInterceptor,

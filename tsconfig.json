@@ -21,5 +21,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*", "ecosystem.config.js","./test/app.e2e-spec.ts"]
+  "include": ["src/**/*", "ecosystem.config.js", "test/**/*"]
 }
