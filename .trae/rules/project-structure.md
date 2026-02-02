@@ -5,113 +5,22 @@ alwaysApply: true
 
 ## 目录结构
 
-```
-src/
-├── databases/          # 数据库模块
-│   ├── mongodb/        # MongoDB 配置
-│   │   └── schemas/    # MongoDB Schema
-│   └── mysql-database/ # MySQL 配置
-│       ├── interfaces/ # 接口定义
-│       └── model/      # Sequelize 模型
-├── routes/             # 路由/控制器模块（业务功能）
-│   ├── auth/           # 认证模块
-│   │   ├── dto/        # DTO 定义
-│   │   ├── tests/      # 测试文件
-│   │   ├── *.controller.ts
-│   │   ├── *.service.ts
-│   │   └── *.module.ts
-│   ├── registry/       # 注册模块
-│   │   ├── dto/
-│   │   ├── tests/
-│   │   ├── types/      # 类型定义
-│   │   └── ...
-│   └── registry-code/  # 注册验证码模块
-├── modules/            # 核心功能模块（可复用）
-│   ├── cpu-overload-protection/  # CPU 过载保护
-│   ├── env-config/     # 环境配置
-│   ├── redis/          # Redis 缓存
-│   ├── store/          # 内存状态库
-│   ├── ux-jwt/         # JWT 服务
-│   └── ux-password/    # 密码加密服务
-├── services/           # 独立服务（单一职责）
-│   ├── email/          # 邮件服务
-│   └── ux-crypto-rsa/  # RSA 加密服务
-├── guards/             # 认证守卫
-│   ├── auth-token/     # Token 验证守卫
-│   └── is-provide-service/  # CPU 过载保护守卫
-├── interceptors/       # 拦截器
-│   └── xss-sanitize/   # XSS 过滤拦截器
-├── filters/            # 异常过滤器
-│   └── http-exception/ # HTTP 异常过滤器
-├── middleware/         # 中间件
-│   └── uniform-response-header/  # 统一响应头中间件
-├── plugins/            # 插件配置
-├── dto/                # 公共 DTO 和响应类
-├── exceptions/         # 自定义异常
-├── tools/              # 工具函数（纯函数）
-│   └── tests/          # 工具函数测试
-└── test-tools/         # 测试工具
-```
+- `src/databases/`：数据库（MongoDB/MySQL）
+- `src/routes/`：业务模块（controller/service/module + dto/types）
+- `src/modules/`：可复用；`src/services/`：独立服务
+- `src/guards|interceptors|filters|middleware|plugins/`：通用能力
+- `src/dto|exceptions|tools|test-tools/`：公共 DTO / 异常 / 工具 / 测试工具
 
 ## 模块文件组织
 
-### 路由模块标准结构
-每个路由模块应包含：
-```
-module-name/
-├── dto/                # DTO 定义
-│   └── *.dto.ts
-├── tests/              # 测试文件（可选）
-│   └── *.spec.ts
-├── types/              # 类型定义（可选）
-│   └── *.inter.ts
-├── *.controller.ts     # 控制器
-├── *.service.ts        # 服务
-└── *.module.ts         # 模块定义
-```
-
-### 功能模块标准结构
-```
-module-name/
-├── tests/              # 测试文件（可选）
-├── types/              # 类型定义（可选）
-├── *.service.ts        # 服务
-├── *.module.ts         # 模块定义
-└── index.ts            # 导出文件（如果需要在父目录统一导出）
-```
+- 路由模块（`src/routes/*`）：`dto/`、`types/`、`tests/`（可选）+ `*.controller.ts` / `*.service.ts` / `*.module.ts`
+- 功能模块（`src/modules/*`、`src/services/*`）：`types/`、`tests/`（可选）+ `*.service.ts` / `*.module.ts`；需要聚合导出再加 `index.ts`
 
 ## 导出规范
 
-### 索引文件导出
-每个功能目录创建 `index.ts` 统一导出：
-
-```typescript
-// guards/index.ts
-export * from './auth-token/auth-token.guard';
-export * from './is-provide-service/is-provide-service.guard';
-
-// tools/index.ts
-export * from './generateId';
-export * from './md5';
-export * from './generateCode';
-```
-
-### 工具函数导出
-- 每个工具函数一个文件
-- 通过 `tools/index.ts` 统一导出
-- 命名使用动词开头: `generate*`, `filter*`, `is*`, `to*`
+- 需要聚合导出时创建 `index.ts`：`export * from './xxx';`
+- 工具函数：一文件一函数，统一由 `tools/index.ts` 导出；命名：`generate*` / `filter*` / `is*` / `to*`
 
 ## 路径别名
 
-项目使用路径别名 `@/*` 指向 `src/*`:
-- `@/modules/*` - 模块
-- `@/routes/*` - 路由
-- `@/services/*` - 服务
-- `@/guards/*` - 守卫
-- `@/interceptors/*` - 拦截器
-- `@/filters/*` - 过滤器
-- `@/tools/*` - 工具函数
-- `@/dto/*` - DTO
-- `@/databases/*` - 数据库配置
-
-**所有导入应优先使用路径别名，避免使用相对路径 `../../../`**
+- `@/*` -> `src/*`；导入优先用别名，避免 `../../../`
