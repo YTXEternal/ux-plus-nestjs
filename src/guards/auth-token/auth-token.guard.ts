@@ -10,6 +10,7 @@ import { UxJwtService } from '@/modules/ux-jwt/ux-jwt.service';
 import { RedisService } from '@/modules/redis/redis.service';
 import { ConfigService } from '@nestjs/config';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { SysUserService } from '@/routes/system/user/sys-user.service';
 
 @Injectable()
 export class AuthTokenGuard implements CanActivate {
@@ -18,6 +19,7 @@ export class AuthTokenGuard implements CanActivate {
     private readonly redisService: RedisService,
     private readonly configService: ConfigService,
     private readonly reflector: Reflector,
+    private readonly sysUserService: SysUserService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -56,8 +58,38 @@ export class AuthTokenGuard implements CanActivate {
     // Check Redis for online user
     const tokenId = deToken.tokenId;
     const redisKey = `login_tokens:${tokenId}`;
-    // getCatche returns parsed object or undefined
-    const user = await this.redisService.getCatche(redisKey);
+
+    let user;
+    const redisBootUp = this.configService.get('REDIS_BOOT_UP') === 'true';
+    let shouldCheckDb = !redisBootUp;
+
+    if (redisBootUp) {
+      try {
+        // getCatche returns parsed object or undefined
+        user = await this.redisService.getCatche(redisKey);
+      } catch (e) {
+        // Redis service might be down, fallback to MySQL
+        shouldCheckDb = true;
+      }
+    }
+
+    if (shouldCheckDb) {
+      const { data: dbUser } = await this.sysUserService.findOne(deToken.id);
+      if (dbUser && dbUser.del_flag === '0' && dbUser.status === '0') {
+        user = {
+          user_id: dbUser.user_id,
+          tokenId: tokenId,
+          userName: dbUser.user_name,
+          // Mock necessary fields
+          ipaddr: request.ip || request.socket.remoteAddress,
+          loginLocation: '',
+          browser: '',
+          os: '',
+          loginTime: new Date(),
+        };
+      }
+    }
+
     if (!user) {
       throw new UnauthorizedException('Token expired or user forced logout.');
     }
