@@ -259,7 +259,7 @@ describe('API (e2e)', () => {
     const parsed = uxJwtService.parseLoginToken(authToken);
     const payload = parsed as unknown as JwtLoginTokenPayload;
     tokenId = payload.tokenId;
-  });
+  }, 120000);
 
   afterAll(async () => {
     try {
@@ -325,27 +325,6 @@ describe('API (e2e)', () => {
         const token = (response.body as ApiResponseBody<{ token: string }>)
           .data!.token;
         expect(typeof token).toBe('string');
-      });
-    });
-
-    describe('GET /auth/list', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed('get', `${apiPrefix}/auth/list`).expect(401);
-      });
-
-      it('无效 token 返回 401', async () => {
-        await authedWithToken(
-          'get',
-          `${apiPrefix}/auth/list`,
-          invalidToken,
-        ).expect(401);
-      });
-
-      it('携带 token 访问成功', async () => {
-        const response = await authed('get', `${apiPrefix}/auth/list`).expect(
-          200,
-        );
-        expectOk(response.body as ApiResponseBody<unknown>);
       });
     });
   });

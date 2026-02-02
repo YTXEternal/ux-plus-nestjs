@@ -36,11 +36,22 @@ export class CpuOverloadProtectionService
 
   private logger = new Logger(CpuOverloadProtectionService.name);
 
+  /**
+   * 构造函数
+   *
+   * @param {ConfigService} configService 配置服务
+   * @param {SchedulerRegistry} schedulerRegistry 任务调度注册表
+   */
   constructor(
     private readonly configService: ConfigService,
     private readonly schedulerRegistry: SchedulerRegistry,
   ) {}
 
+  /**
+   * 模块初始化
+   *
+   * 读取基础丢弃概率与 CPU 阈值配置，并输出初始化日志。
+   */
   onModuleInit() {
     this.baseProbability = toNumber(
       this.configService.get('CPU_BASE_PROBABILITY') || '0.7',
@@ -65,6 +76,14 @@ export class CpuOverloadProtectionService
   }
 
   // 启动 CPU 监控任务
+  /**
+   * CPU/内存监控定时任务
+   *
+   * 周期性采集 CPU 与内存使用情况，并维护过载状态（用于后续丢弃策略计算）。
+   *
+   * @async
+   * @returns {Promise<void>}
+   */
   @Interval('CPUSTATE', 3000)
   async startCpuMonitor() {
     let isMemoryOverload = false;
@@ -179,6 +198,11 @@ export class CpuOverloadProtectionService
     return Math.random() < Math.min(probability, 1);
   }
 
+  /**
+   * 模块销毁
+   *
+   * 清理 CPU 监控定时任务，避免进程退出时残留任务。
+   */
   onModuleDestroy() {
     try {
       const job = this.schedulerRegistry.getInterval('CPUSTATE');

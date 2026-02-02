@@ -6,6 +6,18 @@ import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
 
+/**
+ * MongoDB 数据库模块
+ *
+ * 通过 `@nestjs/mongoose` 初始化 MongoDB 连接：
+ * - 根据 `NODE_ENV` 读取 `.env.${NODE_ENV}`（不存在则回退到 `.env`），并允许 `process.env` 覆盖
+ * - 当 `MONGODB_BOOT_UP !== 'true'` 时，不创建连接（仅返回 module）
+ * - 当 `MONGODB_BOOT_UP === 'true'` 时，建立连接并导出 `MongooseModule`
+ *
+ * @export
+ * @class MongodbModule
+ * @typedef {MongodbModule}
+ */
 @Module({})
 export class MongodbModule {
   static register(): DynamicModule {

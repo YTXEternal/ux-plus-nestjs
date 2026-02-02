@@ -8,6 +8,15 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
 import { RedisModule } from '@/modules/redis/redis.module';
 
+/**
+ * 认证模块
+ *
+ * 提供登录相关接口的 Controller 与 Service，并装配鉴权所需的 JWT、密码加密与用户模型依赖。
+ *
+ * @export
+ * @class AuthModule
+ * @typedef {AuthModule}
+ */
 @Module({
   imports: [
     UxJwtModule,

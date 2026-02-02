@@ -12,8 +12,24 @@ import {
   ChangeRoleStatusDto,
 } from './dto/sys-role.dto';
 
+/**
+ * 系统-角色服务
+ *
+ * 提供角色管理相关业务能力（分页查询、详情、创建、更新、逻辑删除、状态变更，并维护角色与菜单/部门的关联关系）。
+ *
+ * @export
+ * @class SysRoleService
+ * @typedef {SysRoleService}
+ */
 @Injectable()
 export class SysRoleService {
+  /**
+   * 构造函数
+   *
+   * @param {typeof SysRole} sysRoleModel 角色模型
+   * @param {typeof SysRoleMenu} sysRoleMenuModel 角色-菜单关联模型
+   * @param {typeof SysRoleDept} sysRoleDeptModel 角色-部门关联模型
+   */
   constructor(
     @InjectModel(SysRole)
     private readonly sysRoleModel: typeof SysRole,
@@ -23,6 +39,13 @@ export class SysRoleService {
     private readonly sysRoleDeptModel: typeof SysRoleDept,
   ) {}
 
+  /**
+   * 角色分页列表查询
+   *
+   * @async
+   * @param {ListRoleDto} query 查询参数
+   * @returns {Promise<{ rows: SysRole[]; total: number }>} 分页结果
+   */
   async findAll(query: ListRoleDto) {
     const { pageNum = 1, pageSize = 20, role_name, role_key, status } = query;
 
@@ -41,10 +64,26 @@ export class SysRoleService {
     return { rows, total: count };
   }
 
+  /**
+   * 获取角色详情
+   *
+   * @async
+   * @param {number} roleId 角色ID
+   * @returns {Promise<SysRole | null>} 角色记录
+   */
   async findOne(roleId: number) {
     return this.sysRoleModel.findByPk(roleId);
   }
 
+  /**
+   * 创建角色
+   *
+   * 如传入 menu_ids，会创建角色与菜单的关联关系。
+   *
+   * @async
+   * @param {CreateRoleDto} createRoleDto 创建参数
+   * @returns {Promise<SysRole>} 创建后的角色记录
+   */
   async create(createRoleDto: CreateRoleDto) {
     const role = await this.sysRoleModel.create(createRoleDto as any);
     if (createRoleDto.menu_ids && createRoleDto.menu_ids.length > 0) {
@@ -58,6 +97,15 @@ export class SysRoleService {
     return role;
   }
 
+  /**
+   * 更新角色
+   *
+   * 当传入 menu_ids 时，会重建该角色与菜单的关联关系。
+   *
+   * @async
+   * @param {UpdateRoleDto} updateRoleDto 更新参数
+   * @returns {Promise<{ role_id: number }>} 更新后的角色ID
+   */
   async update(updateRoleDto: UpdateRoleDto) {
     const { role_id, menu_ids, ...data } = updateRoleDto;
     await this.sysRoleModel.update(data, { where: { role_id } });
@@ -76,6 +124,13 @@ export class SysRoleService {
     return { role_id };
   }
 
+  /**
+   * 逻辑删除角色
+   *
+   * @async
+   * @param {string} roleIds 角色ID列表（逗号分隔）
+   * @returns {Promise<[number, SysRole[]]>} Sequelize 更新结果
+   */
   async delete(roleIds: string) {
     const ids = roleIds.split(',');
     return this.sysRoleModel.update(
@@ -84,6 +139,13 @@ export class SysRoleService {
     );
   }
 
+  /**
+   * 修改角色状态
+   *
+   * @async
+   * @param {ChangeRoleStatusDto} body 状态变更参数
+   * @returns {Promise<[number, SysRole[]]>} Sequelize 更新结果
+   */
   async changeStatus(body: ChangeRoleStatusDto) {
     const { role_id, status } = body;
     return this.sysRoleModel.update({ status }, { where: { role_id } });

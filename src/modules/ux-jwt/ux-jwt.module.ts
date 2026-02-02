@@ -5,6 +5,15 @@ import { ConfigService } from '@nestjs/config';
 import { EnvConfigModule } from '@/modules/env-config/env-config.module';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+/**
+ * JWT 能力模块
+ *
+ * 基于 `@nestjs/jwt` 读取 RSA 公私钥并初始化 JWT 配置，对外导出 `UxJwtService` 供鉴权/验证码等场景复用。
+ *
+ * @export
+ * @class UxJwtModule
+ * @typedef {UxJwtModule}
+ */
 @Module({
   imports: [
     JwtModule.registerAsync({

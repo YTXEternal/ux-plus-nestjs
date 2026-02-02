@@ -56,10 +56,25 @@ const handleError = (err: E): VerifyCodeError => {
   };
 };
 
+/**
+ * JWT 服务
+ *
+ * 提供验证码 Token 与登录 Token 的生成/解析能力，并对 JWT 校验错误进行结构化处理，统一抛出/返回业务可用结果。
+ *
+ * @export
+ * @class UxJwtService
+ * @typedef {UxJwtService}
+ */
 @Injectable()
 export class UxJwtService {
   codeSubject: string = 'emailcode';
   tokenSubject: string = 'nestjs-token';
+  /**
+   * 构造函数
+   *
+   * @param {JwtService} jwtService JWT 底层服务
+   * @param {ConfigService} configService 配置服务
+   */
   constructor(
     public readonly jwtService: JwtService,
     private readonly configService: ConfigService,

@@ -14,7 +14,6 @@ description: API接口规范当需要开发接口时采用
 - 权限限制可以通过Permissions、Roles来实现，即Permissions通过权限key来判断，Roles则通过拥有的角色进行判断
 
 ## service
-- 所有的Service方法都需要使用JSDoc规范添加注释
 - 使用DTO或者TS类型来定义Service方法的参数和返回值
 - TS类型可以放在相对应的types目录下
 - service方法不宜过于臃肿复杂可考虑拆分成多个方法来实现

@@ -22,6 +22,17 @@ import { EnvConfigModule } from '@/modules/env-config/env-config.module';
 import { getEnvPaths } from '@/tools';
 import * as dotenv from 'dotenv';
 
+/**
+ * MySQL 数据库模块
+ *
+ * 通过 `@nestjs/sequelize` 初始化 MySQL 连接并注册业务模型。
+ * - 当 `MYSQL_BOOT_UP !== 'true'` 时，不加载任何数据库连接（返回空 imports/exports）
+ * - 当 `MYSQL_BOOT_UP === 'true'` 时，读取 env 配置并导出 `SequelizeModule` 供其他模块使用
+ *
+ * @export
+ * @class MysqlDatabaseModule
+ * @typedef {MysqlDatabaseModule}
+ */
 @Module({})
 export class MysqlDatabaseModule {
   static forRoot(): DynamicModule {

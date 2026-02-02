@@ -4,6 +4,16 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { EnvConfigModule } from '../env-config/env-config.module';
 
+/**
+ * 日志模块
+ *
+ * 基于 `nestjs-pino` 为应用提供统一的 HTTP 日志能力，并为每个请求生成/透传 `X-Request-Id`。
+ * 对外导出 `nestjs-pino` 的 `LoggerModule`，供其他模块注入使用。
+ *
+ * @export
+ * @class LoggerModule
+ * @typedef {LoggerModule}
+ */
 @Module({
   imports: [
     PinoLoggerModule.forRootAsync({

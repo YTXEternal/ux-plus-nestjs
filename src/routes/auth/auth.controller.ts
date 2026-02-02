@@ -4,14 +4,12 @@ import {
   Body,
   HttpStatus,
   HttpCode,
-  Get,
   Req,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse as ApiSwaggerResponse,
-  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthLoginDto } from './dto/auth.dto';
@@ -89,18 +87,5 @@ export class AuthController {
     return new ApiResponse(HttpStatus.OK, 'Login successful', {
       token,
     });
-  }
-
-  @ApiOperation({ summary: '获取认证列表' })
-  @ApiSwaggerResponse({
-    status: 200,
-    description: '获取成功',
-    type: ApiResponse,
-  })
-  @ApiBearerAuth('bearer')
-  @Get('list')
-  list() {
-    const list = [];
-    return new ApiResponse(HttpStatus.OK, 'success', list);
   }
 }

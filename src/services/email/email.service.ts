@@ -3,10 +3,26 @@ import { createTransport, type Transporter } from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
 import { toBoolean, toNumber } from '../../tools';
 
+/**
+ * 邮件服务
+ *
+ * 基于 `nodemailer` 发送业务邮件（当前主要用于发送注册验证码）。
+ *
+ * @export
+ * @class EmailService
+ * @typedef {EmailService}
+ */
 @Injectable()
 export class EmailService {
   private transporter: Transporter;
   private readonly logger = new Logger(EmailService.name);
+  /**
+   * 构造函数
+   *
+   * 初始化 SMTP 发送器配置。
+   *
+   * @param {ConfigService} configService 配置服务
+   */
   constructor(private configService: ConfigService) {
     // 创建 SMTP 配置
     this.transporter = createTransport({
@@ -22,6 +38,15 @@ export class EmailService {
       },
     });
   }
+
+  /**
+   * 发送注册验证码邮件
+   *
+   * @async
+   * @param {string} email 收件人邮箱
+   * @param {string} code 验证码
+   * @returns {Promise<boolean>} 发送成功返回 true
+   */
   async sendRegistryCode(email: string, code: string) {
     const subject = 'Registration Verification Code';
     const text = `Your verification code is:${code}`;

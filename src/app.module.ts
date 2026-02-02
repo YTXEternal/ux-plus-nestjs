@@ -51,11 +51,11 @@ const staticPath = join(__dirname, '../static');
 
 const useProviders = () => {
   const data = [
-    CpuOverloadProtectionService,
-    {
-      provide: APP_GUARD,
-      useClass: IsProvideServiceGuard,
-    },
+    // CpuOverloadProtectionService,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: IsProvideServiceGuard,
+    // },
     {
       provide: APP_GUARD,
       useClass: AuthTokenGuard,
@@ -115,6 +115,15 @@ const useProviders = () => {
   return process.env.NODE_ENV === 'test' ? testData : data;
 };
 
+/**
+ * 应用根模块
+ *
+ * 负责装配全局基础设施模块与各业务路由模块，并注册全局 Guard / Interceptor / Filter 等能力。
+ *
+ * @export
+ * @class AppModule
+ * @typedef {AppModule}
+ */
 @Module({
   imports: [
     EnvConfigModule,

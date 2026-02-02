@@ -17,6 +17,17 @@ const warning = () => {
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 isRedisBootUp ?? warning();
 @Global()
+/**
+ * Redis 模块
+ *
+ * 基于 `@nestjs-modules/ioredis` 连接 Redis，并提供 `RedisService` 作为统一的缓存访问入口。
+ * - 当 `REDIS_BOOT_UP !== 'true'` 时，模块不会创建真实连接，并注入一个带警告的占位连接实现。
+ * - 当 `REDIS_BOOT_UP === 'true'` 时，读取 env 配置建立连接，并导出 `RedisService` 供业务模块复用。
+ *
+ * @export
+ * @class RedisModule
+ * @typedef {RedisModule}
+ */
 @Module({
   imports: [
     ...(isRedisBootUp

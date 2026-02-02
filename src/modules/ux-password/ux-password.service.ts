@@ -11,6 +11,11 @@ import { md5 } from '@/tools';
  */
 @Injectable()
 export class UxPasswordService {
+  /**
+   * 构造函数
+   *
+   * @param {UxCryptoRsaService} uxCryptoRsaService RSA 加解密服务
+   */
   constructor(
     @Inject(forwardRef(() => UxCryptoRsaService))
     private readonly uxCryptoRsaService: UxCryptoRsaService,

@@ -30,10 +30,35 @@ const parse = <T = any>(data: string, is?: boolean): T => {
   return data as T;
 };
 
+/**
+ * Redis 缓存服务
+ *
+ * 基于 `ioredis` 提供统一缓存访问能力，并封装常用的查询与缓存写入逻辑（用于降低业务层与缓存层的耦合）。
+ *
+ * @export
+ * @class RedisService
+ * @typedef {RedisService}
+ */
 @Injectable()
 export class RedisService {
   private readonly logger = new Logger(RedisService.name);
+  /**
+   * 构造函数
+   *
+   * @param {Redis} redis Redis 客户端实例
+   */
   constructor(@InjectRedis() public readonly redis: Redis) {}
+
+  /**
+   * 查询单条数据并按 key 缓存结果
+   *
+   * @template R
+   * @template {Model} M
+   * @param {typeof Model} m Sequelize Model 类
+   * @param {UseFindParamsOpt} opt 查询与缓存参数
+   * @param {(r: SelectOneResponse<R>) => boolean} [isCacheCb] 自定义是否缓存回调
+   * @returns {Promise<SelectOneResponse<R>>} 查询结果
+   */
   async selectOne<R, M extends Model>(
     m: typeof Model,
     opt: UseFindParamsOpt,
@@ -58,6 +83,17 @@ export class RedisService {
     }
     return data as unknown as SelectOneResponse<R>;
   }
+
+  /**
+   * 查询列表数据并按 key 缓存结果
+   *
+   * @template R
+   * @template {Model} M
+   * @param {typeof Model} m Sequelize Model 类
+   * @param {UseFindParamsOpt} opt 查询与缓存参数
+   * @param {(r: SelectAllResponse<R>) => boolean} [isCacheCb] 自定义是否缓存回调
+   * @returns {Promise<SelectAllResponse<R>>} 查询结果列表
+   */
   async selectAll<R, M extends Model>(
     m: typeof Model,
     opt: UseFindParamsOpt,
@@ -85,11 +121,30 @@ export class RedisService {
     }
     return data;
   }
+
+  /**
+   * 从 Redis 获取缓存
+   *
+   * @template R
+   * @param {string} key 缓存 key
+   * @param {boolean} [isparse=true] 是否对 value 做 JSON.parse
+   * @returns {(Promise<R | undefined>)} 命中返回数据，未命中返回 undefined
+   */
   async getCatche<R = unknown>(key: string, isparse: boolean = true) {
     const catcheRes = await this.redis.get(key);
     if (catcheRes) return parse<R>(catcheRes, isparse);
     return void 0;
   }
+
+  /**
+   * 写入缓存
+   *
+   * @template T
+   * @param {string} key 缓存 key
+   * @param {T} data 要缓存的数据
+   * @param {number} [expiretime] 过期时间（秒）
+   * @returns {Promise<boolean>} 写入成功返回 true
+   */
   async setCache<T>(key: string, data: T, expiretime?: number) {
     if (expiretime) {
       await this.redis.set(key, JSON.stringify(data), 'EX', expiretime);

@@ -4,8 +4,23 @@ import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
 import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
 import { UxPasswordService } from '@/modules/ux-password/ux-password.service';
 
+/**
+ * 认证服务
+ *
+ * 提供登录鉴权相关核心逻辑（如校验账号密码），并依赖用户模型与密码能力模块完成验证。
+ *
+ * @export
+ * @class AuthService
+ * @typedef {AuthService}
+ */
 @Injectable()
 export class AuthService {
+  /**
+   * 构造函数
+   *
+   * @param {typeof SysUser} sysUserModel 用户模型
+   * @param {UxPasswordService} uxPasswordService 密码能力服务
+   */
   constructor(
     @InjectModel(SysUser)
     private readonly sysUserModel: typeof SysUser,

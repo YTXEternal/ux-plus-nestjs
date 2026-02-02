@@ -6,8 +6,23 @@ import { Op } from 'sequelize';
 
 import { ListMenuDto, CreateMenuDto, UpdateMenuDto } from './dto/sys-menu.dto';
 
+/**
+ * 系统-菜单服务
+ *
+ * 提供菜单管理相关业务能力（查询列表、详情、创建、更新、删除，并维护菜单与角色的关联数据）。
+ *
+ * @export
+ * @class SysMenuService
+ * @typedef {SysMenuService}
+ */
 @Injectable()
 export class SysMenuService {
+  /**
+   * 构造函数
+   *
+   * @param {typeof SysMenu} sysMenuModel 菜单模型
+   * @param {typeof SysRoleMenu} sysRoleMenuModel 角色-菜单关联模型
+   */
   constructor(
     @InjectModel(SysMenu)
     private readonly sysMenuModel: typeof SysMenu,
@@ -15,6 +30,13 @@ export class SysMenuService {
     private readonly sysRoleMenuModel: typeof SysRoleMenu,
   ) {}
 
+  /**
+   * 查询菜单列表
+   *
+   * @async
+   * @param {ListMenuDto} query 查询参数
+   * @returns {Promise<SysMenu[]>} 菜单列表
+   */
   async findAll(query: ListMenuDto) {
     const { menu_name, status } = query;
     const where: any = { status: '0' }; // TODO: handle del_flag/status logic better
@@ -28,20 +50,50 @@ export class SysMenuService {
     return menus;
   }
 
+  /**
+   * 获取菜单详情
+   *
+   * @async
+   * @param {number} menuId 菜单ID
+   * @returns {Promise<SysMenu | null>} 菜单记录
+   */
   async findOne(menuId: number) {
     return this.sysMenuModel.findByPk(menuId);
   }
 
+  /**
+   * 创建菜单
+   *
+   * @async
+   * @param {CreateMenuDto} createMenuDto 创建参数
+   * @returns {Promise<SysMenu>} 创建后的菜单记录
+   */
   async create(createMenuDto: CreateMenuDto) {
     // @ts-ignore
     return this.sysMenuModel.create(createMenuDto);
   }
 
+  /**
+   * 更新菜单
+   *
+   * @async
+   * @param {UpdateMenuDto} updateMenuDto 更新参数
+   * @returns {Promise<[number, SysMenu[]]>} Sequelize 更新结果
+   */
   async update(updateMenuDto: UpdateMenuDto) {
     const { menu_id, ...data } = updateMenuDto;
     return this.sysMenuModel.update(data, { where: { menu_id } });
   }
 
+  /**
+   * 删除菜单
+   *
+   * 删除前会检查是否存在子菜单，存在则抛出错误。
+   *
+   * @async
+   * @param {number} menuId 菜单ID
+   * @returns {Promise<number>} 删除的记录数
+   */
   async delete(menuId: number) {
     // Check if has children
     const count = await this.sysMenuModel.count({
