@@ -1,9 +1,18 @@
 ---
-alwaysApply: true
+alwaysApply: false
+description: 项目结构描述，当你不理解项目结构规范时可通过当前文件理解
 ---
 # 项目结构规范
 
-## 目录结构
+## 源码外的目录结构
+- `src/`：源码目录
+- `test/`：端到端测试文件
+- `scripts/`：脚本目录
+- `keys/`：存放密钥文件
+- `jwt_rsa_key/`：存放JWT RSA密钥文件
+- `docker-init-scripts/`：使用docker初始化时执行的脚本目录
+
+## 源码目录结构
 
 - `src/databases/`：数据库（MongoDB/MySQL）
 - `src/routes/`：业务模块（controller/service/module + dto/types）
