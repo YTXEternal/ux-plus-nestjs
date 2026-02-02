@@ -28,7 +28,6 @@ export class SysDictService {
   async findAllType(query: ListDictTypeDto) {
     const { pageNum = 1, pageSize = 20, dict_name, dict_type, status } = query;
 
-    // @ts-ignore
     const where: any = { del_flag: '0' };
     if (dict_name) where.dict_name = { [Op.like]: `%${dict_name}%` };
     if (dict_type) where.dict_type = { [Op.like]: `%${dict_type}%` };
@@ -49,8 +48,7 @@ export class SysDictService {
   }
 
   async createType(createDictTypeDto: CreateDictTypeDto) {
-    // @ts-ignore
-    return this.sysDictTypeModel.create(createDictTypeDto);
+    return this.sysDictTypeModel.create(createDictTypeDto as any);
   }
 
   async updateType(updateDictTypeDto: UpdateDictTypeDto) {
@@ -61,7 +59,6 @@ export class SysDictService {
   async deleteType(dictIds: string) {
     const ids = dictIds.split(',');
     return this.sysDictTypeModel.update(
-      // @ts-ignore
       { del_flag: '2' },
       { where: { dict_id: ids } },
     );
@@ -71,7 +68,6 @@ export class SysDictService {
   async findAllData(query: ListDictDataDto) {
     const { pageNum = 1, pageSize = 20, dict_type, dict_label, status } = query;
 
-    // @ts-ignore
     const where: any = { del_flag: '0' };
     if (dict_type) where.dict_type = dict_type;
     if (dict_label) where.dict_label = { [Op.like]: `%${dict_label}%` };
@@ -92,17 +88,14 @@ export class SysDictService {
   }
 
   async findDataByType(dictType: string) {
-    // @ts-ignore
     return this.sysDictDataModel.findAll({
-      // @ts-ignore
       where: { dict_type: dictType, status: '0', del_flag: '0' },
       order: [['dict_sort', 'ASC']],
     });
   }
 
   async createData(createDictDataDto: CreateDictDataDto) {
-    // @ts-ignore
-    return this.sysDictDataModel.create(createDictDataDto);
+    return this.sysDictDataModel.create(createDictDataDto as any);
   }
 
   async updateData(updateDictDataDto: UpdateDictDataDto) {
@@ -112,6 +105,9 @@ export class SysDictService {
 
   async deleteData(dictCodes: string) {
     const codes = dictCodes.split(',');
-    return this.sysDictDataModel.destroy({ where: { dict_code: codes } });
+    return this.sysDictDataModel.update(
+      { del_flag: '2' },
+      { where: { dict_code: codes } },
+    );
   }
 }

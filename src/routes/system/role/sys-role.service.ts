@@ -26,7 +26,6 @@ export class SysRoleService {
   async findAll(query: ListRoleDto) {
     const { pageNum = 1, pageSize = 20, role_name, role_key, status } = query;
 
-    // @ts-ignore
     const where: any = { del_flag: '0' };
     if (role_name) where.role_name = { [Op.like]: `%${role_name}%` };
     if (role_key) where.role_key = { [Op.like]: `%${role_key}%` };
@@ -47,16 +46,14 @@ export class SysRoleService {
   }
 
   async create(createRoleDto: CreateRoleDto) {
-    // @ts-ignore
-    const role = await this.sysRoleModel.create(createRoleDto);
+    const role = await this.sysRoleModel.create(createRoleDto as any);
     if (createRoleDto.menu_ids && createRoleDto.menu_ids.length > 0) {
       const roleMenus = createRoleDto.menu_ids.map((menuId) => ({
         role_id: role.role_id,
         menu_id: menuId,
       }));
 
-      // @ts-ignore
-      await this.sysRoleMenuModel.bulkCreate(roleMenus);
+      await this.sysRoleMenuModel.bulkCreate(roleMenus as any);
     }
     return role;
   }
@@ -73,8 +70,7 @@ export class SysRoleService {
           menu_id: menuId,
         }));
 
-        // @ts-ignore
-        await this.sysRoleMenuModel.bulkCreate(roleMenus);
+        await this.sysRoleMenuModel.bulkCreate(roleMenus as any);
       }
     }
     return { role_id };
@@ -83,7 +79,6 @@ export class SysRoleService {
   async delete(roleIds: string) {
     const ids = roleIds.split(',');
     return this.sysRoleModel.update(
-      // @ts-ignore
       { del_flag: '2' },
       { where: { role_id: ids } },
     );

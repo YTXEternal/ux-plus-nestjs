@@ -7,4 +7,5 @@ export interface SysNoticeInter {
   create_by: string;
   update_by: string;
   remark: string;
+  del_flag: string;
 }

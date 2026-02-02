@@ -15,7 +15,6 @@ export class SysDeptService {
   async findAll(query: ListDeptDto) {
     const { dept_name, status } = query;
 
-    // @ts-ignore
     const where: any = { del_flag: '0' };
     if (dept_name) where.dept_name = { [Op.like]: `%${dept_name}%` };
     if (status) where.status = status;
@@ -32,8 +31,7 @@ export class SysDeptService {
   }
 
   async create(createDeptDto: CreateDeptDto) {
-    // @ts-ignore
-    return this.sysDeptModel.create(createDeptDto);
+    return this.sysDeptModel.create(createDeptDto as any);
   }
 
   async update(updateDeptDto: UpdateDeptDto) {

@@ -15,7 +15,6 @@ export class SysPostService {
   async findAll(query: ListPostDto) {
     const { pageNum = 1, pageSize = 20, post_code, post_name, status } = query;
 
-    // @ts-ignore
     const where: any = { del_flag: '0' };
     if (post_code) where.post_code = { [Op.like]: `%${post_code}%` };
     if (post_name) where.post_name = { [Op.like]: `%${post_name}%` };
@@ -36,8 +35,7 @@ export class SysPostService {
   }
 
   async create(createPostDto: CreatePostDto) {
-    // @ts-ignore
-    return this.sysPostModel.create(createPostDto);
+    return this.sysPostModel.create(createPostDto as any);
   }
 
   async update(updatePostDto: UpdatePostDto) {
@@ -48,7 +46,6 @@ export class SysPostService {
   async delete(postIds: string) {
     const ids = postIds.split(',');
     return this.sysPostModel.update(
-      // @ts-ignore
       { del_flag: '2' },
       { where: { post_id: ids } },
     );

@@ -25,7 +25,6 @@ export class SysNoticeService {
       create_by,
     } = query;
 
-    // @ts-ignore
     const where: any = { del_flag: '0' };
     if (notice_title) where.notice_title = { [Op.like]: `%${notice_title}%` };
     if (notice_type) where.notice_type = notice_type;
@@ -46,8 +45,7 @@ export class SysNoticeService {
   }
 
   async create(createNoticeDto: CreateNoticeDto) {
-    // @ts-ignore
-    return this.sysNoticeModel.create(createNoticeDto);
+    return this.sysNoticeModel.create(createNoticeDto as any);
   }
 
   async update(updateNoticeDto: UpdateNoticeDto) {
@@ -58,7 +56,6 @@ export class SysNoticeService {
   async delete(noticeIds: string) {
     const ids = noticeIds.split(',');
     return this.sysNoticeModel.update(
-      // @ts-ignore
       { del_flag: '2' },
       { where: { notice_id: ids } },
     );

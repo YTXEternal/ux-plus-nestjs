@@ -37,7 +37,6 @@ export class SysUserService {
       dept_id,
     } = query;
 
-    // @ts-ignore
     const where: any = { del_flag: '0' };
     if (user_name) where.user_name = { [Op.like]: `%${user_name}%` };
     if (phonenumber) where.phonenumber = { [Op.like]: `%${phonenumber}%` };
@@ -83,7 +82,6 @@ export class SysUserService {
   async delete(userIds: string) {
     const ids = userIds.split(',');
     return this.sysUserModel.update(
-      // @ts-ignore
       { del_flag: '2' },
       { where: { user_id: ids } },
     );
