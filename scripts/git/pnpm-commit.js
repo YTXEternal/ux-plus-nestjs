@@ -39,9 +39,16 @@ function run(command, args, env) {
 }
 
 async function main() {
-  await run('pnpm', ['lint']);
-  await run('pnpm', ['test']);
-  await run('pnpm', ['test:e2e']);
+  const args = process.argv.slice(2);
+  const noCheck = args.includes('--no-check');
+
+  if (!noCheck) {
+    await run('pnpm', ['lint']);
+    await run('pnpm', ['test']);
+    await run('pnpm', ['test:e2e']);
+  } else {
+    console.log('Skipping checks due to --no-check flag.');
+  }
 
   const env = {
     ...process.env,
