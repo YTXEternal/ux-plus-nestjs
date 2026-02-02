@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { LoggerModule } from 'nestjs-pino';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MysqlDatabaseModule } from './databases/mysql-database/mysql-database.module';
@@ -31,6 +30,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
 import { EnvConfigModule } from './modules/env-config/env-config.module';
 import { UxPasswordModule } from './modules/ux-password/ux-password.module';
+import { LoggerModule } from './modules/logger/logger.module';
 
 // System Modules
 import { SysUserModule } from './routes/system/user/sys-user.module';
@@ -104,15 +104,8 @@ const useProviders = () => {
 
 @Module({
   imports: [
-    LoggerModule.forRoot({
-      pinoHttp: {
-        transport:
-          process.env.NODE_ENV !== 'production'
-            ? { target: 'pino-pretty' }
-            : undefined,
-      },
-    }),
     EnvConfigModule,
+    LoggerModule,
     ServeStaticModule.forRoot({
       rootPath: staticPath,
       renderPath: '/static',
