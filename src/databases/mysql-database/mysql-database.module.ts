@@ -75,9 +75,10 @@ export class MysqlDatabaseModule {
                 timestamps: false,
                 freezeTableName: true,
               },
-              logging: ['test', 'production'].includes(process.env.NODE_ENV!)
-                ? false
-                : true,
+              logging:
+                configService.get('MYSQL_LOGGING') === 'true'
+                  ? console.log
+                  : false,
             };
           },
           inject: [ConfigService],
