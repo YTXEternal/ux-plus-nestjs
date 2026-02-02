@@ -38,8 +38,8 @@ export class RedisService {
     m: typeof Model,
     opt: UseFindParamsOpt,
     /**
-     * Determines whether to cache the result based on the value.
-     * By default, if the retrieved data is undefined, it will not be cached.
+     * 根据值确定是否缓存结果。
+     * 默认情况下，如果检索到的数据未定义，则不会缓存。
      */
     isCacheCb?: (r: SelectOneResponse<R>) => boolean,
   ): Promise<SelectOneResponse<R>> {
@@ -62,8 +62,8 @@ export class RedisService {
     m: typeof Model,
     opt: UseFindParamsOpt,
     /**
-     * Determines whether to cache based on the value.
-     * By default, caching occurs when the array has more than 0 elements.
+     * 根据值确定是否缓存。
+     * 默认情况下，当数组元素大于 0 时进行缓存。
      */
     isCacheCb?: (r: SelectAllResponse<R>) => boolean,
   ): Promise<SelectAllResponse<R>> {

@@ -13,7 +13,7 @@ export class AuthService {
   ) {}
 
   /**
-   * validate account and password
+   * 验证账户和密码
    *
    * @async
    * @param {string} user_name

@@ -1,5 +1,5 @@
 /**
- * Generate random user names
+ * 生成随机用户名
  *
  * @returns {string}
  */

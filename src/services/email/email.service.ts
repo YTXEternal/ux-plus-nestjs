@@ -8,17 +8,17 @@ export class EmailService {
   private transporter: Transporter;
   private readonly logger = new Logger(EmailService.name);
   constructor(private configService: ConfigService) {
-    // Create an SMTP configuration
+    // 创建 SMTP 配置
     this.transporter = createTransport({
-      host: configService.get('SMTP_HOST'), // Replace with your SMTP server address (e.g., smtp.gmail.com)
-      port: toNumber(configService.get('SMTP_PORT')!), // SMTP port (usually 465 or 587)
-      secure: toBoolean(configService.get('SMTP_SECURE')!), // Set to true if using port 465, otherwise false
+      host: configService.get('SMTP_HOST'), // 替换为您的 SMTP 服务器地址 (例如 smtp.gmail.com)
+      port: toNumber(configService.get('SMTP_PORT')!), // SMTP 端口 (通常为 465 或 587)
+      secure: toBoolean(configService.get('SMTP_SECURE')!), // 如果使用 465 端口，设置为 true，否则为 false
       auth: {
-        user: configService.get('SMTP_EMAIL'), // Your email address
-        pass: configService.get('SMTP_EMAIL_CODE'), // Your email password or app-specific code
+        user: configService.get('SMTP_EMAIL'), // 您的邮箱地址
+        pass: configService.get('SMTP_EMAIL_CODE'), // 您的邮箱密码或应用专用密码
       },
       tls: {
-        rejectUnauthorized: false, // Avoid SSL certificate errors in some environments (remove in production)
+        rejectUnauthorized: false, // 避免某些环境下的 SSL 证书错误 (生产环境中请移除)
       },
     });
   }

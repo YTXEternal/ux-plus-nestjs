@@ -13,7 +13,7 @@ import { toNumber } from '@/tools';
 const pidusage = require('pidusage');
 
 /**
- * CPU Protection Algorithm: Enhanced Dynamic Request Dropping
+ * CPU 保护算法：增强型动态请求丢弃
  *
  * @export
  * @class CpuOverloadProtectionService
@@ -24,15 +24,15 @@ const pidusage = require('pidusage');
 export class CpuOverloadProtectionService
   implements OnModuleInit, OnModuleDestroy
 {
-  private baseProbability = 0.7; // Base Dropping Probability (0~1)
-  private maxCpuThreshold = 0; // Will be calculated dynamically
+  private baseProbability = 0.7; // 基础丢弃概率 (0~1)
+  private maxCpuThreshold = 0; // 将动态计算
   private overloadTimes = 0;
-  private currentCpuPercentage = 0; // EMA smoothed value
-  private readonly alpha = 0.5; // EMA smoothing factor (0.5 means balanced between new and old)
+  private currentCpuPercentage = 0; // EMA 平滑后的值
+  private readonly alpha = 0.5; // EMA 平滑因子 (0.5 意味着在新旧值之间平衡)
   private isOverloaded = false;
 
-  private cpuMonitorFailureCount = 0; // Consecutive failure count for CPU monitoring
-  private readonly maxCpuMonitorFailures = 10; // Max failures before suppressing logs
+  private cpuMonitorFailureCount = 0; // CPU 监控连续失败计数
+  private readonly maxCpuMonitorFailures = 10; // 抑制日志前的最大失败次数
 
   private logger = new Logger(CpuOverloadProtectionService.name);
 
@@ -46,8 +46,8 @@ export class CpuOverloadProtectionService
       this.configService.get('CPU_BASE_PROBABILITY') || '0.7',
     );
 
-    // Dynamic threshold calculation
-    // Default to 80% of total CPU capacity if not configured
+    // 动态阈值计算
+    // 如果未配置，默认为总 CPU 容量的 80%
     const cpuCount = os.cpus().length;
     const configuredThreshold = this.configService.get('CPU_MAX_THRESHOLD');
 
@@ -58,39 +58,39 @@ export class CpuOverloadProtectionService
     }
 
     this.logger.log(
-      `CPU Protection Service initialized. Threshold: ${this.maxCpuThreshold.toFixed(
+      `CPU 保护服务已初始化。阈值: ${this.maxCpuThreshold.toFixed(
         0,
-      )}% (Cores: ${cpuCount})`,
+      )}% (核心数: ${cpuCount})`,
     );
   }
 
-  // Start CPU monitoring task
+  // 启动 CPU 监控任务
   @Interval('CPUSTATE', 3000)
   async startCpuMonitor() {
     let isMemoryOverload = false;
     let heapUsageRatio = 0;
 
-    // 1. Memory Check (Always run this, independent of CPU check)
+    // 1. 内存检查 (始终运行，独立于 CPU 检查)
     try {
       const memory = process.memoryUsage();
       heapUsageRatio = memory.heapUsed / memory.heapTotal;
       isMemoryOverload = heapUsageRatio > 0.85;
     } catch (err) {
-      // Memory check rarely fails, but good to be safe
-      this.logger.error('Failed to check memory usage', err);
+      // 内存检查很少失败，但为了安全起见还是加上
+      this.logger.error('检查内存使用情况失败', err);
     }
 
-    // 2. CPU Check (Might fail on some systems)
+    // 2. CPU 检查 (在某些系统上可能会失败)
     try {
       const stats = await pidusage(process.pid);
 
-      // Reset failure count on success
+      // 成功时重置失败计数
       if (this.cpuMonitorFailureCount > 0) {
         this.cpuMonitorFailureCount = 0;
-        this.logger.log('CPU monitoring recovered');
+        this.logger.log('CPU 监控已恢复');
       }
 
-      // Apply EMA (Exponential Moving Average) to smooth out CPU spikes
+      // 应用 EMA (指数移动平均) 来平滑 CPU 峰值
       if (this.currentCpuPercentage === 0) {
         this.currentCpuPercentage = stats.cpu;
       } else {
@@ -100,37 +100,37 @@ export class CpuOverloadProtectionService
     } catch (err) {
       this.cpuMonitorFailureCount++;
 
-      // Log error logic:
-      // - First 3 failures: Error level (to alert dev)
-      // - 4-10 failures: Warn level (reduced noise)
-      // - >10 failures: Suppress logs (prevent flooding)
+      // 错误日志逻辑:
+      // - 前 3 次失败: Error 级别 (提醒开发者)
+      // - 4-10 次失败: Warn 级别 (减少噪音)
+      // - >10 次失败: 抑制日志 (防止刷屏)
       if (this.cpuMonitorFailureCount <= 3) {
         this.logger.error(
-          `Failed to obtain CPU usage rate (Attempt ${this.cpuMonitorFailureCount})`,
+          `获取 CPU 使用率失败 (第 ${this.cpuMonitorFailureCount} 次尝试)`,
           err instanceof Error ? err.stack : err,
         );
       } else if (this.cpuMonitorFailureCount <= this.maxCpuMonitorFailures) {
         this.logger.warn(
-          `CPU monitoring failing... (Attempt ${this.cpuMonitorFailureCount})`,
+          `CPU 监控失败中... (第 ${this.cpuMonitorFailureCount} 次尝试)`,
         );
       }
-      // If > maxCpuMonitorFailures, we stay silent to avoid log flooding
-      // But we still count up to know it's broken
+      // 如果超过 maxCpuMonitorFailures，我们保持沉默以避免日志刷屏
+      // 但我们仍然计数以知道它坏了
     }
 
-    // 3. Overload Logic (Combined)
-    // If CPU monitor is broken, we rely solely on memory
-    // Note: If CPU is unknown (broken), currentCpuPercentage keeps old value.
-    // We might want to decay it if CPU check fails for too long, but keeping last known is safer than 0.
+    // 3. 过载逻辑 (组合)
+    // 如果 CPU 监控损坏，我们仅依赖内存
+    // 注意: 如果 CPU 未知 (损坏)，currentCpuPercentage 保持旧值。
+    // 如果 CPU 检查失败时间过长，我们可能希望使其衰减，但保留最后已知值比 0 更安全。
     if (this.currentCpuPercentage > this.maxCpuThreshold || isMemoryOverload) {
-      this.overloadTimes = Math.min(this.overloadTimes + 1, 50); // Cap at 50 times
+      this.overloadTimes = Math.min(this.overloadTimes + 1, 50); // 上限 50 次
 
       if (!this.isOverloaded) {
         this.isOverloaded = true;
         this.logger.warn(
-          `System Overload Detected! CPU: ${this.currentCpuPercentage.toFixed(
+          `检测到系统过载! CPU: ${this.currentCpuPercentage.toFixed(
             1,
-          )}%, Mem: ${(heapUsageRatio * 100).toFixed(1)}%`,
+          )}%, 内存: ${(heapUsageRatio * 100).toFixed(1)}%`,
         );
       }
     } else {
@@ -139,20 +139,20 @@ export class CpuOverloadProtectionService
       if (this.isOverloaded && this.overloadTimes === 0) {
         this.isOverloaded = false;
         this.logger.log(
-          `System Recovered. CPU: ${this.currentCpuPercentage.toFixed(1)}%`,
+          `系统已恢复。CPU: ${this.currentCpuPercentage.toFixed(1)}%`,
         );
       }
     }
   }
 
   /**
-   * Determine if the current request should be dropped based on system load.
-   * true means drop, false means allow.
+   * 根据系统负载确定是否应丢弃当前请求。
+   * true 表示丢弃，false 表示允许。
    *
    * @returns {boolean}
    */
   shouldDropRequest(): boolean {
-    // Fast path: if system is healthy, allow all requests
+    // 快速路径: 如果系统健康，允许所有请求
     if (
       !this.isOverloaded &&
       this.currentCpuPercentage <= this.maxCpuThreshold
@@ -160,20 +160,20 @@ export class CpuOverloadProtectionService
       return false;
     }
 
-    // Factor 1: Duration of overload (0 ~ 1)
-    // Reaches max weight after ~1 minute (20 intervals * 3s)
+    // 因子 1: 过载持续时间 (0 ~ 1)
+    // 约 1 分钟后达到最大权重 (20 个间隔 * 3秒)
     const timeFactor = Math.min(this.overloadTimes / 20, 1);
 
-    // Factor 2: Severity of load
-    // e.g. If usage is 120% of threshold, factor is 1.2
+    // 因子 2: 负载严重程度
+    // 例如: 如果使用率是阈值的 120%，则因子为 1.2
     const loadFactor =
       this.currentCpuPercentage > this.maxCpuThreshold
         ? this.currentCpuPercentage / this.maxCpuThreshold
         : 1;
 
-    // Calculate final probability
-    // If overload persists for long (timeFactor=1) and load is high (loadFactor=1.5),
-    // Probability = 0.7 * 1 * 1.5 = 1.05 (100% drop)
+    // 计算最终概率
+    // 如果过载持续很长时间 (timeFactor=1) 且负载很高 (loadFactor=1.5)，
+    // 概率 = 0.7 * 1 * 1.5 = 1.05 (100% 丢弃)
     const probability = this.baseProbability * timeFactor * loadFactor;
 
     return Math.random() < Math.min(probability, 1);
@@ -187,7 +187,7 @@ export class CpuOverloadProtectionService
         this.schedulerRegistry.deleteInterval('CPUSTATE');
       }
     } catch (e) {
-      // Interval might not exist, ignore
+      // Interval 可能不存在，忽略
     }
   }
 }

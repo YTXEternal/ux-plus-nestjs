@@ -58,12 +58,12 @@ export class SysUserService {
     const user = await this.sysUserModel.findByPk(userId, {
       include: [{ model: SysDept }, { model: SysRole }, { model: SysPost }],
     });
-    // TODO: Get all roles and posts to mark checked
+    // TODO: 获取所有角色和岗位以标记为选中
     return { data: user };
   }
 
   async create(createUserDto: CreateUserDto) {
-    // Encrypt password
+    // 加密密码
     if (createUserDto.password) {
       createUserDto.password = this.uxPasswordService.encryptedPassword(
         createUserDto.password,
@@ -75,7 +75,7 @@ export class SysUserService {
 
   async update(updateUserDto: UpdateUserDto) {
     const { user_id, ...data } = updateUserDto;
-    // Don't update password here usually, separate API
+    // 通常不在这里更新密码，使用单独的 API
     if (data.password) delete data.password;
     return this.sysUserModel.update(data, { where: { user_id } });
   }

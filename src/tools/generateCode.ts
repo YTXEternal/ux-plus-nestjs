@@ -1,5 +1,5 @@
 /**
- * It is used to generate the verification code required for account registration
+ * 用于生成账户注册所需的验证码
  *
  * @returns {string}
  */

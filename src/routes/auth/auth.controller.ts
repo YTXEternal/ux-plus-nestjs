@@ -49,26 +49,26 @@ export class AuthController {
     const tokenId = generateId();
     const loginTokenExpires = 30 * 24 * 60 * 60; // 30 days
 
-    // Store online user info
+    // 存储在线用户信息
     const onlineUser = {
       user_id: user.user_id,
       tokenId,
       userName: user.user_name,
       ipaddr: request.ip || request.socket.remoteAddress,
-      loginLocation: '', // TODO: use ip lookup
-      browser: '', // TODO: use ua-parser-js
-      os: '', // TODO: use ua-parser-js
+      loginLocation: '', // TODO: 使用 IP 查询
+      browser: '', // TODO: 使用 ua-parser-js 解析
+      os: '', // TODO: 使用 ua-parser-js 解析
       loginTime: new Date(),
     };
 
-    // Save to Redis
+    // 保存到 Redis
     await this.redisService.setCache(
       `login_tokens:${tokenId}`,
       onlineUser,
       loginTokenExpires,
     );
 
-    // generate a token
+    // 生成 Token
     const token = this.uxJwtService.loginToken({
       id: user.user_id,
       account: user.user_name,

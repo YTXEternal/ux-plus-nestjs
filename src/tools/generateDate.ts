@@ -16,10 +16,10 @@ export const generateDate = (opt?: {
   const { date, format } = Object.assign(defaultOption, opt);
 
   // @ts-ignore
-  if (isNaN(date)) throw new TypeError('Invalid date value');
+  if (isNaN(date)) throw new TypeError('无效的日期值');
 
   if (typeof date !== 'number' && !(date instanceof Date)) {
-    throw new TypeError('Invalid date value');
+    throw new TypeError('无效的日期值');
   }
   let localDate: null | InstanceType<typeof Date> = null;
 

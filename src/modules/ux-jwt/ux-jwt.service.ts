@@ -21,28 +21,28 @@ type VerifyCodeError = {
 
 const handleError = (err: E): VerifyCodeError => {
   if (err.name === 'TokenExpiredError') {
-    // Token has expired
+    // Token 已过期
     return {
       name: 'TokenExpiredError',
       message: 'Token expired',
       code: HttpStatus.UNAUTHORIZED,
     };
   } else if (err.name === 'JsonWebTokenError') {
-    // Invalid signature, format error, etc.
+    // 无效的签名、格式错误等
     return {
       name: 'JsonWebTokenError',
       message: 'Invalid token signature or malformed token',
       code: HttpStatus.BAD_REQUEST,
     };
   } else if (err.name === 'NotBeforeError') {
-    // Token is not yet valid (nbf is set)
+    // Token 尚未生效 (nbf 已设置)
     return {
       name: 'NotBeforeError',
       message: 'Token not active yet',
       code: HttpStatus.UNAUTHORIZED,
     };
   } else if (err.name === 'JwtInvalidSubjectError') {
-    // Subject mismatch (subject does not match)
+    // 主题不匹配 (subject 不匹配)
     return {
       name: 'JwtInvalidSubjectError',
       message: 'Token subject does not match expected value',
@@ -65,7 +65,7 @@ export class UxJwtService {
     private readonly configService: ConfigService,
   ) {}
   /**
-   * generate a verification code
+   * 生成验证码
    *
    * @param {string} code
    * @returns {string}
@@ -83,7 +83,7 @@ export class UxJwtService {
   }
 
   /**
-   * validate the verification code token and return a structured result
+   * 验证验证码 Token 并返回结构化结果
    *
    * @param {string} codeToken
    * @returns {{ data: string; err: UnauthorizedException | null; }}
@@ -102,7 +102,7 @@ export class UxJwtService {
   }
 
   /**
-   * Generate a login token
+   * 生成登录 Token
    *
    * @param {LoginToken} payload
    * @returns {string}
@@ -115,7 +115,7 @@ export class UxJwtService {
   }
 
   /**
-   * validate the login token
+   * 验证登录 Token
    *
    * @param {string} token
    * @returns {LoginToken}

@@ -3,10 +3,10 @@ import rateLimit from 'express-rate-limit';
 
 export const useRateLimit = (app: INestApplication<any>) => {
   const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 100000, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-    standardHeaders: false, // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    windowMs: 15 * 60 * 1000, // 15 分钟
+    limit: 100000, // 限制每个 IP 在每个时间窗口内最多 100000 次请求（此处为 15 分钟）
+    standardHeaders: false, // draft-6: RateLimit-* 响应头; draft-7 & draft-8: 组合 RateLimit 响应头
+    legacyHeaders: false, // 禁用 X-RateLimit-* 响应头
     handler: (req, res, next, options) =>
       res.status(options.statusCode).send({
         code: options.statusCode,

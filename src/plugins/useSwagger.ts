@@ -19,10 +19,10 @@ export const useSwagger = (app: INestApplication<any>) => {
         scheme: 'bearer',
         bearerFormat: 'JWT',
         name: 'bearer',
-        description: 'Enter JWT token',
+        description: '输入 JWT Token',
         in: 'header',
       },
-      'bearer', // Security name
+      'bearer', // 安全定义名称
     )
     .build();
   const document = SwaggerModule.createDocument(app, options);

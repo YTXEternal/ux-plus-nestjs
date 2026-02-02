@@ -3,7 +3,7 @@ import { CpuOverloadProtectionService } from './cpu-overload-protection.service'
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-import pidusage = require('pidusage');
+const pidusage = require('pidusage');
 import * as os from 'os';
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -75,14 +75,14 @@ describe('CpuOverloadProtectionService', () => {
     jest.restoreAllMocks();
   });
 
-  it('should be defined', () => {
+  it('应该已被定义', () => {
     expect(service).toBeDefined();
     // 8 cores * 100 * 0.8 = 640
     expect(service['maxCpuThreshold']).toBe(640);
   });
 
   describe('startCpuMonitor', () => {
-    it('should update overloadTimes and apply EMA when CPU usage is above threshold', async () => {
+    it('当 CPU 使用率高于阈值时应更新过载次数并应用 EMA', async () => {
       // 第一次读数: 800
       (pidusage as unknown as jest.Mock).mockResolvedValueOnce({
         cpu: 800,
@@ -105,7 +105,7 @@ describe('CpuOverloadProtectionService', () => {
       expect(service['overloadTimes']).toBe(2);
     });
 
-    it('should handle CPU monitor failure gracefully', async () => {
+    it('应优雅地处理 CPU 监控失败', async () => {
       (pidusage as unknown as jest.Mock).mockRejectedValueOnce(
         new Error('Failed to get CPU'),
       );
@@ -120,7 +120,7 @@ describe('CpuOverloadProtectionService', () => {
       expect(service['cpuMonitorFailureCount']).toBe(1);
     });
 
-    it('should suppress logs after multiple failures', async () => {
+    it('多次失败后应抑制日志', async () => {
       service['cpuMonitorFailureCount'] = 11;
       (pidusage as unknown as jest.Mock).mockRejectedValueOnce(
         new Error('Failed to get CPU'),
@@ -132,7 +132,7 @@ describe('CpuOverloadProtectionService', () => {
       expect(service['cpuMonitorFailureCount']).toBe(12);
     });
 
-    it('should trigger overload on memory usage high even if CPU check fails', async () => {
+    it('即使 CPU 检查失败，内存使用率高时也应触发过载', async () => {
       // CPU 失败
       (pidusage as unknown as jest.Mock).mockRejectedValueOnce(
         new Error('Failed'),
@@ -158,7 +158,7 @@ describe('CpuOverloadProtectionService', () => {
       expect(service['overloadTimes']).toBe(3);
     });
 
-    it('should decrement overloadTimes when system recovers', async () => {
+    it('系统恢复时应减少过载次数', async () => {
       // CPU 低, 内存低
       (pidusage as unknown as jest.Mock).mockResolvedValueOnce({
         cpu: 100,
@@ -185,13 +185,13 @@ describe('CpuOverloadProtectionService', () => {
   });
 
   describe('shouldDropRequest', () => {
-    it('should return false when system is healthy', () => {
+    it('当系统健康时应返回 false', () => {
       service['isOverloaded'] = false;
       service['currentCpuPercentage'] = 500;
       expect(service.shouldDropRequest()).toBe(false);
     });
 
-    it('should calculate probability when overloaded', () => {
+    it('当过载时应计算概率', () => {
       service['isOverloaded'] = true;
       service['currentCpuPercentage'] = 800; // > 640
       service['overloadTimes'] = 20; // timeFactor = 1

@@ -5,9 +5,9 @@ export type Where<M extends Model> = Pick<M, 'where'>;
 
 export type UseFindParamsOpt = Partial<{
   /**
-   * Lock the selected rows. Possible options are transaction.LOCK.UPDATE and transaction.LOCK.SHARE.
-   * Postgres also supports transaction.LOCK.KEY_SHARE, transaction.LOCK.NO_KEY_UPDATE and specific model
-   * locks with joins. See [transaction.LOCK for an example](transaction#lock)
+   * 锁定所选行。可选选项包括 transaction.LOCK.UPDATE 和 transaction.LOCK.SHARE。
+   * Postgres 还支持 transaction.LOCK.KEY_SHARE、transaction.LOCK.NO_KEY_UPDATE 以及特定模型的连接锁。
+   * 参见 [transaction.LOCK 示例](transaction#lock)
    */
   attrs: string[];
   //   default:true

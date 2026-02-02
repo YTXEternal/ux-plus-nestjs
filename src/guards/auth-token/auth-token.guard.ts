@@ -55,7 +55,7 @@ export class AuthTokenGuard implements CanActivate {
     if (deToken.sub !== this.configService.get('JWT_LOGIN_TOKEN_SUBJECT'))
       throw new UnauthorizedException(message);
 
-    // Check Redis for online user
+    // 检查 Redis 中的在线用户
     const tokenId = deToken.tokenId;
     const redisKey = `login_tokens:${tokenId}`;
 
@@ -65,10 +65,10 @@ export class AuthTokenGuard implements CanActivate {
 
     if (redisBootUp) {
       try {
-        // getCatche returns parsed object or undefined
+        // getCatche 返回解析后的对象或 undefined
         user = await this.redisService.getCatche(redisKey);
       } catch (e) {
-        // Redis service might be down, fallback to MySQL
+        // Redis 服务可能宕机，回退到 MySQL
         shouldCheckDb = true;
       }
     }
@@ -80,7 +80,7 @@ export class AuthTokenGuard implements CanActivate {
           user_id: dbUser.user_id,
           tokenId: tokenId,
           userName: dbUser.user_name,
-          // Mock necessary fields
+          // 模拟必要字段
           ipaddr: request.ip || request.socket.remoteAddress,
           loginLocation: '',
           browser: '',
@@ -94,7 +94,7 @@ export class AuthTokenGuard implements CanActivate {
       throw new UnauthorizedException('Token expired or user forced logout.');
     }
 
-    // Attach user to request if needed
+    // 如果需要，将用户附加到请求
     request['user'] = user;
 
     return true;
