@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-node scripts/ensure-pnpm-commit.js
+node scripts/git/ensure-pnpm-commit.js
