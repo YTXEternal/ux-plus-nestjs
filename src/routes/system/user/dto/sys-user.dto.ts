@@ -43,6 +43,13 @@ export class ListUserDto {
   dept_id?: number;
 }
 
+export class GetUserParamDto {
+  @ApiProperty({ description: '用户ID', example: 1 })
+  @IsNumber()
+  @Type(() => Number)
+  userId: number;
+}
+
 export class CreateUserDto {
   @ApiProperty({ description: '用户名', example: 'test' })
   @IsString()

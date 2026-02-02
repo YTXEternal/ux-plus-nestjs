@@ -37,6 +37,19 @@ export class ListConfigDto {
   config_type?: string;
 }
 
+export class GetConfigParamDto {
+  @ApiProperty({ description: '参数ID', example: 1 })
+  @IsNumber()
+  @Type(() => Number)
+  configId: number;
+}
+
+export class GetConfigKeyParamDto {
+  @ApiProperty({ description: '参数键名', example: 'sys.index.skinName' })
+  @IsString()
+  configKey: string;
+}
+
 export class CreateConfigDto {
   @ApiProperty({
     description: '参数名称',

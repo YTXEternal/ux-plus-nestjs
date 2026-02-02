@@ -37,6 +37,13 @@ export class ListRoleDto {
   status?: string;
 }
 
+export class GetRoleParamDto {
+  @ApiProperty({ description: '角色ID', example: 1 })
+  @IsNumber()
+  @Type(() => Number)
+  roleId: number;
+}
+
 export class CreateRoleDto {
   @ApiProperty({ description: '角色名称', example: '普通角色' })
   @IsString()

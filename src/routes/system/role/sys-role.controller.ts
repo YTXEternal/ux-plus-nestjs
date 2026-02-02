@@ -13,6 +13,7 @@ import {
   ApiTags,
   ApiOperation,
   ApiResponse as ApiSwaggerResponse,
+  ApiParam,
 } from '@nestjs/swagger';
 import { SysRoleService } from './sys-role.service';
 import { RequirePermissions } from '@/guards';
@@ -21,6 +22,7 @@ import { formatPagination } from '@/tools';
 
 import {
   ListRoleDto,
+  GetRoleParamDto,
   CreateRoleDto,
   UpdateRoleDto,
   ChangeRoleStatusDto,
@@ -36,7 +38,11 @@ export class SysRoleController {
   constructor(private readonly sysRoleService: SysRoleService) {}
 
   @ApiOperation({ summary: '获取角色列表' })
-  @ApiSwaggerResponse({ status: 200, description: '获取成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('system:role:list')
   @Get('list')
   async findAll(@Query() query: ListRoleDto) {
@@ -46,16 +52,25 @@ export class SysRoleController {
   }
 
   @ApiOperation({ summary: '获取角色详情' })
-  @ApiSwaggerResponse({ status: 200, description: '获取成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
+  @ApiParam({ name: 'roleId', description: '角色ID', example: 1 })
   @RequirePermissions('system:role:query')
   @Get(':roleId')
-  async findOne(@Param('roleId') roleId: string) {
-    const data = await this.sysRoleService.findOne(+roleId);
+  async findOne(@Param() params: GetRoleParamDto) {
+    const data = await this.sysRoleService.findOne(params.roleId);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @ApiOperation({ summary: '新增角色' })
-  @ApiSwaggerResponse({ status: 200, description: '新增成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '新增成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('system:role:add')
   @Post()
   async create(@Body() body: CreateRoleDto) {
@@ -64,7 +79,11 @@ export class SysRoleController {
   }
 
   @ApiOperation({ summary: '修改角色' })
-  @ApiSwaggerResponse({ status: 200, description: '修改成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '修改成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('system:role:edit')
   @Put()
   async update(@Body() body: UpdateRoleDto) {
@@ -73,7 +92,11 @@ export class SysRoleController {
   }
 
   @ApiOperation({ summary: '删除角色' })
-  @ApiSwaggerResponse({ status: 200, description: '删除成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '删除成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('system:role:remove')
   @Delete()
   async remove(@Body() body: DeleteRoleDto) {
@@ -82,7 +105,11 @@ export class SysRoleController {
   }
 
   @ApiOperation({ summary: '修改角色状态' })
-  @ApiSwaggerResponse({ status: 200, description: '修改成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '修改成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('system:role:edit')
   @Put('changeStatus')
   async changeStatus(@Body() body: ChangeRoleStatusDto) {

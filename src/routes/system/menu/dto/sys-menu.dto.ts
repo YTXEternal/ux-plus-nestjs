@@ -14,6 +14,13 @@ export class ListMenuDto {
   status?: string;
 }
 
+export class GetMenuParamDto {
+  @ApiProperty({ description: '菜单ID', example: 1 })
+  @IsNumber()
+  @Type(() => Number)
+  menuId: number;
+}
+
 export class CreateMenuDto {
   @ApiPropertyOptional({ description: '父菜单ID', example: 0 })
   @IsOptional()

@@ -31,6 +31,12 @@ export class ListLogininforDto {
   status?: string;
 }
 
+export class UnlockLogininforParamDto {
+  @ApiProperty({ description: '用户名', example: 'admin' })
+  @IsString()
+  user_name: string;
+}
+
 export class DeleteLogininforDto {
   @ApiProperty({ description: '访问ID列表', example: [1] })
   @IsArray()

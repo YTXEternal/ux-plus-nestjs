@@ -31,6 +31,13 @@ export class ListPostDto {
   status?: string;
 }
 
+export class GetPostParamDto {
+  @ApiProperty({ description: '岗位ID', example: 1 })
+  @IsNumber()
+  @Type(() => Number)
+  postId: number;
+}
+
 export class CreatePostDto {
   @ApiProperty({ description: '岗位编码', example: 'se' })
   @IsString()

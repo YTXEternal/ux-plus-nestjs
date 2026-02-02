@@ -32,6 +32,26 @@ export class ListDictTypeDto {
   status?: string;
 }
 
+export class GetDictTypeParamDto {
+  @ApiProperty({ description: '字典ID', example: 1 })
+  @IsNumber()
+  @Type(() => Number)
+  dictId: number;
+}
+
+export class GetDictDataParamDto {
+  @ApiProperty({ description: '字典编码', example: 1 })
+  @IsNumber()
+  @Type(() => Number)
+  dictCode: number;
+}
+
+export class GetDictDataByTypeParamDto {
+  @ApiProperty({ description: '字典类型', example: 'sys_user_sex' })
+  @IsString()
+  dictType: string;
+}
+
 export class CreateDictTypeDto {
   @ApiProperty({ description: '字典名称', example: '用户性别' })
   @IsString()

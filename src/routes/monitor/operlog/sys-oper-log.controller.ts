@@ -1,10 +1,8 @@
 import {
   Controller,
   Get,
-  Post,
   Delete,
   Query,
-  Param,
   Body,
   HttpStatus,
 } from '@nestjs/common';
@@ -28,7 +26,11 @@ export class SysOperLogController {
   constructor(private readonly sysOperLogService: SysOperLogService) {}
 
   @ApiOperation({ summary: '获取操作日志列表' })
-  @ApiSwaggerResponse({ status: 200, description: '获取成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('monitor:operlog:list')
   @Get('list')
   async findAll(@Query() query: ListOperLogDto) {
@@ -38,7 +40,11 @@ export class SysOperLogController {
   }
 
   @ApiOperation({ summary: '删除操作日志' })
-  @ApiSwaggerResponse({ status: 200, description: '删除成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '删除成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('monitor:operlog:remove')
   @Delete()
   async remove(@Body() body: DeleteOperLogDto) {
@@ -47,7 +53,11 @@ export class SysOperLogController {
   }
 
   @ApiOperation({ summary: '清空操作日志' })
-  @ApiSwaggerResponse({ status: 200, description: '清空成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '清空成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('monitor:operlog:remove')
   @Delete('clean')
   async clean() {

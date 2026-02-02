@@ -13,6 +13,7 @@ import {
   ApiTags,
   ApiOperation,
   ApiResponse as ApiSwaggerResponse,
+  ApiParam,
 } from '@nestjs/swagger';
 import { SysDictService } from './sys-dict.service';
 import { RequirePermissions } from '@/guards';
@@ -21,6 +22,9 @@ import { formatPagination } from '@/tools';
 
 import {
   ListDictTypeDto,
+  GetDictTypeParamDto,
+  GetDictDataParamDto,
+  GetDictDataByTypeParamDto,
   CreateDictTypeDto,
   UpdateDictTypeDto,
   ListDictDataDto,
@@ -40,7 +44,11 @@ export class SysDictController {
 
   // Type
   @ApiOperation({ summary: '获取字典类型列表' })
-  @ApiSwaggerResponse({ status: 200, description: '获取成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('system:dict:list')
   @Get('type/list')
   async findAllType(@Query() query: ListDictTypeDto) {
@@ -50,16 +58,25 @@ export class SysDictController {
   }
 
   @ApiOperation({ summary: '获取字典类型详情' })
-  @ApiSwaggerResponse({ status: 200, description: '获取成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
+  @ApiParam({ name: 'dictId', description: '字典ID', example: 1 })
   @RequirePermissions('system:dict:query')
   @Get('type/:dictId')
-  async findType(@Param('dictId') dictId: string) {
-    const data = await this.sysDictService.findType(+dictId);
+  async findType(@Param() params: GetDictTypeParamDto) {
+    const data = await this.sysDictService.findType(params.dictId);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @ApiOperation({ summary: '新增字典类型' })
-  @ApiSwaggerResponse({ status: 200, description: '新增成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '新增成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('system:dict:add')
   @Post('type')
   async createType(@Body() body: CreateDictTypeDto) {
@@ -68,7 +85,11 @@ export class SysDictController {
   }
 
   @ApiOperation({ summary: '修改字典类型' })
-  @ApiSwaggerResponse({ status: 200, description: '修改成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '修改成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('system:dict:edit')
   @Put('type')
   async updateType(@Body() body: UpdateDictTypeDto) {
@@ -77,7 +98,11 @@ export class SysDictController {
   }
 
   @ApiOperation({ summary: '删除字典类型' })
-  @ApiSwaggerResponse({ status: 200, description: '删除成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '删除成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('system:dict:remove')
   @Delete('type')
   async removeType(@Body() body: DeleteDictTypeDto) {
@@ -87,7 +112,11 @@ export class SysDictController {
 
   // Data
   @ApiOperation({ summary: '获取字典数据列表' })
-  @ApiSwaggerResponse({ status: 200, description: '获取成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('system:dict:list')
   @Get('data/list')
   async findAllData(@Query() query: ListDictDataDto) {
@@ -97,25 +126,43 @@ export class SysDictController {
   }
 
   @ApiOperation({ summary: '获取字典数据详情' })
-  @ApiSwaggerResponse({ status: 200, description: '获取成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
+  @ApiParam({ name: 'dictCode', description: '字典编码', example: 1 })
   @RequirePermissions('system:dict:query')
   @Get('data/:dictCode')
-  async findData(@Param('dictCode') dictCode: string) {
-    const data = await this.sysDictService.findData(+dictCode);
+  async findData(@Param() params: GetDictDataParamDto) {
+    const data = await this.sysDictService.findData(params.dictCode);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @ApiOperation({ summary: '根据字典类型获取数据' })
-  @ApiSwaggerResponse({ status: 200, description: '获取成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
+  @ApiParam({
+    name: 'dictType',
+    description: '字典类型',
+    example: 'sys_user_sex',
+  })
   @RequirePermissions('system:dict:list')
   @Get('data/type/:dictType')
-  async findDataByType(@Param('dictType') dictType: string) {
-    const data = await this.sysDictService.findDataByType(dictType);
+  async findDataByType(@Param() params: GetDictDataByTypeParamDto) {
+    const data = await this.sysDictService.findDataByType(params.dictType);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @ApiOperation({ summary: '新增字典数据' })
-  @ApiSwaggerResponse({ status: 200, description: '新增成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '新增成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('system:dict:add')
   @Post('data')
   async createData(@Body() body: CreateDictDataDto) {
@@ -124,7 +171,11 @@ export class SysDictController {
   }
 
   @ApiOperation({ summary: '修改字典数据' })
-  @ApiSwaggerResponse({ status: 200, description: '修改成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '修改成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('system:dict:edit')
   @Put('data')
   async updateData(@Body() body: UpdateDictDataDto) {
@@ -133,7 +184,11 @@ export class SysDictController {
   }
 
   @ApiOperation({ summary: '删除字典数据' })
-  @ApiSwaggerResponse({ status: 200, description: '删除成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '删除成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('system:dict:remove')
   @Delete('data')
   async removeData(@Body() body: DeleteDictDataDto) {

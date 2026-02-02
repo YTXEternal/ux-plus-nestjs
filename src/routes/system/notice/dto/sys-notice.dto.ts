@@ -31,6 +31,13 @@ export class ListNoticeDto {
   create_by?: string;
 }
 
+export class GetNoticeParamDto {
+  @ApiProperty({ description: '公告ID', example: 1 })
+  @IsNumber()
+  @Type(() => Number)
+  noticeId: number;
+}
+
 export class CreateNoticeDto {
   @ApiProperty({ description: '公告标题', example: '维护通知' })
   @IsString()

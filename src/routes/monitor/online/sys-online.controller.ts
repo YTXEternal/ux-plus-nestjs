@@ -3,7 +3,6 @@ import {
   Get,
   Delete,
   Query,
-  Param,
   Body,
   HttpStatus,
 } from '@nestjs/common';
@@ -27,7 +26,11 @@ export class SysOnlineController {
   constructor(private readonly sysOnlineService: SysOnlineService) {}
 
   @ApiOperation({ summary: '获取在线用户列表' })
-  @ApiSwaggerResponse({ status: 200, description: '获取成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('monitor:online:list')
   @Get('list')
   async findAll(@Query() query: ListOnlineDto) {
@@ -37,7 +40,11 @@ export class SysOnlineController {
   }
 
   @ApiOperation({ summary: '强退用户' })
-  @ApiSwaggerResponse({ status: 200, description: '强退成功' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '强退成功',
+    type: ApiResponse,
+  })
   @RequirePermissions('monitor:online:forceLogout')
   @Delete()
   async forceLogout(@Body() body: ForceLogoutDto) {

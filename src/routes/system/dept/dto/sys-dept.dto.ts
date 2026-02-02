@@ -14,6 +14,13 @@ export class ListDeptDto {
   status?: string;
 }
 
+export class GetDeptParamDto {
+  @ApiProperty({ description: '部门ID', example: 200 })
+  @IsNumber()
+  @Type(() => Number)
+  deptId: number;
+}
+
 export class CreateDeptDto {
   @ApiPropertyOptional({ description: '父部门ID', example: 100 })
   @IsOptional()
