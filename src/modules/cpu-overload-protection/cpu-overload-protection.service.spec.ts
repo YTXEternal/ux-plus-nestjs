@@ -7,12 +7,9 @@ import pidusage = require('pidusage');
 import * as os from 'os';
 import { ScheduleModule } from '@nestjs/schedule';
 
-jest.mock('pidusage', () => {
-  return {
-    __esModule: true,
-    default: jest.fn(),
-  };
-});
+// 修正 Mock 方式：pidusage 是一个函数
+jest.mock('pidusage', () => jest.fn());
+
 jest.mock('os', () => {
   const originalOs = jest.requireActual('os');
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -65,8 +62,17 @@ describe('CpuOverloadProtectionService', () => {
     service.onModuleInit();
   });
 
-  afterEach(() => {
+  beforeEach(() => {
+    // 重置服务内部状态，确保每个测试用例隔离
+    service['currentCpuPercentage'] = 0;
+    service['overloadTimes'] = 0;
+    service['isOverloaded'] = false;
+    service['cpuMonitorFailureCount'] = 0;
     jest.clearAllMocks();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
   });
 
   it('should be defined', () => {
@@ -78,9 +84,9 @@ describe('CpuOverloadProtectionService', () => {
   describe('startCpuMonitor', () => {
     it('should update overloadTimes and apply EMA when CPU usage is above threshold', async () => {
       // 第一次读数: 800
-      ((pidusage as any).default as unknown as jest.Mock).mockResolvedValueOnce(
-        { cpu: 800 },
-      );
+      (pidusage as unknown as jest.Mock).mockResolvedValueOnce({
+        cpu: 800,
+      });
       await service.startCpuMonitor();
 
       // EMA init: 800
@@ -89,9 +95,9 @@ describe('CpuOverloadProtectionService', () => {
       expect(loggerWarnSpy).toHaveBeenCalled(); // 应该触发警告
 
       // 第二次读数: 1000
-      ((pidusage as any).default as unknown as jest.Mock).mockResolvedValueOnce(
-        { cpu: 1000 },
-      );
+      (pidusage as unknown as jest.Mock).mockResolvedValueOnce({
+        cpu: 1000,
+      });
       await service.startCpuMonitor();
 
       // EMA: 800 * 0.5 + 1000 * 0.5 = 900
@@ -99,10 +105,37 @@ describe('CpuOverloadProtectionService', () => {
       expect(service['overloadTimes']).toBe(2);
     });
 
-    it('should trigger overload on memory usage high', async () => {
-      // CPU 低
-      ((pidusage as any).default as unknown as jest.Mock).mockResolvedValueOnce(
-        { cpu: 100 },
+    it('should handle CPU monitor failure gracefully', async () => {
+      (pidusage as unknown as jest.Mock).mockRejectedValueOnce(
+        new Error('Failed to get CPU'),
+      );
+      await service.startCpuMonitor();
+
+      // 这里需要等待下一个 tick 或者 promise 拒绝被捕获
+      // 实际上 startCpuMonitor 内部已经 catch 了，但 jest mock rejected value 可能会有一些时序问题
+      // 让我们再次确认 pidusage 是否被正确调用
+      expect(pidusage).toHaveBeenCalled();
+
+      expect(loggerErrorSpy).toHaveBeenCalled();
+      expect(service['cpuMonitorFailureCount']).toBe(1);
+    });
+
+    it('should suppress logs after multiple failures', async () => {
+      service['cpuMonitorFailureCount'] = 11;
+      (pidusage as unknown as jest.Mock).mockRejectedValueOnce(
+        new Error('Failed to get CPU'),
+      );
+      await service.startCpuMonitor();
+
+      expect(loggerErrorSpy).not.toHaveBeenCalled();
+      expect(loggerWarnSpy).not.toHaveBeenCalled();
+      expect(service['cpuMonitorFailureCount']).toBe(12);
+    });
+
+    it('should trigger overload on memory usage high even if CPU check fails', async () => {
+      // CPU 失败
+      (pidusage as unknown as jest.Mock).mockRejectedValueOnce(
+        new Error('Failed'),
       );
 
       // 内存高 (900/1000 = 0.9 > 0.85)
@@ -114,16 +147,22 @@ describe('CpuOverloadProtectionService', () => {
         arrayBuffers: 0,
       });
 
+      // 之前状态
+      service['overloadTimes'] = 2;
+
       await service.startCpuMonitor();
-      // 之前是 2，现在 +1 = 3
+
+      // CPU 失败计数增加
+      expect(service['cpuMonitorFailureCount']).toBeGreaterThan(0);
+      // 依然检测到过载 (2 -> 3)
       expect(service['overloadTimes']).toBe(3);
     });
 
     it('should decrement overloadTimes when system recovers', async () => {
       // CPU 低, 内存低
-      ((pidusage as any).default as unknown as jest.Mock).mockResolvedValueOnce(
-        { cpu: 100 },
-      );
+      (pidusage as unknown as jest.Mock).mockResolvedValueOnce({
+        cpu: 100,
+      });
       jest.spyOn(process, 'memoryUsage').mockReturnValue({
         heapUsed: 100,
         heapTotal: 1000,
@@ -134,13 +173,14 @@ describe('CpuOverloadProtectionService', () => {
 
       // 重置状态模拟
       service['currentCpuPercentage'] = 200; // 让 EMA 慢慢降下来
+      service['overloadTimes'] = 5;
 
       await service.startCpuMonitor();
 
       // EMA: 200 * 0.5 + 100 * 0.5 = 150
       expect(service['currentCpuPercentage']).toBe(150);
       // overloadTimes 减少
-      expect(service['overloadTimes']).toBeLessThan(3);
+      expect(service['overloadTimes']).toBe(4);
     });
   });
 

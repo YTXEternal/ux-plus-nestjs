@@ -6,9 +6,11 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Interval, SchedulerRegistry } from '@nestjs/schedule';
-import pidusage from 'pidusage';
 import * as os from 'os';
 import { toNumber } from '@/tools';
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pidusage = require('pidusage');
 
 /**
  * CPU Protection Algorithm: Enhanced Dynamic Request Dropping
@@ -28,6 +30,9 @@ export class CpuOverloadProtectionService
   private currentCpuPercentage = 0; // EMA smoothed value
   private readonly alpha = 0.5; // EMA smoothing factor (0.5 means balanced between new and old)
   private isOverloaded = false;
+
+  private cpuMonitorFailureCount = 0; // Consecutive failure count for CPU monitoring
+  private readonly maxCpuMonitorFailures = 10; // Max failures before suppressing logs
 
   private logger = new Logger(CpuOverloadProtectionService.name);
 
@@ -62,8 +67,28 @@ export class CpuOverloadProtectionService
   // Start CPU monitoring task
   @Interval('CPUSTATE', 3000)
   async startCpuMonitor() {
+    let isMemoryOverload = false;
+    let heapUsageRatio = 0;
+
+    // 1. Memory Check (Always run this, independent of CPU check)
+    try {
+      const memory = process.memoryUsage();
+      heapUsageRatio = memory.heapUsed / memory.heapTotal;
+      isMemoryOverload = heapUsageRatio > 0.85;
+    } catch (err) {
+      // Memory check rarely fails, but good to be safe
+      this.logger.error('Failed to check memory usage', err);
+    }
+
+    // 2. CPU Check (Might fail on some systems)
     try {
       const stats = await pidusage(process.pid);
+
+      // Reset failure count on success
+      if (this.cpuMonitorFailureCount > 0) {
+        this.cpuMonitorFailureCount = 0;
+        this.logger.log('CPU monitoring recovered');
+      }
 
       // Apply EMA (Exponential Moving Average) to smooth out CPU spikes
       if (this.currentCpuPercentage === 0) {
@@ -72,38 +97,51 @@ export class CpuOverloadProtectionService
         this.currentCpuPercentage =
           this.currentCpuPercentage * (1 - this.alpha) + stats.cpu * this.alpha;
       }
-
-      // Memory protection check (Heap Usage > 85%)
-      const memory = process.memoryUsage();
-      const heapUsageRatio = memory.heapUsed / memory.heapTotal;
-      const isMemoryOverload = heapUsageRatio > 0.85;
-
-      if (
-        this.currentCpuPercentage > this.maxCpuThreshold ||
-        isMemoryOverload
-      ) {
-        this.overloadTimes = Math.min(this.overloadTimes + 1, 50); // Cap at 50 times
-
-        if (!this.isOverloaded) {
-          this.isOverloaded = true;
-          this.logger.warn(
-            `System Overload Detected! CPU: ${this.currentCpuPercentage.toFixed(
-              1,
-            )}%, Mem: ${(heapUsageRatio * 100).toFixed(1)}%`,
-          );
-        }
-      } else {
-        this.overloadTimes = Math.max(0, this.overloadTimes - 1);
-
-        if (this.isOverloaded && this.overloadTimes === 0) {
-          this.isOverloaded = false;
-          this.logger.log(
-            `System Recovered. CPU: ${this.currentCpuPercentage.toFixed(1)}%`,
-          );
-        }
-      }
     } catch (err) {
-      this.logger.error('Failed to obtain CPU usage rate', err);
+      this.cpuMonitorFailureCount++;
+
+      // Log error logic:
+      // - First 3 failures: Error level (to alert dev)
+      // - 4-10 failures: Warn level (reduced noise)
+      // - >10 failures: Suppress logs (prevent flooding)
+      if (this.cpuMonitorFailureCount <= 3) {
+        this.logger.error(
+          `Failed to obtain CPU usage rate (Attempt ${this.cpuMonitorFailureCount})`,
+          err instanceof Error ? err.stack : err,
+        );
+      } else if (this.cpuMonitorFailureCount <= this.maxCpuMonitorFailures) {
+        this.logger.warn(
+          `CPU monitoring failing... (Attempt ${this.cpuMonitorFailureCount})`,
+        );
+      }
+      // If > maxCpuMonitorFailures, we stay silent to avoid log flooding
+      // But we still count up to know it's broken
+    }
+
+    // 3. Overload Logic (Combined)
+    // If CPU monitor is broken, we rely solely on memory
+    // Note: If CPU is unknown (broken), currentCpuPercentage keeps old value.
+    // We might want to decay it if CPU check fails for too long, but keeping last known is safer than 0.
+    if (this.currentCpuPercentage > this.maxCpuThreshold || isMemoryOverload) {
+      this.overloadTimes = Math.min(this.overloadTimes + 1, 50); // Cap at 50 times
+
+      if (!this.isOverloaded) {
+        this.isOverloaded = true;
+        this.logger.warn(
+          `System Overload Detected! CPU: ${this.currentCpuPercentage.toFixed(
+            1,
+          )}%, Mem: ${(heapUsageRatio * 100).toFixed(1)}%`,
+        );
+      }
+    } else {
+      this.overloadTimes = Math.max(0, this.overloadTimes - 1);
+
+      if (this.isOverloaded && this.overloadTimes === 0) {
+        this.isOverloaded = false;
+        this.logger.log(
+          `System Recovered. CPU: ${this.currentCpuPercentage.toFixed(1)}%`,
+        );
+      }
     }
   }
 
