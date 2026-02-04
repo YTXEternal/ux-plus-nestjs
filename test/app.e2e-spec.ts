@@ -321,10 +321,67 @@ describe('API (e2e)', () => {
           })
           .expect(200);
 
-        expectOk(response.body as ApiResponseBody<{ token: string }>);
-        const token = (response.body as ApiResponseBody<{ token: string }>)
+        expectOk(
+          response.body as ApiResponseBody<{
+            token: string;
+            refreshToken: string;
+          }>,
+        );
+        const data = (
+          response.body as ApiResponseBody<{
+            token: string;
+            refreshToken: string;
+          }>
+        ).data!;
+        expect(typeof data.token).toBe('string');
+        expect(typeof data.refreshToken).toBe('string');
+      });
+    });
+
+    describe('POST /auth/refresh', () => {
+      it('未传 refreshToken 返回 400', async () => {
+        await request(app.getHttpServer())
+          .post(`${apiPrefix}/auth/refresh`)
+          .send({})
+          .expect(400);
+      });
+
+      it('无效 refreshToken 返回 401', async () => {
+        await request(app.getHttpServer())
+          .post(`${apiPrefix}/auth/refresh`)
+          .send({ refreshToken: 'invalid_token' })
+          .expect(401);
+      });
+
+      it('刷新成功', async () => {
+        // 1. 先登录获取 refreshToken
+        const loginRes = await request(app.getHttpServer())
+          .post(`${apiPrefix}/auth/login`)
+          .send({
+            user_name: 'admin',
+            password: encryptLoginPassword('admin123'),
+          })
+          .expect(200);
+
+        const refreshToken = (
+          loginRes.body as ApiResponseBody<{ refreshToken: string }>
+        ).data!.refreshToken;
+
+        // 2. 使用 refreshToken 刷新
+        const refreshRes = await request(app.getHttpServer())
+          .post(`${apiPrefix}/auth/refresh`)
+          .send({ refreshToken })
+          .expect(200);
+
+        expectOk(refreshRes.body as ApiResponseBody<{ token: string }>);
+        const newToken = (refreshRes.body as ApiResponseBody<{ token: string }>)
           .data!.token;
-        expect(typeof token).toBe('string');
+        expect(typeof newToken).toBe('string');
+
+        // 3. 验证新 token 可用
+        await authedWithToken('get', `${apiPrefix}/auth/info`, newToken).expect(
+          200,
+        );
       });
     });
 

@@ -17,6 +17,19 @@ export class AuthLoginDto {
 export class LoginResponseDto {
   @ApiProperty({ description: '访问令牌' })
   token: string;
+
+  @ApiProperty({ description: '刷新令牌' })
+  refreshToken: string;
+}
+
+export class RefreshTokenDto {
+  @ApiProperty({
+    description: '刷新令牌',
+    example: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
+  @IsString()
+  @IsNotEmpty({ message: 'Refresh token cannot be empty' })
+  refreshToken: string;
 }
 
 export class UserResponseDto {
@@ -137,6 +150,11 @@ export class RouterResponseDto {
 }
 
 export class LoginResult extends ApiResponse<LoginResponseDto> {
+  @ApiProperty({ type: LoginResponseDto })
+  data: LoginResponseDto;
+}
+
+export class RefreshTokenResult extends ApiResponse<LoginResponseDto> {
   @ApiProperty({ type: LoginResponseDto })
   data: LoginResponseDto;
 }

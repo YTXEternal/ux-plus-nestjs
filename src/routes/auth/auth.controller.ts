@@ -19,6 +19,8 @@ import {
   LoginResult,
   UserInfoResult,
   RouterResult,
+  RefreshTokenDto,
+  RefreshTokenResult,
 } from './dto/auth.dto';
 import { UxJwtService } from '@/modules/ux-jwt/ux-jwt.service';
 import { ApiResponse } from '@/dto/api-response';
@@ -89,13 +91,43 @@ export class AuthController {
     }
 
     // 生成 Token
-    const token = this.uxJwtService.loginToken({
+    const payload = {
       id: user.user_id,
       account: user.user_name,
       tokenId,
-    });
+    };
+    const token = this.uxJwtService.loginToken(payload);
+    const refreshToken = this.uxJwtService.refreshToken(payload);
 
     return new ApiResponse(HttpStatus.OK, 'Login successful', {
+      token,
+      refreshToken,
+    });
+  }
+
+  @ApiOperation({ summary: '刷新令牌' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '刷新成功',
+    type: RefreshTokenResult,
+  })
+  @Public()
+  @HttpCode(200)
+  @Post('/refresh')
+  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+    // 验证 refresh token
+    const payload = this.uxJwtService.parseRefreshToken(
+      refreshTokenDto.refreshToken,
+    );
+
+    // 生成新的 access token
+    const token = this.uxJwtService.loginToken({
+      id: payload.id,
+      account: payload.account,
+      tokenId: payload.tokenId,
+    });
+
+    return new ApiResponse(HttpStatus.OK, 'Refresh token successful', {
       token,
     });
   }
