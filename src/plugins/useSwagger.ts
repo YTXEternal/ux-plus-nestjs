@@ -52,9 +52,9 @@ export const useSwagger = (app: INestApplication<any>) => {
         });
       }
 
-      // 2. 非 auth 接口自动添加 Security Requirement
+      // 2. 非 login 接口自动添加 Security Requirement
       const isAuthRoute =
-        pathKey.includes('/auth/') || pathKey.endsWith('/auth');
+        pathKey.includes('/auth/login') || pathKey.endsWith('/auth/login');
 
       if (!isAuthRoute) {
         if (!operation.security) {

@@ -37,6 +37,14 @@ export class AuthTokenGuard implements CanActivate {
     const regex = /^Bearer\s/;
     const token = undisposedToken?.split(' ')?.[1];
 
+    console.log(
+      'token is',
+      undisposedToken,
+      !undisposedToken,
+      typeof undisposedToken !== 'string',
+      !regex.test(undisposedToken),
+      !token,
+    );
     if (
       !undisposedToken ||
       typeof undisposedToken !== 'string' ||

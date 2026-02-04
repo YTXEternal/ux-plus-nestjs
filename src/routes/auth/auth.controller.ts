@@ -1,10 +1,12 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
   HttpStatus,
   HttpCode,
   Req,
+  HttpException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -12,7 +14,12 @@ import {
   ApiResponse as ApiSwaggerResponse,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { AuthLoginDto } from './dto/auth.dto';
+import {
+  AuthLoginDto,
+  LoginResult,
+  UserInfoResult,
+  RouterResult,
+} from './dto/auth.dto';
 import { UxJwtService } from '@/modules/ux-jwt/ux-jwt.service';
 import { ApiResponse } from '@/dto/api-response';
 import { RedisService } from '@/modules/redis/redis.service';
@@ -20,6 +27,8 @@ import { generateId } from '@/tools';
 import { Request } from 'express';
 import { Public } from '@/guards';
 import { ConfigService } from '@nestjs/config';
+import { SysUserService } from '@/routes/system/user/sys-user.service';
+import { SysMenuService } from '@/routes/system/menu/sys-menu.service';
 
 @ApiTags('认证管理')
 @Controller({
@@ -32,6 +41,8 @@ export class AuthController {
     private readonly uxJwtService: UxJwtService,
     private readonly redisService: RedisService,
     private readonly configService: ConfigService,
+    private readonly sysUserService: SysUserService,
+    private readonly sysMenuService: SysMenuService,
   ) {}
 
   @ApiOperation({ summary: '用户登录' })
@@ -87,5 +98,61 @@ export class AuthController {
     return new ApiResponse(HttpStatus.OK, 'Login successful', {
       token,
     });
+  }
+
+  @ApiOperation({ summary: '获取用户信息' })
+  @ApiSwaggerResponse({ type: ApiResponse })
+  @Get('/info')
+  async info(@Req() request: Request) {
+    const userPayload = (request as any).user;
+    if (!userPayload) {
+      throw new HttpException(
+        'User not found in request',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const userId = userPayload.user_id;
+    // Fetch user with roles
+    const { data: user } = await this.sysUserService.findOne(userId);
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    const roleIds = user.roles?.map((r) => r.role_id) || [];
+    const isAdmin = user.roles?.some((r) => r.role_key === 'SUPERADMIN');
+
+    const permissions = await this.sysMenuService.selectPermsByRoleIds(
+      roleIds,
+      isAdmin,
+    );
+
+    return new ApiResponse(HttpStatus.OK, 'Get user info successful', {
+      user,
+      roles: user.roles?.map((r) => r.role_key) || [],
+      permissions,
+    });
+  }
+
+  @ApiOperation({ summary: '获取路由信息' })
+  @ApiSwaggerResponse({ type: RouterResult })
+  @Get('/routers')
+  async routers(@Req() request: Request) {
+    const userPayload = (request as any).user;
+    if (!userPayload) {
+      throw new HttpException(
+        'User not found in request',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const userId = userPayload.user_id;
+    const { data: user } = await this.sysUserService.findOne(userId);
+    const roleIds = user?.roles?.map((r) => r.role_id) || [];
+    // 超级管理员直接获取所有数据，无需检查关联
+    const isAdmin = user?.roles?.some((r) => r.role_key === 'SUPERADMIN');
+
+    const menus = await this.sysMenuService.selectMenuTreeByRoleIds(
+      roleIds,
+      isAdmin,
+    );
+    return new ApiResponse(HttpStatus.OK, 'Get routers successful', menus);
   }
 }

@@ -7,6 +7,9 @@ import { UxCryptoRsaService } from '@/services/ux-crypto-rsa/ux-crypto-rsa.servi
 import { SequelizeModule } from '@nestjs/sequelize';
 import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
 import { RedisModule } from '@/modules/redis/redis.module';
+import { SysMenuModule } from '@/routes/system/menu/sys-menu.module';
+import { SysUserService } from '@/routes/system/user/sys-user.service';
+import { SysUserModule } from '@/routes/system/user/sys-user.module';
 
 /**
  * 认证模块
@@ -23,6 +26,8 @@ import { RedisModule } from '@/modules/redis/redis.module';
     UxPasswordModule,
     SequelizeModule.forFeature([SysUser]),
     RedisModule,
+    SysMenuModule,
+    SysUserModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, UxCryptoRsaService],

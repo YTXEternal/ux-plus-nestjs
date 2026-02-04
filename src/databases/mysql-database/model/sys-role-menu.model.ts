@@ -6,6 +6,7 @@ import {
   PrimaryKey,
   Comment,
   ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { SysRole } from './sys-role.model';
 import { SysMenu } from './sys-menu.model';
@@ -27,4 +28,10 @@ export class SysRoleMenu extends Model<SysRoleMenu> {
   @Comment('菜单ID')
   @Column(DataType.BIGINT)
   menu_id: number;
+
+  @BelongsTo(() => SysMenu)
+  sysMenu: SysMenu;
+
+  @BelongsTo(() => SysRole)
+  sysRole: SysRole;
 }

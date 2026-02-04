@@ -8,7 +8,9 @@ import {
   Comment,
   CreatedAt,
   UpdatedAt,
+  HasMany,
 } from 'sequelize-typescript';
+import { SysRoleMenu } from './sys-role-menu.model';
 
 @Table({
   tableName: 'sys_menu',
@@ -91,4 +93,7 @@ export class SysMenu extends Model<SysMenu> {
   @Comment('备注')
   @Column({ type: DataType.STRING(500), defaultValue: '' })
   remark: string;
+
+  @HasMany(() => SysRoleMenu)
+  sysRoleMenus: SysRoleMenu[];
 }

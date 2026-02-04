@@ -18,5 +18,6 @@ import { SysRoleMenu } from '@/databases/mysql-database/model/sys-role-menu.mode
   imports: [SequelizeModule.forFeature([SysMenu, SysRoleMenu])],
   controllers: [SysMenuController],
   providers: [SysMenuService],
+  exports: [SysMenuService],
 })
 export class SysMenuModule {}

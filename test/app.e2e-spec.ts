@@ -327,6 +327,86 @@ describe('API (e2e)', () => {
         expect(typeof token).toBe('string');
       });
     });
+
+    describe('GET /auth/info', () => {
+      it('未携带 token 返回 401', async () => {
+        await unauthed('get', `${apiPrefix}/auth/info`).expect(401);
+      });
+
+      it('访问成功', async () => {
+        const res = await authed('get', `${apiPrefix}/auth/info`).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data).toHaveProperty('user');
+        expect(data).toHaveProperty('roles');
+        expect(data).toHaveProperty('permissions');
+        expect(data.user.user_name).toBe('admin');
+      });
+
+      it('普通用户访问成功', async () => {
+        // 创建普通角色
+        const normalRole = await SysRole.create({
+          role_name: '普通角色',
+          role_key: 'NORMAL',
+          role_sort: 2,
+          status: '0',
+          del_flag: '0',
+        } as any);
+
+        // 创建普通用户
+        const normalUser = await SysUser.create({
+          user_name: 'normal_user',
+          nick_name: '普通用户',
+          password: uxPasswordService.encryptedPassword('123456'),
+          status: '0',
+          del_flag: '0',
+        } as any);
+
+        // 关联角色
+        await SysUserRole.create({
+          user_id: normalUser.user_id,
+          role_id: normalRole.role_id,
+        } as any);
+
+        // 登录
+        const loginRes = await request(app.getHttpServer())
+          .post(`${apiPrefix}/auth/login`)
+          .send({
+            user_name: 'normal_user',
+            password: encryptLoginPassword('123456'),
+          })
+          .expect(200);
+
+        const token = (loginRes.body as ApiResponseBody<{ token: string }>)
+          .data!.token;
+
+        // 获取 info
+        const res = await authedWithToken(
+          'get',
+          `${apiPrefix}/auth/info`,
+          token,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.user.user_name).toBe('normal_user');
+        expect(data.roles).toContain('NORMAL');
+      });
+    });
+
+    describe('GET /auth/routers', () => {
+      it('未携带 token 返回 401', async () => {
+        await unauthed('get', `${apiPrefix}/auth/routers`).expect(401);
+      });
+
+      it('访问成功', async () => {
+        const res = await authed('get', `${apiPrefix}/auth/routers`).expect(
+          200,
+        );
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(Array.isArray(data)).toBe(true);
+      });
+    });
   });
 
   describe('System - Config', () => {
