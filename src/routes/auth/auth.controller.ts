@@ -31,6 +31,7 @@ import { Public } from '@/guards';
 import { ConfigService } from '@nestjs/config';
 import { SysUserService } from '@/routes/system/user/sys-user.service';
 import { SysMenuService } from '@/routes/system/menu/sys-menu.service';
+import { parseAuthToken } from '@/tools/parseAuthToken';
 
 @ApiTags('认证管理')
 @Controller({
@@ -114,19 +115,28 @@ export class AuthController {
   @Public()
   @HttpCode(200)
   @Post('/refresh')
-  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+  async refresh(
+    @Body() refreshTokenDto: RefreshTokenDto,
+    @Req() request: Request,
+  ) {
+    console.log('refreshTokenDto', refreshTokenDto);
     // 验证 refresh token
-    const payload = this.uxJwtService.parseRefreshToken(
-      refreshTokenDto.refreshToken,
-    );
-
-    // 生成新的 access token
-    const token = this.uxJwtService.loginToken({
-      id: payload.id,
-      account: payload.account,
-      tokenId: payload.tokenId,
+    const user = await parseAuthToken({
+      undisposedToken: refreshTokenDto.refreshToken,
+      request: request,
+      configService: this.configService,
+      redisService: this.redisService,
+      uxJwtService: this.uxJwtService,
+      sysUserService: this.sysUserService,
     });
-
+    // 生成 Token
+    const tokenId = generateId();
+    const payload = {
+      id: user.user_id,
+      account: user.userName,
+      tokenId,
+    };
+    const token = this.uxJwtService.refreshToken(payload);
     return new ApiResponse(HttpStatus.OK, 'Refresh token successful', {
       token,
     });

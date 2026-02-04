@@ -367,10 +367,14 @@ describe('API (e2e)', () => {
           loginRes.body as ApiResponseBody<{ refreshToken: string }>
         ).data!.refreshToken;
 
+        expect(typeof refreshToken).toBe('string');
+        const testToken =
+          'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYWNjb3VudCI6ImFkbWluIiwidG9rZW5JZCI6Ijg1ZDc5NTRhLWU1ZjAtNDBmYy1hY2ZjLWFiMDViM2Y2NmFjNiIsImlhdCI6MTc2OTk5NDQ4OCwiZXhwIjoxNzcyNTg2NDg4LCJzdWIiOiJuZXN0anMtdG9rZW4ifQ.DfHYelcxFIrQnYLFssWT6bQn1Vs5JiXorkuKTHmZIkyYDuQbqDX-I0h_Y14_GHO92D_8aclHccculkZfbmZSlnfQ_pz33RKEmDV_xQHrHV5XRyEy9mUiH5YUFyMj1UhnEIlOM-Y_c3mp_DEv0k8fN7wNYEXdSwe_VV4nq6bGCuaejw4ggrhXheKtDAx_EcMN7YXgXiWstzsBX6ctO-bX_JBxQkoj6okm-EkkkgNCl_vBcY6-hzsF6vYpe_qawQWt24RRiuronqeT28dIFCVgoPRVcIYbnHGkTs-eKb-sQ9QStvyiWV1kB_vtVdt9S41h9gFrxPmJPohWTJGOxRaIVQ';
+
         // 2. 使用 refreshToken 刷新
         const refreshRes = await request(app.getHttpServer())
           .post(`${apiPrefix}/auth/refresh`)
-          .send({ refreshToken })
+          .send({ refreshToken: `Bearer ${refreshToken}` })
           .expect(200);
 
         expectOk(refreshRes.body as ApiResponseBody<{ token: string }>);

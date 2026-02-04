@@ -69,7 +69,6 @@ const handleError = (err: E): VerifyCodeError => {
 export class UxJwtService {
   codeSubject: string = 'emailcode';
   tokenSubject: string = 'nestjs-token';
-  refreshTokenSubject: string = 'nestjs-refresh-token';
   /**
    * 构造函数
    *
@@ -139,24 +138,9 @@ export class UxJwtService {
   refreshToken(payload: LoginToken) {
     return this.jwtService.sign(payload, {
       expiresIn: this.configService.get('JWT_REFRESH_TOKEN_EXPIRES'),
-      subject: this.refreshTokenSubject,
+      subject: this.tokenSubject,
     });
   }
-
-  /**
-   * 验证刷新 Token
-   *
-   * @param {string} token
-   * @returns {LoginToken}
-   */
-  parseRefreshToken(token: string) {
-    const { err, data } = verifyKit<LoginToken>(this.jwtService, token, {
-      subject: this.refreshTokenSubject,
-    });
-    if (err) throw new UnauthorizedException(err.message);
-    return data;
-  }
-
   /**
    * 验证登录 Token
    *

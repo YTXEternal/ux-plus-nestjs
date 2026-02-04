@@ -25,7 +25,7 @@ export class LoginResponseDto {
 export class RefreshTokenDto {
   @ApiProperty({
     description: '刷新令牌',
-    example: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+    example: 'Bearer <your token>',
   })
   @IsString()
   @IsNotEmpty({ message: 'Refresh token cannot be empty' })
