@@ -3,15 +3,12 @@ import { SysUserInter } from '@/databases/mysql-database/interfaces/sys-user.int
 export class Info {
   @Expose()
   roles: string[];
-  @Expose()
-  permissions: string[];
+  @Expose({ name: 'permissions' })
+  buttons: string[];
   @Expose({ name: 'user' })
   @Transform(({ obj }: { obj: { user: SysUserInter } }) => obj.user.user_id)
-  userid: string;
-  @Expose({ name: 'user' })
-  @Transform(({ obj }: { obj: { user: SysUserInter } }) => obj.user.nick_name)
-  nickname: string;
+  userId: string;
   @Expose({ name: 'user' })
   @Transform(({ obj }: { obj: { user: SysUserInter } }) => obj.user.user_name)
-  username: string;
+  userName: string;
 }
