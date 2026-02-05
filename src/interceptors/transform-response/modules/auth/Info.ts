@@ -5,17 +5,13 @@ export class Info {
   roles: string[];
   @Expose()
   permissions: string[];
-
   @Expose({ name: 'user' })
   @Transform(({ obj }: { obj: { user: SysUserInter } }) => obj.user.user_id)
-  userId: string;
+  userid: string;
+  @Expose({ name: 'user' })
+  @Transform(({ obj }: { obj: { user: SysUserInter } }) => obj.user.nick_name)
+  nickname: string;
   @Expose({ name: 'user' })
   @Transform(({ obj }: { obj: { user: SysUserInter } }) => obj.user.user_name)
   username: string;
-  @Expose({ name: 'user' })
-  @Transform(({ obj }: { obj: { user: SysUserInter } }) => obj.user.user_name)
-  realName: string;
-
-  @Expose()
-  desc: string;
 }
