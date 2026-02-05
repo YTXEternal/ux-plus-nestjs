@@ -204,28 +204,4 @@ export class AuthController {
       permissions,
     });
   }
-
-  @ApiOperation({ summary: '获取路由信息' })
-  @ApiSwaggerResponse({ type: RouterResult })
-  @Get('/routers')
-  async routers(@Req() request: Request) {
-    const userPayload = (request as any).user;
-    if (!userPayload) {
-      throw new HttpException(
-        'User not found in request',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-    const userId = userPayload.user_id;
-    const { data: user } = await this.sysUserService.findOne(userId);
-    const roleIds = user?.roles?.map((r) => r.role_id) || [];
-    // 超级管理员直接获取所有数据，无需检查关联
-    const isAdmin = user?.roles?.some((r) => r.role_key === 'SUPERADMIN');
-
-    const menus = await this.sysMenuService.selectMenuTreeByRoleIds(
-      roleIds,
-      isAdmin,
-    );
-    return new ApiResponse(HttpStatus.OK, 'Get routers successful', menus);
-  }
 }

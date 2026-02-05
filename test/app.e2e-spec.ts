@@ -466,13 +466,13 @@ describe('API (e2e)', () => {
       });
     });
 
-    describe('GET /auth/routers', () => {
+    describe('GET /route/routers', () => {
       it('未携带 token 返回 401', async () => {
-        await unauthed('get', `${apiPrefix}/auth/routers`).expect(401);
+        await unauthed('get', `${apiPrefix}/route/routers`).expect(401);
       });
 
       it('访问成功', async () => {
-        const res = await authed('get', `${apiPrefix}/auth/routers`).expect(
+        const res = await authed('get', `${apiPrefix}/route/routers`).expect(
           200,
         );
         expectOk(res.body as ApiResponseBody<any>);

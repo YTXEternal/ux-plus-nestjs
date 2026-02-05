@@ -46,6 +46,7 @@ import { SysNoticeModule } from './routes/system/notice/sys-notice.module';
 import { SysOperLogModule } from './routes/monitor/operlog/sys-oper-log.module';
 import { SysLogininforModule } from './routes/monitor/logininfor/sys-logininfor.module';
 import { SysOnlineModule } from './routes/monitor/online/sys-online.module';
+import { RouteModule } from './routes/route/route.module';
 
 const staticPath = join(__dirname, '../static');
 
@@ -156,6 +157,7 @@ const useProviders = () => {
     SysOperLogModule,
     SysLogininforModule,
     SysOnlineModule,
+    RouteModule,
   ],
   controllers: [AppController],
   providers: useProviders(),

@@ -55,3 +55,4 @@ pnpm-lock.yaml
 swagger.json
 
 # frontend
+/frontend
