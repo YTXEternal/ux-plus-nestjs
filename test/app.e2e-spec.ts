@@ -294,6 +294,18 @@ describe('API (e2e)', () => {
   const invalidToken = 'invalid.token.value';
 
   describe('Auth', () => {
+    describe('GET /auth/public-key', () => {
+      it('获取公钥成功', async () => {
+        const res = await unauthed(
+          'get',
+          `${apiPrefix}/auth/public-key`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<{ publicKey: string }>);
+        const data = (res.body as ApiResponseBody<{ publicKey: string }>).data!;
+        expect(data.publicKey).toContain('-----BEGIN PUBLIC KEY-----');
+      });
+    });
+
     describe('POST /auth/login', () => {
       it('未传 password 返回 400', async () => {
         await request(app.getHttpServer())

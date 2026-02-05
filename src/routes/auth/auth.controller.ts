@@ -23,6 +23,7 @@ import {
   RefreshTokenResult,
 } from './dto/auth.dto';
 import { UxJwtService } from '@/modules/ux-jwt/ux-jwt.service';
+import { UxCryptoRsaService } from '@/services/ux-crypto-rsa/ux-crypto-rsa.service';
 import { ApiResponse } from '@/dto/api-response';
 import { RedisService } from '@/modules/redis/redis.service';
 import { generateId } from '@/tools';
@@ -42,11 +43,41 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly uxJwtService: UxJwtService,
+    private readonly uxCryptoRsaService: UxCryptoRsaService,
     private readonly redisService: RedisService,
     private readonly configService: ConfigService,
     private readonly sysUserService: SysUserService,
     private readonly sysMenuService: SysMenuService,
   ) {}
+
+  @ApiOperation({ summary: '获取公钥' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    schema: {
+      type: 'object',
+      properties: {
+        code: { type: 'number', example: 200 },
+        message: { type: 'string', example: 'Get public key successful' },
+        data: {
+          type: 'object',
+          properties: {
+            publicKey: {
+              type: 'string',
+              example: '-----BEGIN PUBLIC KEY-----\n...',
+            },
+          },
+        },
+      },
+    },
+  })
+  @Public()
+  @Get('/public-key')
+  getPublicKey() {
+    return new ApiResponse(HttpStatus.OK, 'Get public key successful', {
+      publicKey: this.uxCryptoRsaService.pubkey,
+    });
+  }
 
   @ApiOperation({ summary: '用户登录' })
   @ApiSwaggerResponse({
