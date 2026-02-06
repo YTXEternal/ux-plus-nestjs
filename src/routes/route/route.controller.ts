@@ -25,7 +25,7 @@ export class RouteController {
 
   @ApiOperation({ summary: '获取路由信息' })
   @ApiSwaggerResponse({ type: RouterResult })
-  @Get('/routers')
+  @Get('/getReactUserRoutes')
   async routers(@Req() request: Request) {
     const userPayload = (request as any).user;
     if (!userPayload) {
@@ -36,6 +36,10 @@ export class RouteController {
     }
     const userId = userPayload.user_id;
     const menus = await this.routeService.getRouters(userId);
-    return new ApiResponse(HttpStatus.OK, 'Get routers successful', menus);
+    const result = {
+      home: '/home',
+      routes: menus,
+    };
+    return new ApiResponse(HttpStatus.OK, 'Get routers successful', result);
   }
 }

@@ -17,4 +17,5 @@ export interface SysMenuInter {
   create_by: string;
   update_by: string;
   remark: string;
+  constant: boolean;
 }

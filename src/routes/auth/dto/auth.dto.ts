@@ -145,6 +145,9 @@ export class RouterResponseDto {
   @ApiProperty({ description: '备注', example: '系统管理目录' })
   remark: string;
 
+  @ApiProperty({ description: '是否为常量路由', example: 0 })
+  constant: boolean;
+
   @ApiPropertyOptional({ description: '子菜单', type: [RouterResponseDto] })
   children?: RouterResponseDto[];
 }

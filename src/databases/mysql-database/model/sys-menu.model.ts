@@ -94,6 +94,10 @@ export class SysMenu extends Model<SysMenu> {
   @Column({ type: DataType.STRING(500), defaultValue: '' })
   remark: string;
 
+  @Comment('是否为常量路由')
+  @Column({ type: DataType.TINYINT, defaultValue: 0 })
+  constant: boolean;
+
   @HasMany(() => SysRoleMenu)
   sysRoleMenus: SysRoleMenu[];
 }

@@ -44,17 +44,25 @@ export class TransformResponseInterceptor<T> implements NestInterceptor<T, T> {
     if (isBootUp) {
       return next.handle();
     }
-    if (!(url in intercept && method in intercept[url])) return next.handle();
+    const isTrue = !(url in intercept && method in intercept[url]);
+    console.log('result', method, url, intercept, isTrue);
+
+    if (isTrue) return next.handle();
     return next.handle().pipe(
-      map((result: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+      map((result: any | any[]) => {
         // 在这里进行响应数据的转换
         // data 是控制器返回的原始数据
-
         // 示例：你可以在这里根据 method 或 url 对 data 进行加工
         // if (url.includes('/api/some-path')) { ... }
-        console.log('result', result);
         // 当前直接返回原始数据，具体转换逻辑由用户实现
-        result.data = this.transformData(result.data, method as Method, url);
+        if (Array.isArray(result.data)) {
+          result.data = result.data.map((item) =>
+            this.transformData(item, method as Method, url),
+          );
+        } else {
+          result.data = this.transformData(result.data, method as Method, url);
+        }
         return result as T;
       }),
     );

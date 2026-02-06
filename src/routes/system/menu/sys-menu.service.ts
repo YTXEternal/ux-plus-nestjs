@@ -118,10 +118,10 @@ export class SysMenuService {
     isAdmin: boolean = false,
   ): Promise<SysMenuTree[]> {
     let menus: SysMenu[] = [];
-
+    const menu_type = ['M', 'C'];
     if (isAdmin) {
       menus = await this.sysMenuModel.findAll({
-        where: { status: '0', visible: '0' },
+        where: { status: '0', menu_type },
         order: [['order_num', 'ASC']],
       });
     } else {
@@ -138,7 +138,7 @@ export class SysMenuService {
             attributes: [], // 不返回关联表数据
           },
         ],
-        where: { status: '0', visible: '0' },
+        where: { status: '0', menu_type: menu_type },
         order: [['order_num', 'ASC']],
       });
     }
