@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { plainToClass } from 'class-transformer';
 import intercept from './intercept';
 import type { Method } from './intercept';
+import { ApiResponse } from '@/dto/api-response';
 /**
  * 响应数据转换拦截器
  *
@@ -49,13 +50,8 @@ export class TransformResponseInterceptor<T> implements NestInterceptor<T, T> {
 
     if (isTrue) return next.handle();
     return next.handle().pipe(
-      // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-      map((result: any | any[]) => {
-        // 在这里进行响应数据的转换
-        // data 是控制器返回的原始数据
-        // 示例：你可以在这里根据 method 或 url 对 data 进行加工
-        // if (url.includes('/api/some-path')) { ... }
-        // 当前直接返回原始数据，具体转换逻辑由用户实现
+      map((result: any) => {
+        // 响应数据转换
         if (Array.isArray(result.data)) {
           result.data = result.data.map((item) =>
             this.transformData(item, method as Method, url),
@@ -63,7 +59,11 @@ export class TransformResponseInterceptor<T> implements NestInterceptor<T, T> {
         } else {
           result.data = this.transformData(result.data, method as Method, url);
         }
-        return result as T;
+
+        const isTransformStructure =
+          this.configService.get<'Y' | 'N'>('APIRESPONSE_IS_TRANSFORM') === 'Y';
+        if (!isTransformStructure) return result as T;
+        return this.isTransformStructure(result);
       }),
     );
   }
@@ -79,10 +79,33 @@ export class TransformResponseInterceptor<T> implements NestInterceptor<T, T> {
     // 预留给用户的实现区域
     // 你可以在这里编写具体的转换逻辑
     const transformClass = intercept[url][method]!;
-    console.log('transformClass', transformClass, url, method);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return plainToClass(transformClass, data, {
       excludeExtraneousValues: true,
     });
+  }
+  private isTransformStructure(data: any): T {
+    data.msg = data.message;
+
+    const code = data.code as number;
+
+    const condition = [
+      {
+        pattern: (code) => code === 200,
+        fn() {
+          return '0000';
+        },
+      },
+      {
+        pattern: () => true,
+        fn() {
+          return code + '';
+        },
+      },
+    ];
+
+    data.code = condition.find((v) => v.pattern(code))?.fn();
+    delete data.message;
+    return data as T;
   }
 }

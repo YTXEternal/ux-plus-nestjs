@@ -42,12 +42,7 @@ export const parseAuthToken = async <T>({
   )
     throw new UnauthorizedException(message);
 
-  let deToken;
-  try {
-    deToken = uxJwtService.parseLoginToken(token);
-  } catch (e) {
-    throw new UnauthorizedException(message);
-  }
+  const deToken = uxJwtService.parseLoginToken(token);
 
   if (deToken.sub !== configService.get('JWT_LOGIN_TOKEN_SUBJECT'))
     throw new UnauthorizedException(message);

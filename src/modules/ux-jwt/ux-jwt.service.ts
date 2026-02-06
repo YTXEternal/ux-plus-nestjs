@@ -1,4 +1,9 @@
-import { UnauthorizedException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  HttpStatus,
+  Injectable,
+  HttpException,
+} from '@nestjs/common';
 import {
   JwtService,
   TokenExpiredError,
@@ -25,14 +30,14 @@ const handleError = (err: E): VerifyCodeError => {
     return {
       name: 'TokenExpiredError',
       message: 'Token expired',
-      code: HttpStatus.UNAUTHORIZED,
+      code: 9999,
     };
   } else if (err.name === 'JsonWebTokenError') {
     // 无效的签名、格式错误等
     return {
       name: 'JsonWebTokenError',
       message: 'Invalid token signature or malformed token',
-      code: HttpStatus.BAD_REQUEST,
+      code: HttpStatus.UNAUTHORIZED,
     };
   } else if (err.name === 'NotBeforeError') {
     // Token 尚未生效 (nbf 已设置)
@@ -151,7 +156,7 @@ export class UxJwtService {
     const { err, data } = verifyKit<LoginToken>(this.jwtService, token, {
       subject: this.tokenSubject,
     });
-    if (err) throw new UnauthorizedException(err.message);
+    if (err) throw new HttpException(err.message, err.code);
     return data;
   }
 }
