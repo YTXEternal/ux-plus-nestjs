@@ -26,13 +26,23 @@ describe('SysPermissionService', () => {
   });
 
   describe('getRolePermission', () => {
-    it('should return admin role when user is admin', async () => {
-      const roles = await service.getRolePermission({ isAdmin: true });
-      expect(Array.from(roles)).toEqual(['admin']);
-      expect(userModel.findOne).not.toHaveBeenCalled();
+    it('should query database even if isAdmin is true', async () => {
+      userModel.findOne.mockResolvedValue({
+        roles: [{ role_key: 'SUPERADMIN' }],
+      });
+      const roles = await service.getRolePermission({
+        user_id: 1,
+        isAdmin: true,
+      });
+      expect(Array.from(roles)).toEqual(['SUPERADMIN']);
+      expect(userModel.findOne).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { user_id: 1 },
+        }),
+      );
     });
 
-    it('should query user roles when user is not admin', async () => {
+    it('should query user roles from database', async () => {
       userModel.findOne.mockResolvedValue({
         roles: [{ role_key: 'R1' }, { role_key: 'R2' }],
       });

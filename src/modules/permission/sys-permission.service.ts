@@ -38,27 +38,22 @@ export class SysPermissionService {
    */
   async getRolePermission(user: SysUser | any): Promise<Set<string>> {
     const roles = new Set<string>();
-    // 管理员拥有所有权限
-    if (user && user.isAdmin) {
-      roles.add('admin');
-    } else {
-      // 查询用户角色
-      // 注意：这里我们重新查询数据库以确保数据的实时性
-      const userWithRoles = await this.userModel.findOne({
-        where: { user_id: user.user_id },
-        include: [
-          {
-            model: SysRole,
-            attributes: ['role_key'],
-          },
-        ],
-      });
+    // 查询用户角色
+    // 注意：这里我们重新查询数据库以确保数据的实时性
+    const userWithRoles = await this.userModel.findOne({
+      where: { user_id: user.user_id },
+      include: [
+        {
+          model: SysRole,
+          attributes: ['role_key'],
+        },
+      ],
+    });
 
-      if (userWithRoles && userWithRoles.roles) {
-        userWithRoles.roles.forEach((role) => {
-          roles.add(role.role_key);
-        });
-      }
+    if (userWithRoles && userWithRoles.roles) {
+      userWithRoles.roles.forEach((role) => {
+        roles.add(role.role_key);
+      });
     }
     return roles;
   }
