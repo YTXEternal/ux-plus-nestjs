@@ -171,3 +171,19 @@ export class RouterResult extends ApiResponse<RouterResponseDto[]> {
   @ApiProperty({ type: [RouterResponseDto] })
   data: RouterResponseDto[];
 }
+
+export class UserRouteResponseDto {
+  @ApiProperty({ description: '用户首页路由键', example: 'dashboard' })
+  home: string;
+
+  @ApiProperty({
+    description: '路由名称列表',
+    example: ['dashboard', 'system'],
+  })
+  routes: string[];
+}
+
+export class UserRoutesResult extends ApiResponse<UserRouteResponseDto> {
+  @ApiProperty({ type: UserRouteResponseDto })
+  data: UserRouteResponseDto;
+}

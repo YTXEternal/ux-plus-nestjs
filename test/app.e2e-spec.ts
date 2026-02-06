@@ -483,6 +483,78 @@ describe('API (e2e)', () => {
         expect(Array.isArray(data.routes)).toBe(true);
       });
     });
+
+    describe('GET /route/getUserRoutes', () => {
+      it('未携带 token 返回 401', async () => {
+        await unauthed('get', `${apiPrefix}/route/getUserRoutes`).expect(401);
+      });
+
+      it('访问成功', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/route/getUserRoutes`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data).toHaveProperty('home');
+        expect(data).toHaveProperty('routes');
+        expect(typeof data.home).toBe('string');
+        expect(Array.isArray(data.routes)).toBe(true);
+        // 验证 routes 是字符串数组
+        if (data.routes.length > 0) {
+          expect(typeof data.routes[0]).toBe('string');
+        }
+      });
+    });
+
+    describe('GET /route/isRouteExist', () => {
+      const existRouteName = 'system';
+      const notExistRouteName = 'not_exist_route_name_123';
+
+      it('未携带 token 返回 401', async () => {
+        await unauthed('get', `${apiPrefix}/route/isRouteExist`).expect(401);
+      });
+
+      it('未传 routeName 返回 400', async () => {
+        await authed('get', `${apiPrefix}/route/isRouteExist`).expect(400);
+      });
+
+      it('存在的路由返回 true', async () => {
+        // 先确保系统菜单里有 system 这个路由名称 (初始化数据或之前测试创建的)
+        // 也可以先创建一个菜单
+        const menuName = `RouteCheck_${testRunId}`;
+        const routeName = `route_check_${testRunId}`;
+        await authed('post', `${apiPrefix}/system/menu`)
+          .send({
+            parent_id: 0,
+            menu_name: menuName,
+            order_num: 1,
+            path: routeName,
+            route_name: routeName,
+            component: 'Layout',
+            menu_type: 'M',
+            visible: '0',
+            status: '0',
+          })
+          .expect(201);
+
+        const res = await authed(
+          'get',
+          `${apiPrefix}/route/isRouteExist?routeName=${routeName}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<boolean>);
+        expect((res.body as ApiResponseBody<boolean>).data).toBe(true);
+      });
+
+      it('不存在的路由返回 false', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/route/isRouteExist?routeName=${notExistRouteName}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<boolean>);
+        expect((res.body as ApiResponseBody<boolean>).data).toBe(false);
+      });
+    });
   });
 
   describe('System - Config', () => {

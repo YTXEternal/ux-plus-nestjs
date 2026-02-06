@@ -87,6 +87,11 @@ export class CreateMenuDto {
   @IsString()
   query?: string;
 
+  @ApiPropertyOptional({ description: '路由名称', example: 'SystemUser' })
+  @IsOptional()
+  @IsString()
+  route_name?: string;
+
   @ApiPropertyOptional({ description: '是否为常量路由', example: 0 })
   @IsOptional()
   @IsBoolean()

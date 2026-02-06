@@ -29,4 +29,37 @@ export class RouteService {
     );
     return menus;
   }
+
+  /**
+   * 获取用户路由名称列表
+   * @param userId 用户ID
+   * @returns 路由名称列表对象
+   */
+  async getUserRoutes(userId: number) {
+    const { data: user } = await this.sysUserService.findOne(userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const roleIds = user?.roles?.map((r) => r.role_id) || [];
+    const isAdmin = user?.roles?.some((r) => r.role_key === 'SUPERADMIN');
+
+    const routes = await this.sysMenuService.selectMenuRouteNamesByRoleIds(
+      roleIds,
+      isAdmin,
+    );
+
+    return {
+      home: 'dashboard',
+      routes,
+    };
+  }
+
+  /**
+   * 检查路由是否存在
+   * @param routeName 路由名称
+   * @returns boolean
+   */
+  async isRouteExist(routeName: string) {
+    return this.sysMenuService.checkRouteNameUnique(routeName);
+  }
 }

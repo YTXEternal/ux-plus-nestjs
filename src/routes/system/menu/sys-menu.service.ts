@@ -221,4 +221,63 @@ export class SysMenuService {
     });
     return Array.from(perms);
   }
+
+  /**
+   * 根据角色ID列表查询路由名称列表
+   *
+   * @async
+   * @param {number[]} roleIds 角色ID列表
+   * @param {boolean} isAdmin 是否是管理员
+   * @returns {Promise<string[]>} 路由名称列表
+   */
+  async selectMenuRouteNamesByRoleIds(
+    roleIds: number[],
+    isAdmin: boolean = false,
+  ): Promise<string[]> {
+    let menus: SysMenu[] = [];
+    const menu_type = ['M', 'C'];
+    const attributes = ['route_name'];
+
+    if (isAdmin) {
+      menus = await this.sysMenuModel.findAll({
+        attributes,
+        where: { status: '0', menu_type },
+      });
+    } else {
+      if (roleIds.length === 0) return [];
+      menus = await this.sysMenuModel.findAll({
+        attributes,
+        include: [
+          {
+            model: SysRoleMenu,
+            where: { role_id: roleIds },
+            attributes: [],
+          },
+        ],
+        where: { status: '0', menu_type },
+      });
+    }
+
+    const routeNames = new Set<string>();
+    menus.forEach((menu) => {
+      if (menu.route_name) {
+        routeNames.add(menu.route_name);
+      }
+    });
+    return Array.from(routeNames);
+  }
+
+  /**
+   * 检查路由名称是否存在
+   *
+   * @async
+   * @param {string} routeName 路由名称
+   * @returns {Promise<boolean>} 是否存在
+   */
+  async checkRouteNameUnique(routeName: string): Promise<boolean> {
+    const count = await this.sysMenuModel.count({
+      where: { route_name: routeName },
+    });
+    return count > 0;
+  }
 }
