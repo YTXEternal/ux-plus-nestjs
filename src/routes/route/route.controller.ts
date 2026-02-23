@@ -16,6 +16,7 @@ import { RouteService } from './route.service';
 import { Request } from 'express';
 import { ApiResponse } from '@/dto/api-response';
 import { RouterResult, UserRoutesResult } from '@/routes/auth/dto/auth.dto';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('路由管理')
 @Controller({
@@ -23,7 +24,10 @@ import { RouterResult, UserRoutesResult } from '@/routes/auth/dto/auth.dto';
   version: '1',
 })
 export class RouteController {
-  constructor(private readonly routeService: RouteService) {}
+  constructor(
+    private readonly routeService: RouteService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @ApiOperation({ summary: '获取路由信息' })
   @ApiSwaggerResponse({ type: RouterResult })
@@ -39,7 +43,7 @@ export class RouteController {
     const userId = userPayload.user_id;
     const menus = await this.routeService.getRouters(userId);
     const result = {
-      home: '/home',
+      home: this.configService.get('ROUTES_HOME'),
       routes: menus,
     };
     return new ApiResponse(HttpStatus.OK, 'Get routers successful', result);

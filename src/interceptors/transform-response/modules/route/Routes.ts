@@ -2,6 +2,7 @@ import { Expose, Transform, Type, plainToClass } from 'class-transformer';
 import { SysMenuInter } from '@/databases/mysql-database/interfaces/sys-menu.interface';
 
 export class Routes {
+  @Expose()
   @Transform(({ obj }: { obj: SysMenuInter }) => obj.route_name)
   name: string;
 
@@ -17,9 +18,8 @@ export class Routes {
     i18nKey: null,
     icon: obj.icon,
     order: obj.order_num,
-    hideInMenu: Boolean(obj.visible),
+    hideInMenu: obj.visible === '1',
     constant: Boolean(obj.constant),
-    // rules:[]
   }))
   handle: Record<string, any>;
 

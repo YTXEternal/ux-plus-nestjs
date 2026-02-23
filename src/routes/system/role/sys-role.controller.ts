@@ -87,6 +87,7 @@ export class SysRoleController {
   @RequirePermissions('system:role:edit')
   @Put()
   async update(@Body() body: UpdateRoleDto) {
+    console.log('进入修改角色');
     const data = await this.sysRoleService.update(body);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }

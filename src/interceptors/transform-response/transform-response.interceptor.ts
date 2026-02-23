@@ -91,13 +91,7 @@ export class TransformResponseInterceptor<T> implements NestInterceptor<T, T> {
 
     const condition = [
       {
-        pattern: (code) => code === 200,
-        fn() {
-          return '0000';
-        },
-      },
-      {
-        pattern: () => true,
+        pattern: (code: number) => true,
         fn() {
           return code + '';
         },

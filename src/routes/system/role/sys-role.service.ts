@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
+import { SysRoleInter } from '@/databases/mysql-database/interfaces/sys-role.interface';
 import { SysRoleMenu } from '@/databases/mysql-database/model/sys-role-menu.model';
 import { SysRoleDept } from '@/databases/mysql-database/model/sys-role-dept.model';
-import { Op } from 'sequelize';
+import { Op, where } from 'sequelize';
+
 
 import {
   ListRoleDto,
@@ -11,6 +13,7 @@ import {
   UpdateRoleDto,
   ChangeRoleStatusDto,
 } from './dto/sys-role.dto';
+import { filterObj, isNull, isUndefined } from '@/tools';
 
 /**
  * 系统-角色服务
@@ -58,7 +61,7 @@ export class SysRoleService {
       where,
       offset: (pageNum - 1) * pageSize,
       limit: +pageSize,
-      order: [['role_sort', 'ASC']],
+      order: [['create_time', 'DESC']],
     });
 
     return { rows, total: count };
@@ -72,9 +75,19 @@ export class SysRoleService {
    * @returns {Promise<SysRole | null>} 角色记录
    */
   async findOne(roleId: number) {
-    return this.sysRoleModel.findByPk(roleId);
+    const roleDetail = await this.sysRoleModel.findOne<SysRole>({
+      where:{role_id:roleId},
+    });
+    if(!roleDetail) return null;
+    const {role_id} = roleDetail;
+    const menuRow = await this.sysRoleMenuModel.findAll<SysRoleMenu>({
+      where:{
+        role_id
+      }
+    });
+    const menu_ids = menuRow.map(v=>v.menu_id);
+    return {...roleDetail.dataValues,menu_ids};
   }
-
   /**
    * 创建角色
    *
@@ -108,8 +121,10 @@ export class SysRoleService {
    */
   async update(updateRoleDto: UpdateRoleDto) {
     const { role_id, menu_ids, ...data } = updateRoleDto;
-    await this.sysRoleModel.update(data, { where: { role_id } });
-
+        // 更新需要把空值过滤
+    const pureData = filterObj(data,(_,el)=>!isNull(el) ||!isUndefined(el));
+    console.log('pureData',JSON.stringify(pureData,null,2))
+    await this.sysRoleModel.update(pureData, { where: { role_id } });
     if (menu_ids) {
       await this.sysRoleMenuModel.destroy({ where: { role_id } });
       if (menu_ids.length > 0) {
@@ -117,7 +132,6 @@ export class SysRoleService {
           role_id,
           menu_id: menuId,
         }));
-
         await this.sysRoleMenuModel.bulkCreate(roleMenus as any);
       }
     }

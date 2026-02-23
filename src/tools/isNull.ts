@@ -1,0 +1,1 @@
+export const isNull = <T>(value:T) => value === null;

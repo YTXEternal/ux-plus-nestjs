@@ -84,6 +84,7 @@ export class SysMenuController {
   @RequirePermissions('system:menu:edit')
   @Put()
   async update(@Body() body: UpdateMenuDto) {
+    console.log('system:menu:edit 进行中');
     const data = await this.sysMenuService.update(body);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }

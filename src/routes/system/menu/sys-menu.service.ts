@@ -3,10 +3,11 @@ import { InjectModel } from '@nestjs/sequelize';
 import { SysMenu } from '@/databases/mysql-database/model/sys-menu.model';
 import { SysRoleMenu } from '@/databases/mysql-database/model/sys-role-menu.model';
 import { Op } from 'sequelize';
-
 import { ListMenuDto, CreateMenuDto, UpdateMenuDto } from './dto/sys-menu.dto';
-
-export type SysMenuTree = SysMenu & { children?: SysMenuTree[] };
+import type {SysMenuTree} from './types';
+import { SysMenuInter } from '@/databases/mysql-database/interfaces/sys-menu.interface';
+import { filterObj, isNull,isUndefined } from '@/tools';
+// export type SysMenuTree = SysMenu & { children?: SysMenuTree[] };
 
 /**
  * 系统-菜单服务
@@ -30,7 +31,7 @@ export class SysMenuService {
     private readonly sysMenuModel: typeof SysMenu,
     @InjectModel(SysRoleMenu)
     private readonly sysRoleMenuModel: typeof SysRoleMenu,
-  ) {}
+  ) { }
 
   /**
    * 查询菜单列表
@@ -41,7 +42,7 @@ export class SysMenuService {
    */
   async findAll(query: ListMenuDto) {
     const { menu_name, status } = query;
-    const where: any = { status: '0' }; // TODO: handle del_flag/status logic better
+    const where: any = { status: '0' };
     if (menu_name) where.menu_name = { [Op.like]: `%${menu_name}%` };
     if (status) where.status = status;
 
@@ -49,7 +50,8 @@ export class SysMenuService {
       where,
       order: [['order_num', 'ASC']],
     });
-    return menus;
+
+    return this.buildMenuTree(menus);
   }
 
   /**
@@ -84,6 +86,8 @@ export class SysMenuService {
    */
   async update(updateMenuDto: UpdateMenuDto) {
     const { menu_id, ...data } = updateMenuDto;
+    // 更新需要把空值过滤
+    // const pureData = filterObj(data,(_,el)=>!isNull(el) ||!isUndefined(el));
     return this.sysMenuModel.update(data, { where: { menu_id } });
   }
 
@@ -279,5 +283,16 @@ export class SysMenuService {
       where: { route_name: routeName },
     });
     return count > 0;
+  }
+
+  async formatToTree<T extends SysMenuInter>(menu:T[]) {
+    function convertToTree(regions:SysMenuTree[], rootId = 0) {
+      return regions.filter(v => v.parent_id === rootId)
+        .map(v => {
+          v.children = convertToTree(regions, v.menu_id);
+          return v;
+        });
+    }
+    return convertToTree(menu);
   }
 }
