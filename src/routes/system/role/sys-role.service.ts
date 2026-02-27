@@ -6,7 +6,6 @@ import { SysRoleMenu } from '@/databases/mysql-database/model/sys-role-menu.mode
 import { SysRoleDept } from '@/databases/mysql-database/model/sys-role-dept.model';
 import { Op, where } from 'sequelize';
 
-
 import {
   ListRoleDto,
   CreateRoleDto,
@@ -76,17 +75,17 @@ export class SysRoleService {
    */
   async findOne(roleId: number) {
     const roleDetail = await this.sysRoleModel.findOne<SysRole>({
-      where:{role_id:roleId},
+      where: { role_id: roleId },
     });
-    if(!roleDetail) return null;
-    const {role_id} = roleDetail;
+    if (!roleDetail) return null;
+    const { role_id } = roleDetail;
     const menuRow = await this.sysRoleMenuModel.findAll<SysRoleMenu>({
-      where:{
-        role_id
-      }
+      where: {
+        role_id,
+      },
     });
-    const menu_ids = menuRow.map(v=>v.menu_id);
-    return {...roleDetail.dataValues,menu_ids};
+    const menu_ids = menuRow.map((v) => v.menu_id);
+    return { ...roleDetail.dataValues, menu_ids };
   }
   /**
    * 创建角色
@@ -121,9 +120,12 @@ export class SysRoleService {
    */
   async update(updateRoleDto: UpdateRoleDto) {
     const { role_id, menu_ids, ...data } = updateRoleDto;
-        // 更新需要把空值过滤
-    const pureData = filterObj(data,(_,el)=>!isNull(el) ||!isUndefined(el));
-    console.log('pureData',JSON.stringify(pureData,null,2))
+    // 更新需要把空值过滤
+    const pureData = filterObj(
+      data,
+      (_, el) => !isNull(el) || !isUndefined(el),
+    );
+    console.log('pureData', JSON.stringify(pureData, null, 2));
     await this.sysRoleModel.update(pureData, { where: { role_id } });
     if (menu_ids) {
       await this.sysRoleMenuModel.destroy({ where: { role_id } });

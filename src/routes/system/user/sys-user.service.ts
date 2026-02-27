@@ -69,6 +69,7 @@ export class SysUserService {
 
     const { rows, count } = await this.sysUserModel.findAndCountAll({
       where,
+      attributes: { exclude: ['password'] },
       offset: (pageNum - 1) * pageSize,
       limit: +pageSize,
       include: [{ model: SysDept, attributes: ['dept_name', 'leader'] }],
@@ -86,6 +87,7 @@ export class SysUserService {
    */
   async findOne(userId: number) {
     const user = await this.sysUserModel.findByPk(userId, {
+      attributes: { exclude: ['password'] },
       include: [{ model: SysDept }, { model: SysRole }, { model: SysPost }],
     });
     // TODO: 获取所有角色和岗位以标记为选中

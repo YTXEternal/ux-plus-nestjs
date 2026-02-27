@@ -1,1 +1,1 @@
-export const isNull = <T>(value:T) => value === null;
+export const isNull = <T>(value: T) => value === null;

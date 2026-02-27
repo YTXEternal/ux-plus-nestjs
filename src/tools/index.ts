@@ -11,4 +11,4 @@ export * from './getEnvPaths';
 export * from './isNull';
 export * from './objFor';
 export * from './filterObj';
-export * from './isUndefined'
+export * from './isUndefined';

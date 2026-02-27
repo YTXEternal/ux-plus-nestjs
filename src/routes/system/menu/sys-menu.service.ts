@@ -4,9 +4,9 @@ import { SysMenu } from '@/databases/mysql-database/model/sys-menu.model';
 import { SysRoleMenu } from '@/databases/mysql-database/model/sys-role-menu.model';
 import { Op } from 'sequelize';
 import { ListMenuDto, CreateMenuDto, UpdateMenuDto } from './dto/sys-menu.dto';
-import type {SysMenuTree} from './types';
+import type { SysMenuTree } from './types';
 import { SysMenuInter } from '@/databases/mysql-database/interfaces/sys-menu.interface';
-import { filterObj, isNull,isUndefined } from '@/tools';
+import { filterObj, isNull, isUndefined } from '@/tools';
 // export type SysMenuTree = SysMenu & { children?: SysMenuTree[] };
 
 /**
@@ -31,7 +31,7 @@ export class SysMenuService {
     private readonly sysMenuModel: typeof SysMenu,
     @InjectModel(SysRoleMenu)
     private readonly sysRoleMenuModel: typeof SysRoleMenu,
-  ) { }
+  ) {}
 
   /**
    * 查询菜单列表
@@ -285,10 +285,11 @@ export class SysMenuService {
     return count > 0;
   }
 
-  async formatToTree<T extends SysMenuInter>(menu:T[]) {
-    function convertToTree(regions:SysMenuTree[], rootId = 0) {
-      return regions.filter(v => v.parent_id === rootId)
-        .map(v => {
+  async formatToTree<T extends SysMenuInter>(menu: T[]) {
+    function convertToTree(regions: SysMenuTree[], rootId = 0) {
+      return regions
+        .filter((v) => v.parent_id === rootId)
+        .map((v) => {
           v.children = convertToTree(regions, v.menu_id);
           return v;
         });
