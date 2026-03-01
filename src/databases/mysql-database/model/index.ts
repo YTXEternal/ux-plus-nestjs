@@ -11,5 +11,5 @@ export * from './sys-oper-log.model';
 export * from './sys-logininfor.model';
 export * from './sys-user-role.model';
 export * from './sys-role-menu.model';
-export * from './sys-role-dept.model';
+export * from './sys-user-dept.model';
 export * from './sys-user-post.model';

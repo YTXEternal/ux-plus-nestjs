@@ -14,7 +14,7 @@ import {
   SysLogininfor,
   SysUserRole,
   SysRoleMenu,
-  SysRoleDept,
+  SysUserDept,
   SysUserPost,
 } from './model';
 import { ConfigService } from '@nestjs/config';
@@ -78,7 +78,7 @@ export class MysqlDatabaseModule {
                 SysLogininfor,
                 SysUserRole,
                 SysRoleMenu,
-                SysRoleDept,
+                SysUserDept,
                 SysUserPost,
               ],
               synchronize: true,

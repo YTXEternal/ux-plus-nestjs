@@ -4,7 +4,6 @@ import { SysRoleService } from './sys-role.service';
 import { SysRoleController } from './sys-role.controller';
 import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
 import { SysRoleMenu } from '@/databases/mysql-database/model/sys-role-menu.model';
-import { SysRoleDept } from '@/databases/mysql-database/model/sys-role-dept.model';
 
 /**
  * 系统-角色模块
@@ -16,7 +15,7 @@ import { SysRoleDept } from '@/databases/mysql-database/model/sys-role-dept.mode
  * @typedef {SysRoleModule}
  */
 @Module({
-  imports: [SequelizeModule.forFeature([SysRole, SysRoleMenu, SysRoleDept])],
+  imports: [SequelizeModule.forFeature([SysRole, SysRoleMenu])],
   controllers: [SysRoleController],
   providers: [SysRoleService],
 })

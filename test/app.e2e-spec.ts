@@ -730,6 +730,52 @@ describe('API (e2e)', () => {
         ).expect(200);
         expectOk(res.body as ApiResponseBody<unknown>);
       });
+
+      it('返回树形结构', async () => {
+        // 创建一个子部门
+        const subDeptName = `E2E子部门_${testRunId}`;
+        await authed('post', `${apiPrefix}/system/dept`)
+          .send({
+            parent_id: deptCrudId, // 使用之前创建的 deptCrudId 作为父级
+            dept_name: subDeptName,
+            order_num: 1,
+            status: '0',
+          })
+          .expect(201);
+
+        // 不带搜索条件查询，应该返回完整树（或者至少包含我们创建的父子）
+        const res = await authed('get', `${apiPrefix}/system/dept/list`).expect(
+          200,
+        );
+
+        expectOk(res.body as ApiResponseBody<any[]>);
+        const data = (res.body as ApiResponseBody<any[]>).data!;
+
+        // 找到父部门 (deptCrudId)
+        const parent = data.find((d: any) => d.dept_id === deptCrudId);
+
+        // 如果 parent 在第一层找不到，说明它可能作为子节点存在（如果测试数据复杂的话）
+        // 但在这个测试场景中，deptCrudId 的 parent_id 应该是 0 (默认?)
+        // 让我们检查一下创建 deptCrudId 时的参数
+        // order_num: 2, status: '0'. parent_id 默认为 0.
+
+        if (parent) {
+          expect(parent.children).toBeDefined();
+          expect(Array.isArray(parent.children)).toBe(true);
+          const child = parent.children.find(
+            (c: any) => c.dept_name === subDeptName,
+          );
+          expect(child).toBeDefined();
+        } else {
+          // 如果 parent 不在根节点列表，可能是因为它变成了别人的子节点？
+          // 但我们没有设置 parent_id，默认是 0。
+          // 除非数据库里有脏数据或者逻辑不对。
+          // 我们可以递归查找，但为了简单，假设它是根节点。
+          // 失败的话会打印 data 方便调试
+          console.log('Dept List Data:', JSON.stringify(data, null, 2));
+          throw new Error(`Parent dept ${deptCrudId} not found in root list`);
+        }
+      });
     });
 
     describe('GET /system/dept/:deptId', () => {

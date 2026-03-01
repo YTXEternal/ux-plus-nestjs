@@ -72,7 +72,9 @@ export class SysUserService {
       attributes: { exclude: ['password'] },
       offset: (pageNum - 1) * pageSize,
       limit: +pageSize,
-      include: [{ model: SysDept, attributes: ['dept_name', 'leader'] }],
+      include: [
+        { model: SysDept, as: 'dept', attributes: ['dept_name', 'leader'] },
+      ],
     });
 
     return { rows, total: count };
@@ -88,7 +90,12 @@ export class SysUserService {
   async findOne(userId: number) {
     const user = await this.sysUserModel.findByPk(userId, {
       attributes: { exclude: ['password'] },
-      include: [{ model: SysDept }, { model: SysRole }, { model: SysPost }],
+      include: [
+        { model: SysDept, as: 'dept' },
+        { model: SysRole },
+        { model: SysPost },
+        { model: SysDept, as: 'depts' },
+      ],
     });
     // TODO: 获取所有角色和岗位以标记为选中
     return { data: user };
@@ -124,10 +131,19 @@ export class SysUserService {
    * @returns {Promise<[number, SysUser[]]>} Sequelize 更新结果
    */
   async update(updateUserDto: UpdateUserDto) {
-    const { user_id, ...data } = updateUserDto;
+    const { user_id, dept_ids, ...data } = updateUserDto;
     // 通常不在这里更新密码，使用单独的 API
     if (data.password) delete data.password;
-    return this.sysUserModel.update(data, { where: { user_id } });
+    const result = await this.sysUserModel.update(data, { where: { user_id } });
+
+    if (dept_ids) {
+      const user = await this.sysUserModel.findByPk(user_id);
+      if (user) {
+        await user.$set('depts', dept_ids);
+      }
+    }
+
+    return result;
   }
 
   /**

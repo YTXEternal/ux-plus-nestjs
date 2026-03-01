@@ -8,9 +8,10 @@ import {
   Comment,
   CreatedAt,
   UpdatedAt,
-  HasMany,
+  BelongsToMany,
 } from 'sequelize-typescript';
 import { SysUser } from './sys-user.model';
+import { SysUserDept } from './sys-user-dept.model';
 import { SysRole } from './sys-role.model';
 
 @Table({
@@ -71,6 +72,6 @@ export class SysDept extends Model<SysDept> {
   @Column({ type: DataType.STRING(64), defaultValue: '' })
   update_by: string;
 
-  @HasMany(() => SysUser, { foreignKey: 'dept_id', sourceKey: 'dept_id' })
+  @BelongsToMany(() => SysUser, () => SysUserDept)
   users: SysUser[];
 }

@@ -104,6 +104,11 @@ export class CreateUserDto {
   @IsOptional()
   @IsArray()
   role_ids?: number[];
+
+  @ApiPropertyOptional({ description: '部门ID列表', example: [100] })
+  @IsOptional()
+  @IsArray()
+  dept_ids?: number[];
 }
 
 export class UpdateUserDto extends CreateUserDto {

@@ -16,6 +16,7 @@ import { SysRole } from './sys-role.model';
 import { SysPost } from './sys-post.model';
 import { SysUserRole } from './sys-user-role.model';
 import { SysUserPost } from './sys-user-post.model';
+import { SysUserDept } from './sys-user-dept.model';
 
 @Table({
   tableName: 'sys_user',
@@ -101,6 +102,9 @@ export class SysUser extends Model<SysUser> {
 
   @BelongsTo(() => SysDept, { foreignKey: 'dept_id', targetKey: 'dept_id' })
   dept: SysDept;
+
+  @BelongsToMany(() => SysDept, { through: () => SysUserDept, as: 'depts' })
+  depts: SysDept[];
 
   @BelongsToMany(() => SysRole, () => SysUserRole)
   roles: SysRole[];

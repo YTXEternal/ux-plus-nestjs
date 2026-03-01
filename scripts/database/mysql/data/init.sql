@@ -217,13 +217,13 @@ CREATE TABLE `sys_role` (
 -- Dumping data for table `sys_role`
 INSERT INTO `sys_role` VALUES (100, '超级管理员', 'SUPERADMIN', 1, '1', 1, 1, '0', '0', '', '2026-01-30 19:34:16', '', '2026-01-30 19:34:16', '拥有所有权限的超级管理员'), (101, '测试角色', 'test', 1, '1', 1, 1, '1', '0', '', '2026-02-01 19:17:46', '', '2026-02-01 19:24:15', NULL);
 
--- Table structure for table `sys_role_dept`
-DROP TABLE IF EXISTS `sys_role_dept`;
-CREATE TABLE `sys_role_dept` (
-  `role_id` bigint NOT NULL COMMENT '角色ID',
+-- Table structure for table `sys_user_dept`
+DROP TABLE IF EXISTS `sys_user_dept`;
+CREATE TABLE `sys_user_dept` (
+  `user_id` bigint NOT NULL COMMENT '用户ID',
   `dept_id` bigint NOT NULL COMMENT '部门ID',
-  PRIMARY KEY (`role_id`,`dept_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色和部门关联表';
+  PRIMARY KEY (`user_id`,`dept_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户和部门关联表';
 
 -- Table structure for table `sys_role_menu`
 DROP TABLE IF EXISTS `sys_role_menu`;

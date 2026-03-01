@@ -7,20 +7,20 @@ import {
   Comment,
   ForeignKey,
 } from 'sequelize-typescript';
-import { SysRole } from './sys-role.model';
+import { SysUser } from './sys-user.model';
 import { SysDept } from './sys-dept.model';
 
 @Table({
-  tableName: 'sys_role_dept',
+  tableName: 'sys_user_dept',
   timestamps: false,
-  comment: '角色和部门关联表',
+  comment: '用户和部门关联表',
 })
-export class SysRoleDept extends Model<SysRoleDept> {
+export class SysUserDept extends Model<SysUserDept> {
   @PrimaryKey
-  @ForeignKey(() => SysRole)
-  @Comment('角色ID')
+  @ForeignKey(() => SysUser)
+  @Comment('用户ID')
   @Column(DataType.BIGINT)
-  role_id: number;
+  user_id: number;
 
   @PrimaryKey
   @ForeignKey(() => SysDept)

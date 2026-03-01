@@ -15,7 +15,6 @@ import { SysUserRole } from './sys-user-role.model';
 import { SysMenu } from './sys-menu.model';
 import { SysRoleMenu } from './sys-role-menu.model';
 import { SysDept } from './sys-dept.model';
-import { SysRoleDept } from './sys-role-dept.model';
 
 @Table({
   tableName: 'sys_role',
@@ -82,7 +81,4 @@ export class SysRole extends Model<SysRole> {
 
   @BelongsToMany(() => SysMenu, () => SysRoleMenu)
   menus: SysMenu[];
-
-  @BelongsToMany(() => SysDept, () => SysRoleDept)
-  depts: SysDept[];
 }

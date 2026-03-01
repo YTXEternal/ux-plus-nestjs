@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/sequelize';
 import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
 import { SysRoleInter } from '@/databases/mysql-database/interfaces/sys-role.interface';
 import { SysRoleMenu } from '@/databases/mysql-database/model/sys-role-menu.model';
-import { SysRoleDept } from '@/databases/mysql-database/model/sys-role-dept.model';
 import { Op, where } from 'sequelize';
 
 import {
@@ -13,6 +12,7 @@ import {
   ChangeRoleStatusDto,
 } from './dto/sys-role.dto';
 import { filterObj, isNull, isUndefined } from '@/tools';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * 系统-角色服务
@@ -30,17 +30,14 @@ export class SysRoleService {
    *
    * @param {typeof SysRole} sysRoleModel 角色模型
    * @param {typeof SysRoleMenu} sysRoleMenuModel 角色-菜单关联模型
-   * @param {typeof SysRoleDept} sysRoleDeptModel 角色-部门关联模型
    */
   constructor(
     @InjectModel(SysRole)
     private readonly sysRoleModel: typeof SysRole,
     @InjectModel(SysRoleMenu)
     private readonly sysRoleMenuModel: typeof SysRoleMenu,
-    @InjectModel(SysRoleDept)
-    private readonly sysRoleDeptModel: typeof SysRoleDept,
+    private readonly configService: ConfigService,
   ) {}
-
   /**
    * 角色分页列表查询
    *
@@ -50,12 +47,19 @@ export class SysRoleService {
    */
   async findAll(query: ListRoleDto) {
     const { pageNum = 1, pageSize = 20, role_name, role_key, status } = query;
-
-    const where: any = { del_flag: '0' };
+    // 帮我写一个 条件就是role_key 不等于SUPERADMIN
+    const where: any = {
+      del_flag: '0',
+      role_key: { [Op.ne]: this.configService.get('SUPERADMIN_ROLE_KEY') },
+    };
     if (role_name) where.role_name = { [Op.like]: `%${role_name}%` };
-    if (role_key) where.role_key = { [Op.like]: `%${role_key}%` };
+    if (role_key)
+      where.role_key = {
+        [Op.like]: `%${role_key}%`,
+        [Op.ne]: this.configService.get('SUPERADMIN_ROLE_KEY'),
+      };
     if (status) where.status = status;
-
+    console.log('where', where);
     const { rows, count } = await this.sysRoleModel.findAndCountAll({
       where,
       offset: (pageNum - 1) * pageSize,

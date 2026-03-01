@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { SysDept } from '@/databases/mysql-database/model/sys-dept.model';
 import { Op } from 'sequelize';
+import { SysDeptTree } from './types';
 
 import { ListDeptDto, CreateDeptDto, UpdateDeptDto } from './dto/sys-dept.dto';
 
@@ -31,7 +32,7 @@ export class SysDeptService {
    *
    * @async
    * @param {ListDeptDto} query 查询参数
-   * @returns {Promise<SysDept[]>} 部门列表
+   * @returns {Promise<SysDeptTree[]>} 部门列表
    */
   async findAll(query: ListDeptDto) {
     const { dept_name, status } = query;
@@ -44,7 +45,47 @@ export class SysDeptService {
       where,
       order: [['order_num', 'ASC']],
     });
-    return depts;
+    return this.buildDeptTree(depts);
+  }
+
+  /**
+   * 构建部门树
+   *
+   * @param {SysDept[]} depts 部门列表
+   * @returns {SysDeptTree[]} 树形结构
+   */
+  buildDeptTree(depts: SysDept[]): SysDeptTree[] {
+    const deptMap = new Map<number, SysDeptTree>();
+    const tree: SysDeptTree[] = [];
+
+    // 1. 初始化 Map
+    depts.forEach((dept) => {
+      deptMap.set(dept.dept_id, {
+        ...dept.toJSON(),
+        children: [],
+      } as unknown as SysDeptTree);
+    });
+
+    // 2. 构建树
+    depts.forEach((dept) => {
+      const node = deptMap.get(dept.dept_id);
+      if (node) {
+        if (dept.parent_id === 0) {
+          tree.push(node);
+        } else {
+          const parent = deptMap.get(dept.parent_id);
+          if (parent) {
+            if (!parent.children) parent.children = [];
+            parent.children.push(node);
+          } else {
+            // 如果找不到父节点，可能父节点被禁用或未选中，视情况处理
+            // 这里暂时作为根节点或者忽略
+          }
+        }
+      }
+    });
+
+    return tree;
   }
 
   /**
