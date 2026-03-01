@@ -37,7 +37,7 @@ export class SysDept extends Model<SysDept> {
   ancestors: string;
 
   @Comment('部门名称')
-  @Column({ type: DataType.STRING(30), defaultValue: '' })
+  @Column({ type: DataType.STRING(30), defaultValue: '', unique: true })
   dept_name: string;
 
   @Comment('显示顺序')

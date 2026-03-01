@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { SysDept } from '@/databases/mysql-database/model/sys-dept.model';
 import { Op } from 'sequelize';
@@ -107,6 +107,15 @@ export class SysDeptService {
    * @returns {Promise<SysDept>} 创建后的部门记录
    */
   async create(createDeptDto: CreateDeptDto) {
+    const exist = await this.sysDeptModel.findOne({
+      where: { dept_name: createDeptDto.dept_name, del_flag: '0' },
+    });
+    if (exist) {
+      throw new HttpException(
+        `部门名称 ${createDeptDto.dept_name} 已存在`,
+        HttpStatus.CONFLICT,
+      );
+    }
     return this.sysDeptModel.create(createDeptDto as any);
   }
 
@@ -119,6 +128,24 @@ export class SysDeptService {
    */
   async update(updateDeptDto: UpdateDeptDto) {
     const { dept_id, ...data } = updateDeptDto;
+
+    // 如果修改了名称，检查唯一性
+    if (data.dept_name) {
+      const exist = await this.sysDeptModel.findOne({
+        where: {
+          dept_name: data.dept_name,
+          del_flag: '0',
+          dept_id: { [Op.ne]: dept_id },
+        },
+      });
+      if (exist) {
+        throw new HttpException(
+          `部门名称 ${data.dept_name} 已存在`,
+          HttpStatus.CONFLICT,
+        );
+      }
+    }
+
     return this.sysDeptModel.update(data, { where: { dept_id } });
   }
 

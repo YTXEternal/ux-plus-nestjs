@@ -713,6 +713,16 @@ describe('API (e2e)', () => {
         expectOk(res.body as ApiResponseBody<SysDept>);
         deptCrudId = (res.body as ApiResponseBody<SysDept>).data!.dept_id;
       });
+
+      it('部门名称重复返回 409', async () => {
+        await authed('post', `${apiPrefix}/system/dept`)
+          .send({
+            dept_name: `E2E部门CRUD_${testRunId}`,
+            order_num: 3,
+            status: '0',
+          })
+          .expect(409);
+      });
     });
 
     describe('GET /system/dept/list', () => {
@@ -815,6 +825,35 @@ describe('API (e2e)', () => {
           })
           .expect(200);
         expectOk(res.body as ApiResponseBody<unknown>);
+      });
+
+      it('更新时部门名称重复返回 409', async () => {
+        // 先创建一个其他部门
+        const otherDeptName = `E2E其他部门_${testRunId}`;
+        const res = await authed('post', `${apiPrefix}/system/dept`)
+          .send({
+            dept_name: otherDeptName,
+            order_num: 1,
+            status: '0',
+          })
+          .expect(201);
+        const otherDeptId = (res.body as ApiResponseBody<SysDept>).data!
+          .dept_id;
+
+        // 尝试将 deptCrudId 改名为 otherDeptName
+        await authed('put', `${apiPrefix}/system/dept`)
+          .send({
+            dept_id: deptCrudId,
+            dept_name: otherDeptName,
+            order_num: 3, // 补全必填字段
+            status: '0', // 补全可能需要的字段
+          })
+          .expect(409);
+
+        // 清理
+        await authed('delete', `${apiPrefix}/system/dept`)
+          .send({ dept_id: otherDeptId })
+          .expect(200);
       });
     });
 
