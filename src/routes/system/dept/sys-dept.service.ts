@@ -113,7 +113,7 @@ export class SysDeptService {
     if (exist) {
       throw new HttpException(
         `部门名称 ${createDeptDto.dept_name} 已存在`,
-        HttpStatus.CONFLICT,
+        HttpStatus.BAD_REQUEST,
       );
     }
     return this.sysDeptModel.create(createDeptDto as any);
