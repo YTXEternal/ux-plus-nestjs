@@ -10,6 +10,7 @@ import { UxJwtService } from '@/modules/ux-jwt/ux-jwt.service';
 import * as mysql from 'mysql2/promise';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import * as fs from 'fs';
 import {
   SysDept,
   SysDictData,
@@ -2050,6 +2051,87 @@ describe('API (e2e)', () => {
         ).expect(200);
         const data = (listRes.body as ApiResponseBody<any>).data;
         expect(data.list.length).toBe(0);
+      });
+    });
+  });
+
+  describe('File Management', () => {
+    let fileId: number;
+    const fileName = `e2e_test_image.png`;
+    const tempDir = path.join(__dirname, 'temp');
+    const filePath = path.join(tempDir, fileName);
+
+    beforeAll(() => {
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir);
+      }
+      // Create a dummy image file (valid PNG header)
+      const pngHeader = Buffer.from([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+      ]);
+      fs.writeFileSync(filePath, pngHeader);
+    });
+
+    afterAll(() => {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+      if (fs.existsSync(tempDir)) {
+        // fs.rmdirSync(tempDir);
+      }
+    });
+
+    describe('POST /file/upload', () => {
+      it('上传文件成功', async () => {
+        const res = await authed('post', `${apiPrefix}/file/upload`)
+          .attach('file', filePath)
+          .expect(201);
+
+        const body = res.body as ApiResponseBody<any>;
+        expect(body).toHaveProperty('code', 201);
+        expect(body).toHaveProperty('message');
+        const data = body.data;
+        expect(data).toHaveProperty('file_id');
+        expect(data).toHaveProperty('url');
+        fileId = data.file_id;
+      });
+    });
+
+    describe('GET /file/list', () => {
+      it('获取文件列表成功', async () => {
+        const res = await authed('get', `${apiPrefix}/file/list`).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.list.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe('GET /file/:id', () => {
+      it('获取文件详情成功', async () => {
+        const res = await authed('get', `${apiPrefix}/file/${fileId}`).expect(
+          200,
+        );
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.file_id).toBe(fileId);
+      });
+    });
+
+    describe('DELETE /file/:ids', () => {
+      it('删除文件成功', async () => {
+        const res = await authed(
+          'delete',
+          `${apiPrefix}/file/${fileId}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+
+        // Verify soft delete
+        const detailRes = await authed(
+          'get',
+          `${apiPrefix}/file/${fileId}`,
+        ).expect(200);
+        const data = (detailRes.body as ApiResponseBody<any>).data;
+        expect(data.del_flag).toBe('2');
       });
     });
   });

@@ -15,3 +15,4 @@ export * from './label.model';
 export * from './sys-drama.model';
 export * from './sys-drama-shop.model';
 export * from './sys-drama-label.model';
+export * from './sys-file.model';
