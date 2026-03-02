@@ -35,5 +35,5 @@ export class DeleteFileDto {
   @ApiProperty({ description: '文件ID列表', example: [1, 2] })
   @IsArray()
   @IsNumber({}, { each: true })
-  file_ids: number[];
+  file_ids: number[] = [];
 }

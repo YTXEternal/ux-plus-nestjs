@@ -17,9 +17,10 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
+    "types": ["node", "jest"],
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*", "ecosystem.config.js", "test/**/*","srcripts/**/*"]
+  "include": ["src/**/*", "ecosystem.config.js", "test/**/*", "scripts/**/*"]
 }
