@@ -13,6 +13,8 @@ import {
   SysRoleMenu,
   SysUserDept,
   Member,
+  Shop,
+  Label,
 } from './model';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfigModule } from '@/modules/env-config/env-config.module';
@@ -74,6 +76,8 @@ export class MysqlDatabaseModule {
                 SysRoleMenu,
                 SysUserDept,
                 Member,
+                Shop,
+                Label,
               ],
               synchronize: true,
               define: {

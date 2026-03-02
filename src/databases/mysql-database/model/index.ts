@@ -10,3 +10,5 @@ export * from './sys-user-role.model';
 export * from './sys-role-menu.model';
 export * from './sys-user-dept.model';
 export * from './member.model';
+export * from './shop.model';
+export * from './label.model';

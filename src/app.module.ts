@@ -45,6 +45,8 @@ import { SysLogininforModule } from './routes/monitor/logininfor/sys-logininfor.
 import { SysOnlineModule } from './routes/monitor/online/sys-online.module';
 import { RouteModule } from './routes/route/route.module';
 import { MemberModule } from './routes/member/member.module';
+import { ShopModule } from './routes/shop/shop.module';
+import { LabelModule } from './routes/label/label.module';
 
 const staticPath = join(__dirname, '../static');
 
@@ -154,6 +156,8 @@ const useProviders = () => {
     SysOnlineModule,
     RouteModule,
     MemberModule,
+    ShopModule,
+    LabelModule,
   ],
   controllers: [AppController],
   providers: useProviders(),

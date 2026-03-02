@@ -1717,4 +1717,194 @@ describe('API (e2e)', () => {
       });
     });
   });
+
+  describe('Shop Management', () => {
+    let shopId: number;
+    const shopName = `e2e_shop_${testRunId}`;
+
+    describe('POST /shop', () => {
+      it('创建门店成功', async () => {
+        const res = await authed('post', `${apiPrefix}/shop`)
+          .send({
+            name: shopName,
+            address: 'E2E测试地址',
+            phone: '010-12345678',
+            conductor: created.adminUserId,
+          })
+          .expect(201);
+        expectOk(res.body as ApiResponseBody<any>);
+        shopId = (res.body as ApiResponseBody<any>).data.shop_id;
+        expect(shopId).toBeDefined();
+      });
+
+      it('门店名称重复返回 400', async () => {
+        await authed('post', `${apiPrefix}/shop`)
+          .send({
+            name: shopName,
+            address: 'E2E测试地址2',
+            phone: '010-12345678',
+            conductor: created.adminUserId,
+          })
+          .expect(400);
+      });
+    });
+
+    describe('GET /shop/:id', () => {
+      it('获取门店详情成功', async () => {
+        const res = await authed('get', `${apiPrefix}/shop/${shopId}`).expect(
+          200,
+        );
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.name).toBe(shopName);
+        expect(data.shop_id).toBe(shopId);
+      });
+    });
+
+    describe('GET /shop/list', () => {
+      it('获取门店列表成功', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/shop/list?name=${shopName}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.list.length).toBeGreaterThan(0);
+        expect(data.list[0].name).toBe(shopName);
+      });
+    });
+
+    describe('PUT /shop', () => {
+      it('修改门店信息成功', async () => {
+        const newName = `${shopName}_updated`;
+        const res = await authed('put', `${apiPrefix}/shop`)
+          .send({
+            shop_id: shopId,
+            name: newName,
+            address: 'E2E测试地址_更新',
+            phone: '010-87654321',
+            conductor: created.adminUserId,
+          })
+          .expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+      });
+    });
+
+    describe('DELETE /shop', () => {
+      it('删除门店成功', async () => {
+        const res = await authed('delete', `${apiPrefix}/shop`)
+          .send({
+            shop_ids: [shopId],
+          })
+          .expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+
+        // 验证软删除
+        const listRes = await authed(
+          'get',
+          `${apiPrefix}/shop/list?del_flag=0&name=${shopName}_updated`,
+        ).expect(200);
+        const data = (listRes.body as ApiResponseBody<any>).data;
+        expect(data.list.length).toBe(0);
+      });
+    });
+  });
+
+  describe('Label Management', () => {
+    let labelId: number;
+    const labelName = `e2e_label_${testRunId}`;
+
+    describe('POST /label', () => {
+      it('创建标签成功', async () => {
+        const res = await authed('post', `${apiPrefix}/label`)
+          .send({
+            name: labelName,
+            status: '0',
+          })
+          .expect(201);
+        expectOk(res.body as ApiResponseBody<any>);
+        labelId = (res.body as ApiResponseBody<any>).data.label_id;
+        expect(labelId).toBeDefined();
+      });
+
+      it('标签名称重复返回 400', async () => {
+        await authed('post', `${apiPrefix}/label`)
+          .send({
+            name: labelName,
+            status: '0',
+          })
+          .expect(400);
+      });
+    });
+
+    describe('GET /label/:id', () => {
+      it('获取标签详情成功', async () => {
+        const res = await authed('get', `${apiPrefix}/label/${labelId}`).expect(
+          200,
+        );
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.name).toBe(labelName);
+        expect(data.label_id).toBe(labelId);
+      });
+    });
+
+    describe('GET /label/list', () => {
+      it('获取标签列表成功', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/label/list?name=${labelName}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.list.length).toBeGreaterThan(0);
+        expect(data.list[0].name).toBe(labelName);
+      });
+    });
+
+    describe('PUT /label', () => {
+      it('修改标签信息成功', async () => {
+        const newName = `${labelName}_updated`;
+        const res = await authed('put', `${apiPrefix}/label`)
+          .send({
+            label_id: labelId,
+            name: newName,
+            status: '1',
+          })
+          .expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+      });
+    });
+
+    describe('PUT /label/changeStatus', () => {
+      it('修改标签状态成功', async () => {
+        const res = await authed('put', `${apiPrefix}/label/changeStatus`)
+          .send({
+            label_id: labelId,
+            status: '0',
+          })
+          .expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+      });
+    });
+
+    describe('DELETE /label', () => {
+      it('删除标签成功', async () => {
+        const res = await authed('delete', `${apiPrefix}/label`)
+          .send({
+            label_ids: [labelId],
+          })
+          .expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+
+        // 验证软删除
+        const listRes = await authed(
+          'get',
+          `${apiPrefix}/label/list?del_flag=0&name=${labelName}_updated`,
+        ).expect(200);
+        const data = (listRes.body as ApiResponseBody<any>).data;
+        expect(data.list.length).toBe(0);
+      });
+    });
+  });
 });
