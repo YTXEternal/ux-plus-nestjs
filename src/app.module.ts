@@ -47,6 +47,7 @@ import { RouteModule } from './routes/route/route.module';
 import { MemberModule } from './routes/member/member.module';
 import { ShopModule } from './routes/shop/shop.module';
 import { LabelModule } from './routes/label/label.module';
+import { DramaModule } from './routes/drama/drama.module';
 
 const staticPath = join(__dirname, '../static');
 
@@ -158,6 +159,7 @@ const useProviders = () => {
     MemberModule,
     ShopModule,
     LabelModule,
+    DramaModule,
   ],
   controllers: [AppController],
   providers: useProviders(),

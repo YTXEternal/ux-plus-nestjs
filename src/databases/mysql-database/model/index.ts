@@ -12,3 +12,6 @@ export * from './sys-user-dept.model';
 export * from './member.model';
 export * from './shop.model';
 export * from './label.model';
+export * from './sys-drama.model';
+export * from './sys-drama-shop.model';
+export * from './sys-drama-label.model';

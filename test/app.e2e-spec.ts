@@ -1907,4 +1907,135 @@ describe('API (e2e)', () => {
       });
     });
   });
+
+  describe('Drama Management', () => {
+    let dramaId: number;
+    let shopId: number;
+    let labelId: number;
+    const dramaName = `e2e_drama_${testRunId}`;
+    const shopName = `e2e_drama_shop_${testRunId}`;
+    const labelName = `e2e_drama_label_${testRunId}`;
+
+    describe('Prepare Shop and Label', () => {
+      it('创建关联用的门店和标签', async () => {
+        // Create Shop
+        const shopRes = await authed('post', `${apiPrefix}/shop`)
+          .send({
+            name: shopName,
+            address: 'E2E测试地址',
+            phone: '010-12345678',
+            conductor: created.adminUserId,
+          })
+          .expect(201);
+        shopId = (shopRes.body as ApiResponseBody<any>).data.shop_id;
+
+        // Create Label
+        const labelRes = await authed('post', `${apiPrefix}/label`)
+          .send({
+            name: labelName,
+            status: '0',
+          })
+          .expect(201);
+        labelId = (labelRes.body as ApiResponseBody<any>).data.label_id;
+      });
+    });
+
+    describe('POST /drama', () => {
+      it('创建剧本成功', async () => {
+        const res = await authed('post', `${apiPrefix}/drama`)
+          .send({
+            name: dramaName,
+            desc: 'E2E测试剧本描述',
+            valid_start_time: '2023-01-01 00:00:00',
+            valid_end_time: '2025-12-31 23:59:59',
+            shop_ids: [shopId],
+            label_ids: [labelId],
+          })
+          .expect(201);
+        expectOk(res.body as ApiResponseBody<any>);
+        dramaId = (res.body as ApiResponseBody<any>).data.event_id;
+        expect(dramaId).toBeDefined();
+      });
+    });
+
+    describe('GET /drama/:id', () => {
+      it('获取剧本详情成功', async () => {
+        const res = await authed('get', `${apiPrefix}/drama/${dramaId}`).expect(
+          200,
+        );
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.name).toBe(dramaName);
+        expect(data.event_id).toBe(dramaId);
+        expect(data.shops.length).toBeGreaterThan(0);
+        expect(data.shops[0].shop_id).toBe(shopId);
+        expect(data.labels.length).toBeGreaterThan(0);
+        expect(data.labels[0].label_id).toBe(labelId);
+      });
+    });
+
+    describe('GET /drama/list', () => {
+      it('获取剧本列表成功', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/drama/list?name=${dramaName}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.list.length).toBeGreaterThan(0);
+        expect(data.list[0].name).toBe(dramaName);
+      });
+    });
+
+    describe('PUT /drama', () => {
+      it('修改剧本信息成功', async () => {
+        const newName = `${dramaName}_updated`;
+        await authed('put', `${apiPrefix}/drama`)
+          .send({
+            event_id: dramaId,
+            name: newName,
+            desc: 'Updated Desc',
+            shop_ids: [],
+          })
+          .expect(200);
+
+        const detailRes = await authed(
+          'get',
+          `${apiPrefix}/drama/${dramaId}`,
+        ).expect(200);
+        const data = (detailRes.body as ApiResponseBody<any>).data;
+        expect(data.name).toBe(newName);
+        expect(data.shops.length).toBe(0);
+        expect(data.labels.length).toBe(1);
+      });
+    });
+
+    describe('PUT /drama/status', () => {
+      it('修改剧本状态成功', async () => {
+        await authed('put', `${apiPrefix}/drama/status`)
+          .send({
+            event_id: dramaId,
+            status: '1',
+          })
+          .expect(200);
+      });
+    });
+
+    describe('DELETE /drama', () => {
+      it('删除剧本成功', async () => {
+        await authed('delete', `${apiPrefix}/drama`)
+          .send({
+            event_ids: [dramaId],
+          })
+          .expect(200);
+
+        const listRes = await authed(
+          'get',
+          `${apiPrefix}/drama/list?del_flag=0&name=${dramaName}_updated`,
+        ).expect(200);
+        const data = (listRes.body as ApiResponseBody<any>).data;
+        expect(data.list.length).toBe(0);
+      });
+    });
+  });
 });
