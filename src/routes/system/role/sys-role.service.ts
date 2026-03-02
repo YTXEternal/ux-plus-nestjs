@@ -71,6 +71,33 @@ export class SysRoleService {
   }
 
   /**
+   * 获取所有角色列表（不分页）
+   *
+   * @async
+   * @param {ListRoleDto} query 查询参数
+   * @returns {Promise<SysRole[]>} 角色列表
+   */
+  async findFullData(query: ListRoleDto) {
+    const { role_name, role_key, status } = query;
+    const where: any = {
+      del_flag: '0',
+      role_key: { [Op.ne]: this.configService.get('SUPERADMIN_ROLE_KEY') },
+    };
+    if (role_name) where.role_name = { [Op.like]: `%${role_name}%` };
+    if (role_key)
+      where.role_key = {
+        [Op.like]: `%${role_key}%`,
+        [Op.ne]: this.configService.get('SUPERADMIN_ROLE_KEY'),
+      };
+    if (status) where.status = status;
+
+    return this.sysRoleModel.findAll({
+      where,
+      order: [['create_time', 'DESC']],
+    });
+  }
+
+  /**
    * 获取角色详情
    *
    * @async

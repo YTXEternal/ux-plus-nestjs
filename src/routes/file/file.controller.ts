@@ -68,7 +68,6 @@ export class SysFileController {
       name: file.filename, // 或者使用 originalname，或者保存完整路径/URL
       type: file.mimetype,
     });
-
     const data = {
       ...savedFile.toJSON(),
       url: `/static/uploads/${file.filename}`, // 假设静态文件服务已配置

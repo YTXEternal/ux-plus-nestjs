@@ -51,6 +51,19 @@ export class SysRoleController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @ApiOperation({ summary: '获取所有角色列表（不分页）' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
+  @RequirePermissions('system:role:list')
+  @Get('fulldata')
+  async findFullData(@Query() query: ListRoleDto) {
+    const data = await this.sysRoleService.findFullData(query);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
+  }
+
   @ApiOperation({ summary: '获取角色详情' })
   @ApiSwaggerResponse({
     status: 200,

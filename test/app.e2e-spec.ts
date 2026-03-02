@@ -1191,6 +1191,24 @@ describe('API (e2e)', () => {
       });
     });
 
+    describe('GET /system/role/fulldata', () => {
+      it('未携带 token 返回 401', async () => {
+        await unauthed(
+          'get',
+          `${apiPrefix}/system/role/fulldata?role_name=${roleName}`,
+        ).expect(401);
+      });
+
+      it('访问成功', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/system/role/fulldata?role_name=${roleName}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        expect(Array.isArray(res.body.data)).toBe(true);
+      });
+    });
+
     describe('GET /system/role/:roleId', () => {
       it('未携带 token 返回 401', async () => {
         await unauthed(
