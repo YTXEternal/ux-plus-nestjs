@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Query,
+  Param,
   HttpStatus,
 } from '@nestjs/common';
 import {
@@ -77,6 +78,18 @@ export class MemberController {
   async findAll(@Query() query: ListMemberDto) {
     const { rows, total } = await this.memberService.findAll(query);
     const data = formatPagination(rows, total, query.pageNum, query.pageSize);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
+  }
+
+  @ApiOperation({ summary: '获取会员详情' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    const data = await this.memberService.findOne(+id);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

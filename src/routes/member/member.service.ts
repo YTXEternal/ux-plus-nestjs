@@ -44,8 +44,8 @@ export class MemberService {
 
     const { rows, count } = await this.memberModel.findAndCountAll({
       where,
-      offset: (pageNum - 1) * pageSize,
-      limit: pageSize,
+      offset: (+pageNum - 1) * +pageSize,
+      limit: +pageSize,
       order: [['create_time', 'DESC']],
     });
 

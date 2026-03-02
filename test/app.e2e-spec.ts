@@ -1649,6 +1649,19 @@ describe('API (e2e)', () => {
       });
     });
 
+    describe('GET /member/:id', () => {
+      it('获取会员详情成功', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/member/${memberId}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.name).toBe(memberName);
+        expect(data.member_id).toBe(memberId);
+      });
+    });
+
     describe('GET /member/list', () => {
       it('获取会员列表成功', async () => {
         const res = await authed(
@@ -1675,12 +1688,12 @@ describe('API (e2e)', () => {
         expectOk(res.body as ApiResponseBody<any>);
 
         // 验证修改是否生效
-         const listRes = await authed(
-           'get',
-           `${apiPrefix}/member/list?name=${newName}`,
-         ).expect(200);
-         const data = (listRes.body as ApiResponseBody<any>).data;
-         expect(data.list[0].phone).toBe('13900139000');
+        const listRes = await authed(
+          'get',
+          `${apiPrefix}/member/list?name=${newName}`,
+        ).expect(200);
+        const data = (listRes.body as ApiResponseBody<any>).data;
+        expect(data.list[0].phone).toBe('13900139000');
       });
     });
 
@@ -1694,13 +1707,13 @@ describe('API (e2e)', () => {
         expectOk(res.body as ApiResponseBody<any>);
 
         // 验证软删除
-         // 实际上列表接口过滤了 del_flag=0，所以查不到了
-         const listRes = await authed(
-           'get',
-           `${apiPrefix}/member/list?name=${memberName}_updated`,
-         ).expect(200);
-         const data = (listRes.body as ApiResponseBody<any>).data;
-         expect(data.list.length).toBe(0);
+        // 实际上列表接口过滤了 del_flag=0，所以查不到了
+        const listRes = await authed(
+          'get',
+          `${apiPrefix}/member/list?name=${memberName}_updated`,
+        ).expect(200);
+        const data = (listRes.body as ApiResponseBody<any>).data;
+        expect(data.list.length).toBe(0);
       });
     });
   });
