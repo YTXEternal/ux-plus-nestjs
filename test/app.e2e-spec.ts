@@ -17,7 +17,6 @@ import {
   SysDictType,
   SysLogininfor,
   SysMenu,
-  SysNotice,
   SysOperLog,
   SysRole,
   SysUser,
@@ -65,7 +64,6 @@ describe('API (e2e)', () => {
     dictTypeId: 0,
     dictDataCode: 0,
     menuId: 0,
-    noticeId: 0,
     roleCrudId: 0,
     userCrudId: 0,
     operId: 0,
@@ -1272,121 +1270,6 @@ describe('API (e2e)', () => {
             .send({ dict_ids: [dictTypeId] })
             .expect(200);
         });
-      });
-    });
-  });
-
-  describe('System - Notice', () => {
-    const noticeTitle = `E2E公告_${testRunId}`;
-
-    describe('POST /system/notice', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed('post', `${apiPrefix}/system/notice`)
-          .send({})
-          .expect(401);
-      });
-
-      it('缺少字段返回 400', async () => {
-        await authed('post', `${apiPrefix}/system/notice`)
-          .send({ notice_title: noticeTitle })
-          .expect(400);
-      });
-
-      it('创建成功返回 201', async () => {
-        const res = await authed('post', `${apiPrefix}/system/notice`)
-          .send({
-            notice_title: noticeTitle,
-            notice_type: '1',
-            notice_content: 'e2e',
-            status: '0',
-          })
-          .expect(201);
-        expectOk(res.body as ApiResponseBody<SysNotice>);
-        created.noticeId = (
-          res.body as ApiResponseBody<SysNotice>
-        ).data!.notice_id;
-      });
-    });
-
-    describe('GET /system/notice/list', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed(
-          'get',
-          `${apiPrefix}/system/notice/list?pageNum=1&pageSize=10&notice_title=${noticeTitle}`,
-        ).expect(401);
-      });
-
-      it('访问成功', async () => {
-        const res = await authed(
-          'get',
-          `${apiPrefix}/system/notice/list?pageNum=1&pageSize=10&notice_title=${noticeTitle}`,
-        ).expect(200);
-        expectOk(res.body as ApiResponseBody<any>);
-      });
-    });
-
-    describe('GET /system/notice/:noticeId', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed(
-          'get',
-          `${apiPrefix}/system/notice/${created.noticeId}`,
-        ).expect(401);
-      });
-
-      it('访问成功', async () => {
-        const res = await authed(
-          'get',
-          `${apiPrefix}/system/notice/${created.noticeId}`,
-        ).expect(200);
-        expectOk(res.body as ApiResponseBody<SysNotice>);
-      });
-    });
-
-    describe('PUT /system/notice', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed('put', `${apiPrefix}/system/notice`)
-          .send({})
-          .expect(401);
-      });
-
-      it('缺少字段返回 400', async () => {
-        await authed('put', `${apiPrefix}/system/notice`)
-          .send({ notice_id: created.noticeId })
-          .expect(400);
-      });
-
-      it('更新成功', async () => {
-        const res = await authed('put', `${apiPrefix}/system/notice`)
-          .send({
-            notice_id: created.noticeId,
-            notice_title: `${noticeTitle}_2`,
-            notice_type: '1',
-            notice_content: 'e2e2',
-            status: '0',
-          })
-          .expect(200);
-        expectOk(res.body as ApiResponseBody<unknown>);
-      });
-    });
-
-    describe('DELETE /system/notice', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed('delete', `${apiPrefix}/system/notice`)
-          .send({ notice_ids: [created.noticeId] })
-          .expect(401);
-      });
-
-      it('缺少 notice_ids 返回 400', async () => {
-        await authed('delete', `${apiPrefix}/system/notice`)
-          .send({})
-          .expect(400);
-      });
-
-      it('删除成功', async () => {
-        const res = await authed('delete', `${apiPrefix}/system/notice`)
-          .send({ notice_ids: [created.noticeId] })
-          .expect(200);
-        expectOk(res.body as ApiResponseBody<unknown>);
       });
     });
   });

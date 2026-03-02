@@ -40,7 +40,6 @@ import { SysMenuModule } from './routes/system/menu/sys-menu.module';
 import { SysDeptModule } from './routes/system/dept/sys-dept.module';
 import { SysDictModule } from './routes/system/dict/sys-dict.module';
 import { SysConfigModule } from './routes/system/config/sys-config.module';
-import { SysNoticeModule } from './routes/system/notice/sys-notice.module';
 // Monitor Modules
 import { SysOperLogModule } from './routes/monitor/operlog/sys-oper-log.module';
 import { SysLogininforModule } from './routes/monitor/logininfor/sys-logininfor.module';
@@ -150,7 +149,6 @@ const useProviders = () => {
     SysDeptModule,
     SysDictModule,
     SysConfigModule,
-    SysNoticeModule,
     // Monitor
     SysOperLogModule,
     SysLogininforModule,
