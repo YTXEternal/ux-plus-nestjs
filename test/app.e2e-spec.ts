@@ -1629,4 +1629,79 @@ describe('API (e2e)', () => {
       });
     });
   });
+
+  describe('Member Management', () => {
+    let memberId: number;
+    const memberName = `e2e_member_${testRunId}`;
+
+    describe('POST /member', () => {
+      it('创建会员成功', async () => {
+        const res = await authed('post', `${apiPrefix}/member`)
+          .send({
+            name: memberName,
+            phone: '13800138000',
+            email: 'test@example.com',
+          })
+          .expect(201);
+        expectOk(res.body as ApiResponseBody<any>);
+        memberId = (res.body as ApiResponseBody<any>).data.member_id;
+        expect(memberId).toBeDefined();
+      });
+    });
+
+    describe('GET /member/list', () => {
+      it('获取会员列表成功', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/member/list?name=${memberName}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.list.length).toBeGreaterThan(0);
+        expect(data.list[0].name).toBe(memberName);
+      });
+    });
+
+    describe('PUT /member', () => {
+      it('修改会员信息成功', async () => {
+        const newName = `${memberName}_updated`;
+        const res = await authed('put', `${apiPrefix}/member`)
+          .send({
+            member_id: memberId,
+            name: newName,
+            phone: '13900139000',
+          })
+          .expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+
+        // 验证修改是否生效
+         const listRes = await authed(
+           'get',
+           `${apiPrefix}/member/list?name=${newName}`,
+         ).expect(200);
+         const data = (listRes.body as ApiResponseBody<any>).data;
+         expect(data.list[0].phone).toBe('13900139000');
+      });
+    });
+
+    describe('DELETE /member', () => {
+      it('删除会员成功', async () => {
+        const res = await authed('delete', `${apiPrefix}/member`)
+          .send({
+            member_ids: [memberId],
+          })
+          .expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+
+        // 验证软删除
+         // 实际上列表接口过滤了 del_flag=0，所以查不到了
+         const listRes = await authed(
+           'get',
+           `${apiPrefix}/member/list?name=${memberName}_updated`,
+         ).expect(200);
+         const data = (listRes.body as ApiResponseBody<any>).data;
+         expect(data.list.length).toBe(0);
+      });
+    });
+  });
 });
