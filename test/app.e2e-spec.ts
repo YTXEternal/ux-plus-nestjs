@@ -1774,6 +1774,21 @@ describe('API (e2e)', () => {
       });
     });
 
+    describe('GET /shop/fulldata', () => {
+      it('获取所有门店（不分页）成功', async () => {
+        const res = await authed('get', `${apiPrefix}/shop/fulldata`).expect(
+          200,
+        );
+        expectOk(res.body as ApiResponseBody<any[]>);
+        const data = (res.body as ApiResponseBody<any[]>).data!;
+        expect(Array.isArray(data)).toBe(true);
+        expect(data.length).toBeGreaterThan(0);
+        const shop = data.find((item) => item.shop_id === shopId);
+        expect(shop).toBeDefined();
+        expect(shop.name).toBe(shopName);
+      });
+    });
+
     describe('PUT /shop', () => {
       it('修改门店信息成功', async () => {
         const newName = `${shopName}_updated`;

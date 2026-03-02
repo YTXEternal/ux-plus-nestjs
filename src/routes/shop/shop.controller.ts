@@ -81,6 +81,18 @@ export class ShopController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @ApiOperation({ summary: '获取所有门店（不分页）' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
+  @Get('fulldata')
+  async findFullData() {
+    const data = await this.shopService.findFullData();
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
+  }
+
   @ApiOperation({ summary: '获取门店详情' })
   @ApiSwaggerResponse({
     status: 200,

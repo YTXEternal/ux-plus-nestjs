@@ -117,4 +117,16 @@ export class ShopService {
       },
     );
   }
+
+  /**
+   * 获取所有门店（不分页）
+   */
+  async findFullData() {
+    return this.shopModel.findAll({
+      where: {
+        del_flag: '0',
+      },
+      order: [['create_time', 'DESC']],
+    });
+  }
 }
