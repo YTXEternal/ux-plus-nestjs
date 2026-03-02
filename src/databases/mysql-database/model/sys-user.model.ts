@@ -13,9 +13,7 @@ import {
 } from 'sequelize-typescript';
 import { SysDept } from './sys-dept.model';
 import { SysRole } from './sys-role.model';
-import { SysPost } from './sys-post.model';
 import { SysUserRole } from './sys-user-role.model';
-import { SysUserPost } from './sys-user-post.model';
 import { SysUserDept } from './sys-user-dept.model';
 
 @Table({
@@ -108,7 +106,4 @@ export class SysUser extends Model<SysUser> {
 
   @BelongsToMany(() => SysRole, () => SysUserRole)
   roles: SysRole[];
-
-  @BelongsToMany(() => SysPost, () => SysUserPost)
-  posts: SysPost[];
 }

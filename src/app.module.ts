@@ -38,7 +38,6 @@ import { SysPermissionModule } from './modules/permission/sys-permission.module'
 import { SysRoleModule } from './routes/system/role/sys-role.module';
 import { SysMenuModule } from './routes/system/menu/sys-menu.module';
 import { SysDeptModule } from './routes/system/dept/sys-dept.module';
-import { SysPostModule } from './routes/system/post/sys-post.module';
 import { SysDictModule } from './routes/system/dict/sys-dict.module';
 import { SysConfigModule } from './routes/system/config/sys-config.module';
 import { SysNoticeModule } from './routes/system/notice/sys-notice.module';
@@ -149,7 +148,6 @@ const useProviders = () => {
     SysRoleModule,
     SysMenuModule,
     SysDeptModule,
-    SysPostModule,
     SysDictModule,
     SysConfigModule,
     SysNoticeModule,

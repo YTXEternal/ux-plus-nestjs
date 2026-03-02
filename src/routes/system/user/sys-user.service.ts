@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
 import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
-import { SysPost } from '@/databases/mysql-database/model/sys-post.model';
 import { SysDept } from '@/databases/mysql-database/model/sys-dept.model';
 import { UxPasswordService } from '@/modules/ux-password/ux-password.service';
 import { Op } from 'sequelize';
@@ -39,8 +38,6 @@ export class SysUserService {
     private readonly sysUserModel: typeof SysUser,
     @InjectModel(SysRole)
     private readonly sysRoleModel: typeof SysRole,
-    @InjectModel(SysPost)
-    private readonly sysPostModel: typeof SysPost,
     private readonly uxPasswordService: UxPasswordService,
   ) {}
 
@@ -93,7 +90,6 @@ export class SysUserService {
       include: [
         { model: SysDept, as: 'dept' },
         { model: SysRole },
-        { model: SysPost },
         { model: SysDept, as: 'depts' },
       ],
     });

@@ -19,7 +19,6 @@ import {
   SysMenu,
   SysNotice,
   SysOperLog,
-  SysPost,
   SysRole,
   SysUser,
   SysUserRole,
@@ -67,7 +66,6 @@ describe('API (e2e)', () => {
     dictDataCode: 0,
     menuId: 0,
     noticeId: 0,
-    postId: 0,
     roleCrudId: 0,
     userCrudId: 0,
     operId: 0,
@@ -871,115 +869,6 @@ describe('API (e2e)', () => {
       it('删除成功', async () => {
         const res = await authed('delete', `${apiPrefix}/system/dept`)
           .send({ dept_id: deptCrudId })
-          .expect(200);
-        expectOk(res.body as ApiResponseBody<unknown>);
-      });
-    });
-  });
-
-  describe('System - Post', () => {
-    const postCode = `e2e_${testRunId}`;
-
-    describe('POST /system/post', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed('post', `${apiPrefix}/system/post`).send({}).expect(401);
-      });
-
-      it('缺少字段返回 400', async () => {
-        await authed('post', `${apiPrefix}/system/post`)
-          .send({ post_name: `E2E岗位_${testRunId}` })
-          .expect(400);
-      });
-
-      it('创建成功返回 201', async () => {
-        const res = await authed('post', `${apiPrefix}/system/post`)
-          .send({
-            post_code: postCode,
-            post_name: `E2E岗位_${testRunId}`,
-            post_sort: 1,
-            status: '0',
-            remark: 'e2e',
-          })
-          .expect(201);
-        expectOk(res.body as ApiResponseBody<SysPost>);
-        created.postId = (res.body as ApiResponseBody<SysPost>).data!.post_id;
-      });
-    });
-
-    describe('GET /system/post/list', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed(
-          'get',
-          `${apiPrefix}/system/post/list?pageNum=1&pageSize=10&post_code=${postCode}`,
-        ).expect(401);
-      });
-
-      it('访问成功', async () => {
-        const res = await authed(
-          'get',
-          `${apiPrefix}/system/post/list?pageNum=1&pageSize=10&post_code=${postCode}`,
-        ).expect(200);
-        expectOk(res.body as ApiResponseBody<any>);
-      });
-    });
-
-    describe('GET /system/post/:postId', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed(
-          'get',
-          `${apiPrefix}/system/post/${created.postId}`,
-        ).expect(401);
-      });
-
-      it('访问成功', async () => {
-        const res = await authed(
-          'get',
-          `${apiPrefix}/system/post/${created.postId}`,
-        ).expect(200);
-        expectOk(res.body as ApiResponseBody<SysPost>);
-      });
-    });
-
-    describe('PUT /system/post', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed('put', `${apiPrefix}/system/post`).send({}).expect(401);
-      });
-
-      it('缺少字段返回 400', async () => {
-        await authed('put', `${apiPrefix}/system/post`)
-          .send({ post_id: created.postId })
-          .expect(400);
-      });
-
-      it('更新成功', async () => {
-        const res = await authed('put', `${apiPrefix}/system/post`)
-          .send({
-            post_id: created.postId,
-            post_code: postCode,
-            post_name: `E2E岗位_${testRunId}_2`,
-            post_sort: 2,
-            status: '0',
-            remark: 'e2e2',
-          })
-          .expect(200);
-        expectOk(res.body as ApiResponseBody<unknown>);
-      });
-    });
-
-    describe('DELETE /system/post', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed('delete', `${apiPrefix}/system/post`)
-          .send({ post_ids: [created.postId] })
-          .expect(401);
-      });
-
-      it('缺少 post_ids 返回 400', async () => {
-        await authed('delete', `${apiPrefix}/system/post`).send({}).expect(400);
-      });
-
-      it('删除成功', async () => {
-        const res = await authed('delete', `${apiPrefix}/system/post`)
-          .send({ post_ids: [created.postId] })
           .expect(200);
         expectOk(res.body as ApiResponseBody<unknown>);
       });

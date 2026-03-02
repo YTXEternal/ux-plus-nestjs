@@ -5,7 +5,6 @@ import {
   SysRole,
   SysMenu,
   SysDept,
-  SysPost,
   SysDictType,
   SysDictData,
   SysConfig,
@@ -15,7 +14,6 @@ import {
   SysUserRole,
   SysRoleMenu,
   SysUserDept,
-  SysUserPost,
 } from './model';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfigModule } from '@/modules/env-config/env-config.module';
@@ -69,7 +67,6 @@ export class MysqlDatabaseModule {
                 SysRole,
                 SysMenu,
                 SysDept,
-                SysPost,
                 SysDictType,
                 SysDictData,
                 SysConfig,
@@ -79,7 +76,6 @@ export class MysqlDatabaseModule {
                 SysUserRole,
                 SysRoleMenu,
                 SysUserDept,
-                SysUserPost,
               ],
               synchronize: true,
               define: {
