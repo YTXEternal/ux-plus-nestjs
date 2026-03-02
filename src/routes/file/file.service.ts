@@ -55,10 +55,11 @@ export class SysFileService {
    * 保存文件信息
    * @param fileData 文件信息
    */
-  async create(fileData: { name: string; type: string; url?: string }) {
+  async create(fileData: { name: string; type: string; url: string }) {
     return this.sysFileModel.create({
       name: fileData.name,
       type: fileData.type,
+      url: fileData.url,
       del_flag: '0',
     } as any);
   }

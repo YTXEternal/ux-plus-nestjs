@@ -37,6 +37,10 @@ export class SysFile extends Model<SysFile> implements SysFileInter {
   @Column({ type: DataType.STRING(50), defaultValue: '' })
   type: string;
 
+  @Comment('文件路径')
+  @Column({ type: DataType.STRING(1024), defaultValue: '' })
+  url: string;
+
   @Comment('删除标志（0代表存在 2代表删除）')
   @Column({ type: DataType.CHAR(1), defaultValue: '0' })
   del_flag: string;

@@ -20,11 +20,15 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import * as fs from 'fs';
 import { ApiResponse } from '@/dto/api-response';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('附件管理')
 @Controller('file')
 export class SysFileController {
-  constructor(private readonly sysFileService: SysFileService) {}
+  constructor(
+    private readonly sysFileService: SysFileService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @ApiOperation({ summary: '上传文件' })
   @ApiConsumes('multipart/form-data')
@@ -63,16 +67,16 @@ export class SysFileController {
     @UploadedFile()
     file: Express.Multer.File,
   ) {
+    const url = `${this.configService.get('FILE_HOST_URL')}${this.configService.get('FILE_STATIC_FILES_PATH')}/${file.filename}`; // 假设静态文件服务已配置
+
     // 保存文件信息到数据库
     const savedFile = await this.sysFileService.create({
       name: file.filename, // 或者使用 originalname，或者保存完整路径/URL
       type: file.mimetype,
+      url,
     });
-    const data = {
-      ...savedFile.toJSON(),
-      url: `/static/uploads/${file.filename}`, // 假设静态文件服务已配置
-    };
-    return new ApiResponse(HttpStatus.CREATED, '上传成功', data);
+
+    return new ApiResponse(HttpStatus.CREATED, '上传成功', savedFile);
   }
 
   @ApiOperation({ summary: '获取文件列表' })

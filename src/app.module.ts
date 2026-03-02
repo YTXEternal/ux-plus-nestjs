@@ -50,7 +50,7 @@ import { LabelModule } from './routes/label/label.module';
 import { DramaModule } from './routes/drama/drama.module';
 import { SysFileModule } from './routes/file/file.module';
 
-const staticPath = join(__dirname, '../static');
+const staticPath = join(process.cwd(), 'static');
 
 const useProviders = () => {
   const data = [
@@ -133,7 +133,7 @@ const useProviders = () => {
     LoggerModule,
     ServeStaticModule.forRoot({
       rootPath: staticPath,
-      renderPath: '/static',
+      serveRoot: '/static',
     }),
     ScheduleModule.forRoot(),
     UxJwtModule,
