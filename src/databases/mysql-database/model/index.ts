@@ -4,7 +4,6 @@ export * from './sys-menu.model';
 export * from './sys-dept.model';
 export * from './sys-dict-type.model';
 export * from './sys-dict-data.model';
-export * from './sys-config.model';
 export * from './sys-oper-log.model';
 export * from './sys-logininfor.model';
 export * from './sys-user-role.model';

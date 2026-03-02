@@ -11,7 +11,6 @@ import * as mysql from 'mysql2/promise';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import {
-  SysConfig,
   SysDept,
   SysDictData,
   SysDictType,
@@ -60,7 +59,6 @@ describe('API (e2e)', () => {
     deptId: 0,
     roleId: 0,
     adminUserId: 0,
-    configId: 0,
     dictTypeId: 0,
     dictDataCode: 0,
     menuId: 0,
@@ -549,137 +547,6 @@ describe('API (e2e)', () => {
         ).expect(200);
         expectOk(res.body as ApiResponseBody<boolean>);
         expect((res.body as ApiResponseBody<boolean>).data).toBe(false);
-      });
-    });
-  });
-
-  describe('System - Config', () => {
-    const configKey = `e2e.key.${testRunId}`;
-
-    describe('POST /system/config', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed('post', `${apiPrefix}/system/config`)
-          .send({})
-          .expect(401);
-      });
-
-      it('缺少字段返回 400', async () => {
-        await authed('post', `${apiPrefix}/system/config`)
-          .send({ config_name: `E2E参数_${testRunId}` })
-          .expect(400);
-      });
-
-      it('创建成功返回 201', async () => {
-        const res = await authed('post', `${apiPrefix}/system/config`)
-          .send({
-            config_name: `E2E参数_${testRunId}`,
-            config_key: configKey,
-            config_value: 'v1',
-            config_type: 'N',
-            remark: 'e2e',
-          })
-          .expect(201);
-        expectOk(res.body as ApiResponseBody<SysConfig>);
-        created.configId = (
-          res.body as ApiResponseBody<SysConfig>
-        ).data!.config_id;
-      });
-    });
-
-    describe('GET /system/config/list', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed(
-          'get',
-          `${apiPrefix}/system/config/list?pageNum=1&pageSize=10`,
-        ).expect(401);
-      });
-
-      it('访问成功', async () => {
-        const res = await authed(
-          'get',
-          `${apiPrefix}/system/config/list?pageNum=1&pageSize=10&config_key=${configKey}`,
-        ).expect(200);
-        expectOk(res.body as ApiResponseBody<any>);
-      });
-    });
-
-    describe('GET /system/config/:configId', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed('get', `${apiPrefix}/system/config/1`).expect(401);
-      });
-
-      it('访问成功', async () => {
-        const res = await authed(
-          'get',
-          `${apiPrefix}/system/config/${created.configId}`,
-        ).expect(200);
-        expectOk(res.body as ApiResponseBody<SysConfig>);
-      });
-    });
-
-    describe('GET /system/config/configKey/:configKey', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed(
-          'get',
-          `${apiPrefix}/system/config/configKey/${configKey}`,
-        ).expect(401);
-      });
-
-      it('访问成功', async () => {
-        const res = await authed(
-          'get',
-          `${apiPrefix}/system/config/configKey/${configKey}`,
-        ).expect(200);
-        expectOk(res.body as ApiResponseBody<SysConfig>);
-      });
-    });
-
-    describe('PUT /system/config', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed('put', `${apiPrefix}/system/config`)
-          .send({})
-          .expect(401);
-      });
-
-      it('缺少字段返回 400', async () => {
-        await authed('put', `${apiPrefix}/system/config`)
-          .send({ config_id: created.configId })
-          .expect(400);
-      });
-
-      it('更新成功', async () => {
-        const res = await authed('put', `${apiPrefix}/system/config`)
-          .send({
-            config_id: created.configId,
-            config_name: `E2E参数_${testRunId}`,
-            config_key: configKey,
-            config_value: 'v2',
-            config_type: 'N',
-            remark: 'e2e2',
-          })
-          .expect(200);
-        expectOk(res.body as ApiResponseBody<unknown>);
-      });
-    });
-
-    describe('DELETE /system/config', () => {
-      it('未携带 token 返回 401', async () => {
-        await unauthed('delete', `${apiPrefix}/system/config`)
-          .send({ config_ids: [created.configId] })
-          .expect(401);
-      });
-
-      it('缺少 config_ids 返回 400', async () => {
-        await authed('delete', `${apiPrefix}/system/config`)
-          .send({})
-          .expect(400);
-      });
-
-      it('删除成功', async () => {
-        const res = await authed('delete', `${apiPrefix}/system/config`)
-          .send({ config_ids: [created.configId] })
-          .expect(200);
-        expectOk(res.body as ApiResponseBody<unknown>);
       });
     });
   });

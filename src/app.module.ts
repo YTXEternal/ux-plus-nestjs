@@ -39,7 +39,6 @@ import { SysRoleModule } from './routes/system/role/sys-role.module';
 import { SysMenuModule } from './routes/system/menu/sys-menu.module';
 import { SysDeptModule } from './routes/system/dept/sys-dept.module';
 import { SysDictModule } from './routes/system/dict/sys-dict.module';
-import { SysConfigModule } from './routes/system/config/sys-config.module';
 // Monitor Modules
 import { SysOperLogModule } from './routes/monitor/operlog/sys-oper-log.module';
 import { SysLogininforModule } from './routes/monitor/logininfor/sys-logininfor.module';
@@ -148,7 +147,6 @@ const useProviders = () => {
     SysMenuModule,
     SysDeptModule,
     SysDictModule,
-    SysConfigModule,
     // Monitor
     SysOperLogModule,
     SysLogininforModule,
