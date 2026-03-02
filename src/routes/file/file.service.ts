@@ -68,11 +68,10 @@ export class SysFileService {
    * 逻辑删除文件
    * @param fileIds 文件ID列表
    */
-  async delete(fileIds: string) {
-    const ids = fileIds.split(',');
+  async delete(fileIds: number[]) {
     return this.sysFileModel.update(
-      { del_flag: '2' },
-      { where: { file_id: ids } },
+      { del_flag: '2', url: '' },
+      { where: { file_id: fileIds } },
     );
   }
 }

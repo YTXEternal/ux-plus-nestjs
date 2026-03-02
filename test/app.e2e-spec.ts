@@ -2135,12 +2135,11 @@ describe('API (e2e)', () => {
       });
     });
 
-    describe('DELETE /file/:ids', () => {
+    describe('DELETE /file', () => {
       it('删除文件成功', async () => {
-        const res = await authed(
-          'delete',
-          `${apiPrefix}/file/${fileId}`,
-        ).expect(200);
+        const res = await authed('delete', `${apiPrefix}/file`)
+          .send({ file_ids: [fileId] })
+          .expect(200);
         expectOk(res.body as ApiResponseBody<any>);
 
         // Verify soft delete
@@ -2150,6 +2149,7 @@ describe('API (e2e)', () => {
         ).expect(200);
         const data = (detailRes.body as ApiResponseBody<any>).data;
         expect(data.del_flag).toBe('2');
+        expect(data.url).toBe('');
       });
     });
   });

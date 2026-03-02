@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SysFileService } from './file.service';
-import { ListFileDto } from './dto/file.dto';
+import { ListFileDto, DeleteFileDto } from './dto/file.dto';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -94,9 +94,9 @@ export class SysFileController {
   }
 
   @ApiOperation({ summary: '删除文件' })
-  @Delete(':ids')
-  async remove(@Param('ids') ids: string) {
-    const data = await this.sysFileService.delete(ids);
+  @Delete()
+  async remove(@Body() body: DeleteFileDto) {
+    const data = await this.sysFileService.delete(body.file_ids);
     return new ApiResponse(HttpStatus.OK, '删除成功', data);
   }
 }

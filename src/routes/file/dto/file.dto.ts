@@ -1,6 +1,6 @@
-import { IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
 
 export class ListFileDto {
   @ApiPropertyOptional({ description: '页码', example: 1 })
@@ -29,4 +29,11 @@ export class ListFileDto {
   @IsOptional()
   @IsString()
   del_flag?: string;
+}
+
+export class DeleteFileDto {
+  @ApiProperty({ description: '文件ID列表', example: [1, 2] })
+  @IsArray()
+  @IsNumber({}, { each: true })
+  file_ids: number[];
 }
