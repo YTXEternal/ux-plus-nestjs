@@ -2154,4 +2154,116 @@ describe('API (e2e)', () => {
       });
     });
   });
+
+  describe('Drama Price Management', () => {
+    let dramaId: number;
+    let shopId: number;
+    let priceId: number;
+    const dramaName = `e2e_drama_price_${testRunId}`;
+    const shopName = `e2e_shop_price_${testRunId}`;
+
+    it('Prepare Data: Create Shop and Drama', async () => {
+      // Create Shop
+      const shopRes = await authed('post', `${apiPrefix}/shop`)
+        .send({
+          name: shopName,
+          address: 'E2E测试地址',
+          phone: '010-12345678',
+          conductor: created.adminUserId,
+        })
+        .expect(201);
+      shopId = (shopRes.body as ApiResponseBody<any>).data.shop_id;
+
+      // Create Drama
+      const dramaRes = await authed('post', `${apiPrefix}/drama`)
+        .send({
+          name: dramaName,
+          desc: 'E2E测试剧本',
+          valid_start_time: '2023-01-01 00:00:00',
+          valid_end_time: '2025-12-31 23:59:59',
+          shop_ids: [shopId],
+          label_ids: [],
+        })
+        .expect(201);
+      dramaId = (dramaRes.body as ApiResponseBody<any>).data.event_id;
+    });
+
+    describe('POST /drama-price', () => {
+      it('创建定价成功', async () => {
+        const res = await authed('post', `${apiPrefix}/drama-price`)
+          .send({
+            shop_id: shopId,
+            drama_id: dramaId,
+            price: 99.99,
+          })
+          .expect(201);
+        expectOk(res.body as ApiResponseBody<any>);
+        priceId = (res.body as ApiResponseBody<any>).data.dramaprice_id;
+        expect(priceId).toBeDefined();
+      });
+    });
+
+    describe('GET /drama-price/:id', () => {
+      it('获取定价详情成功', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/drama-price/${priceId}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.price).toBe('99.99');
+        expect(data.dramaprice_id).toBe(priceId);
+      });
+    });
+
+    describe('GET /drama-price', () => {
+      it('获取定价列表成功', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/drama-price?shop_id=${shopId}&drama_id=${dramaId}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.list.length).toBeGreaterThan(0);
+        expect(data.list[0].price).toBe('99.99');
+      });
+    });
+
+    describe('PUT /drama-price', () => {
+      it('修改定价成功', async () => {
+        const res = await authed('put', `${apiPrefix}/drama-price`)
+          .send({
+            dramaprice_id: priceId,
+            price: 199.99,
+          })
+          .expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+
+        const detailRes = await authed(
+          'get',
+          `${apiPrefix}/drama-price/${priceId}`,
+        ).expect(200);
+        const data = (detailRes.body as ApiResponseBody<any>).data;
+        expect(data.price).toBe('199.99');
+      });
+    });
+
+    describe('DELETE /drama-price/:id', () => {
+      it('删除定价成功', async () => {
+        const res = await authed(
+          'delete',
+          `${apiPrefix}/drama-price/${priceId}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+
+        // 验证软删除
+        const listRes = await authed(
+          'get',
+          `${apiPrefix}/drama-price?shop_id=${shopId}&drama_id=${dramaId}`,
+        ).expect(200);
+        const data = (listRes.body as ApiResponseBody<any>).data;
+        expect(data.list.length).toBe(0);
+      });
+    });
+  });
 });

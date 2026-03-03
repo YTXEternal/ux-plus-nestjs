@@ -19,6 +19,7 @@ import {
   SysDramaShop,
   SysDramaLabel,
   SysFile,
+  SysDramaPrice,
 } from './model';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfigModule } from '@/modules/env-config/env-config.module';
@@ -86,6 +87,7 @@ export class MysqlDatabaseModule {
                 SysDramaShop,
                 SysDramaLabel,
                 SysFile,
+                SysDramaPrice,
               ],
               synchronize: true,
               define: {
