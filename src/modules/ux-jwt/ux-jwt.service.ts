@@ -30,7 +30,7 @@ const handleError = (err: E): VerifyCodeError => {
     return {
       name: 'TokenExpiredError',
       message: 'Token expired',
-      code: 9999,
+      code: HttpStatus.UNAUTHORIZED,
     };
   } else if (err.name === 'JsonWebTokenError') {
     // 无效的签名、格式错误等
