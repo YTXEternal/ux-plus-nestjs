@@ -20,6 +20,9 @@ import {
   SysDramaLabel,
   SysFile,
   SysDramaPrice,
+  Arrange,
+  Ticket,
+  TicketRecord,
 } from './model';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfigModule } from '@/modules/env-config/env-config.module';
@@ -46,6 +49,7 @@ export class MysqlDatabaseModule {
     }
 
     const isBootUp = process.env.MYSQL_BOOT_UP === 'true';
+    console.log('MysqlDatabaseModule isBootUp:', isBootUp);
 
     if (!isBootUp) {
       return {
@@ -88,6 +92,9 @@ export class MysqlDatabaseModule {
                 SysDramaLabel,
                 SysFile,
                 SysDramaPrice,
+                Arrange,
+                Ticket,
+                TicketRecord,
               ],
               synchronize: true,
               define: {

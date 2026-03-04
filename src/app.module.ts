@@ -50,6 +50,9 @@ import { LabelModule } from './routes/label/label.module';
 import { DramaModule } from './routes/drama/drama.module';
 import { DramaPriceModule } from './routes/drama-price/drama-price.module';
 import { SysFileModule } from './routes/file/file.module';
+import { ArrangeModule } from './routes/arrange/arrange.module';
+import { TicketModule } from './routes/ticket/ticket.module';
+import { TicketRecordModule } from './routes/ticket_record/ticket-record.module';
 
 const staticPath = join(process.cwd(), 'static');
 
@@ -164,6 +167,9 @@ const useProviders = () => {
     DramaModule,
     DramaPriceModule,
     SysFileModule,
+    ArrangeModule,
+    TicketModule,
+    TicketRecordModule,
   ],
   controllers: [AppController],
   providers: useProviders(),

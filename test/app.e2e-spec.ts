@@ -2266,4 +2266,311 @@ describe('API (e2e)', () => {
       });
     });
   });
+
+  describe('Arrange Management', () => {
+    let dramaId: number;
+    let shopId: number;
+    let arrangeId: number;
+    const arrangeName = `e2e_arrange_${testRunId}`;
+
+    it('Prepare Data: Create Drama and Shop', async () => {
+      // Create Shop
+      const shopRes = await authed('post', `${apiPrefix}/shop`)
+        .send({
+          name: `e2e_shop_arrange_${testRunId}`,
+          address: 'Test Address',
+          conductor: 1,
+          phone: '1234567890',
+        })
+        .expect(201);
+      shopId = (shopRes.body as ApiResponseBody<any>).data.shop_id;
+
+      // Create Drama
+      const dramaRes = await authed('post', `${apiPrefix}/drama`)
+        .send({
+          name: `e2e_drama_for_arrange_${testRunId}`,
+          desc: 'E2E测试剧本',
+          valid_start_time: '2023-01-01 00:00:00',
+          valid_end_time: '2025-12-31 23:59:59',
+          shop_ids: [],
+          label_ids: [],
+        })
+        .expect(201);
+      dramaId = (dramaRes.body as ApiResponseBody<any>).data.event_id;
+    });
+
+    describe('POST /arrange', () => {
+      it('创建排场成功', async () => {
+        const res = await authed('post', `${apiPrefix}/arrange`)
+          .send({
+            name: arrangeName,
+            drama_id: dramaId,
+            shop_id: shopId,
+            price: 100,
+            start_time: '2023-10-01 19:00:00',
+            end_time: '2023-10-01 22:00:00',
+            total_tickets: 50,
+            remaining_tickets: 50,
+          })
+          .expect(201);
+        expectOk(res.body as ApiResponseBody<any>);
+        arrangeId = (res.body as ApiResponseBody<any>).data.arrange_id;
+        expect(arrangeId).toBeDefined();
+      });
+    });
+
+    describe('GET /arrange/:id', () => {
+      it('获取排场详情成功', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/arrange/${arrangeId}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.name).toBe(arrangeName);
+        expect(data.arrange_id).toBe(arrangeId);
+      });
+    });
+
+    describe('GET /arrange/list', () => {
+      it('获取排场列表成功', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/arrange/list?name=${arrangeName}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.list.length).toBeGreaterThan(0);
+        expect(data.list[0].name).toBe(arrangeName);
+      });
+    });
+
+    describe('GET /arrange/all', () => {
+      it('获取排场全量列表成功', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/arrange/all?name=${arrangeName}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.length).toBeGreaterThan(0);
+        expect(data[0].name).toBe(arrangeName);
+      });
+    });
+
+    describe('PUT /arrange', () => {
+      it('修改排场成功', async () => {
+        const newName = `${arrangeName}_updated`;
+        const res = await authed('put', `${apiPrefix}/arrange`)
+          .send({
+            arrange_id: arrangeId,
+            name: newName,
+            drama_id: dramaId,
+            shop_id: shopId,
+            price: 120,
+            start_time: '2023-10-01 19:00:00',
+            end_time: '2023-10-01 22:00:00',
+            total_tickets: 50,
+            remaining_tickets: 50,
+          })
+          .expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+      });
+    });
+
+    describe('DELETE /arrange/:ids', () => {
+      it('删除排场成功', async () => {
+        const res = await authed(
+          'delete',
+          `${apiPrefix}/arrange/${arrangeId}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+      });
+    });
+  });
+
+  describe('Ticket Management', () => {
+    let dramaId: number;
+    let shopId: number;
+    let arrangeId: number;
+    let memberId: number;
+    let ticketId: number;
+
+    it('Prepare Data', async () => {
+      // Create Shop
+      const shopRes = await authed('post', `${apiPrefix}/shop`)
+        .send({
+          name: `e2e_shop_ticket_${testRunId}`,
+          address: 'Test Address',
+          conductor: 1,
+          phone: '1234567890',
+        })
+        .expect(201);
+      shopId = (shopRes.body as ApiResponseBody<any>).data.shop_id;
+
+      // Create Member
+      const memberRes = await authed('post', `${apiPrefix}/member`)
+        .send({
+          name: `e2e_member_ticket_${testRunId}`,
+          phone: '13800138001',
+          email: 'test_ticket@example.com',
+        })
+        .expect(201);
+      memberId = (memberRes.body as ApiResponseBody<any>).data.member_id;
+
+      // Create Drama
+      const dramaRes = await authed('post', `${apiPrefix}/drama`)
+        .send({
+          name: `e2e_drama_ticket_${testRunId}`,
+          desc: 'E2E测试剧本',
+          valid_start_time: '2023-01-01 00:00:00',
+          valid_end_time: '2025-12-31 23:59:59',
+          shop_ids: [],
+          label_ids: [],
+        })
+        .expect(201);
+      dramaId = (dramaRes.body as ApiResponseBody<any>).data.event_id;
+
+      // Create Arrange
+      const arrangeRes = await authed('post', `${apiPrefix}/arrange`)
+        .send({
+          name: `e2e_arrange_ticket_${testRunId}`,
+          drama_id: dramaId,
+          shop_id: shopId,
+          price: 100,
+          start_time: '2023-10-01 19:00:00',
+          end_time: '2023-10-01 22:00:00',
+          total_tickets: 10,
+          remaining_tickets: 10,
+        })
+        .expect(201);
+      arrangeId = (arrangeRes.body as ApiResponseBody<any>).data.arrange_id;
+    });
+
+    describe('POST /ticket', () => {
+      it('购票成功', async () => {
+        const res = await authed('post', `${apiPrefix}/ticket`)
+          .send({
+            member_id: memberId,
+            arrange_id: arrangeId,
+            count: 2,
+          })
+          .expect(201);
+        expectOk(res.body as ApiResponseBody<any>);
+        ticketId = (res.body as ApiResponseBody<any>).data.ticket_id;
+        expect(ticketId).toBeDefined();
+
+        // 验证库存减少
+        const arrangeDetail = await authed(
+          'get',
+          `${apiPrefix}/arrange/${arrangeId}`,
+        ).expect(200);
+        const data = (arrangeDetail.body as ApiResponseBody<any>).data;
+        expect(data.remaining_tickets).toBe(8);
+      });
+
+      it('库存不足购票失败', async () => {
+        await authed('post', `${apiPrefix}/ticket`)
+          .send({
+            member_id: memberId,
+            arrange_id: arrangeId,
+            count: 10,
+          })
+          .expect(400);
+      });
+    });
+
+    describe('GET /ticket/:id', () => {
+      it('获取购票详情成功', async () => {
+        const res = await authed(
+          'get',
+          `${apiPrefix}/ticket/${ticketId}`,
+        ).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.ticket_id).toBe(ticketId);
+        expect(data.status).toBe('0'); // 未支付
+      });
+    });
+
+    describe('GET /ticket/list', () => {
+      it('获取购票列表成功', async () => {
+        const res = await authed('get', `${apiPrefix}/ticket/list`).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data.list.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe('Ticket Record & Pay/Refund', () => {
+      it('支付成功 (模拟)', async () => {
+        if (!ticketId) {
+          const listRes = await authed(
+            'get',
+            `${apiPrefix}/ticket/list`,
+          ).expect(200);
+          const list = (listRes.body as ApiResponseBody<any>).data.list;
+          if (list && list.length > 0) {
+            ticketId = list[0].ticket_id;
+          }
+        }
+        const res = await authed(
+          'post',
+          `${apiPrefix}/ticket-record/pay/${ticketId}`,
+        ).expect(201);
+        const body = res.body as ApiResponseBody<any>;
+        if (body.data && body.data.payUrl) {
+          console.log('Alipay Pay URL generated');
+        } else {
+          expect(body.data.message).toBe('模拟支付成功');
+
+          // 验证状态
+          const ticketDetail = await authed(
+            'get',
+            `${apiPrefix}/ticket/${ticketId}`,
+          ).expect(200);
+          expect((ticketDetail.body as ApiResponseBody<any>).data.status).toBe(
+            '1',
+          );
+
+          // 验证记录
+          const recordList = await authed(
+            'get',
+            `${apiPrefix}/ticket-record/list`,
+          ).expect(200);
+          const records = (recordList.body as ApiResponseBody<any>).data.list;
+          const payRecord = records.find(
+            (r: any) => r.ticket_id === ticketId && r.type === '1',
+          );
+          expect(payRecord).toBeDefined();
+          expect(payRecord.status).toBe('1');
+
+          // 测试退款
+          await authed('post', `${apiPrefix}/ticket-record/refund`)
+            .send({
+              ticket_id: ticketId,
+              reason: '测试退款',
+            })
+            .expect(200);
+
+          // 验证状态
+          const ticketDetailAfterRefund = await authed(
+            'get',
+            `${apiPrefix}/ticket/${ticketId}`,
+          ).expect(200);
+          expect(
+            (ticketDetailAfterRefund.body as ApiResponseBody<any>).data.status,
+          ).toBe('3');
+
+          // 验证库存恢复
+          const arrangeDetail = await authed(
+            'get',
+            `${apiPrefix}/arrange/${arrangeId}`,
+          ).expect(200);
+          const arrangeData = (arrangeDetail.body as ApiResponseBody<any>).data;
+          expect(arrangeData.remaining_tickets).toBe(10);
+        }
+      });
+    });
+  });
 });
