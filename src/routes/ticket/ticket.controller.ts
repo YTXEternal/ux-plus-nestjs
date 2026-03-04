@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query, HttpStatus } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto, ListTicketDto } from './dto/ticket.dto';

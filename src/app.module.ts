@@ -71,10 +71,10 @@ const useProviders = () => {
       provide: APP_GUARD,
       useClass: PermissionsGuard,
     },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: XssSanitizeInterceptor,
-    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: XssSanitizeInterceptor,
+    // },
     {
       provide: APP_INTERCEPTOR,
       useClass: TimeoutInterceptor,
@@ -102,10 +102,10 @@ const useProviders = () => {
       provide: APP_GUARD,
       useClass: PermissionsGuard,
     },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: XssSanitizeInterceptor,
-    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: XssSanitizeInterceptor,
+    // },
     {
       provide: APP_INTERCEPTOR,
       useClass: TimeoutInterceptor,

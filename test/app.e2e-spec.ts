@@ -1349,6 +1349,21 @@ describe('API (e2e)', () => {
           res.body as ApiResponseBody<SysUser>
         ).data!.user_id;
       });
+
+      it('用户账号已存在返回 409', async () => {
+        await authed('post', `${apiPrefix}/system/user`)
+          .send({
+            user_name: userName, // 使用已存在的 userName
+            nick_name: `E2E用户_${testRunId}_Duplicate`,
+            password: '123456',
+            dept_id: created.deptId,
+            phonenumber: '15888888882',
+            email: `e2e_user_${testRunId}_dup@example.com`,
+            sex: '1',
+            status: '0',
+          })
+          .expect(409);
+      });
     });
 
     describe('GET /system/user/:userId', () => {
@@ -1394,6 +1409,22 @@ describe('API (e2e)', () => {
           })
           .expect(200);
         expectOk(res.body as ApiResponseBody<unknown>);
+      });
+
+      it('更新时用户账号已存在返回 409', async () => {
+        // 尝试将当前用户改名为 admin (已存在)
+        await authed('put', `${apiPrefix}/system/user`)
+          .send({
+            user_id: created.userCrudId,
+            user_name: 'admin',
+            nick_name: `E2E用户_${testRunId}_2`,
+            dept_id: created.deptId,
+            phonenumber: '15888888881',
+            email: `e2e_user_${testRunId}@example.com`,
+            sex: '1',
+            status: '0',
+          })
+          .expect(409);
       });
     });
 
@@ -2107,7 +2138,7 @@ describe('API (e2e)', () => {
           .expect(201);
 
         const body = res.body as ApiResponseBody<any>;
-        expect(body).toHaveProperty('code', 201);
+        expect(body.code).toBe(200);
         expect(body).toHaveProperty('message');
         const data = body.data;
         expect(data).toHaveProperty('file_id');

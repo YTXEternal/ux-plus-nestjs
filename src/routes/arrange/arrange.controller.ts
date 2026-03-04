@@ -1,7 +1,25 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse as ApiSwaggerResponse } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  HttpStatus,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse as ApiSwaggerResponse,
+} from '@nestjs/swagger';
 import { ArrangeService } from './arrange.service';
-import { CreateArrangeDto, ListArrangeDto, UpdateArrangeDto } from './dto/arrange.dto';
+import {
+  CreateArrangeDto,
+  ListArrangeDto,
+  UpdateArrangeDto,
+} from './dto/arrange.dto';
 import { ApiResponse } from '@/dto/api-response';
 import { formatPagination } from '@/tools';
 
@@ -52,7 +70,7 @@ export class ArrangeController {
   @ApiOperation({ summary: '删除排场' })
   @Delete(':ids')
   async remove(@Param('ids') ids: string) {
-    await this.arrangeService.remove(ids.split(',').map(id => +id));
+    await this.arrangeService.remove(ids.split(',').map((id) => +id));
     return new ApiResponse(HttpStatus.OK, '删除成功', null);
   }
 }

@@ -34,7 +34,10 @@ export class Ticket extends Model {
   @Column({ type: DataType.DECIMAL(10, 2), comment: '支付金额' })
   pay_amount: number;
 
-  @Column({ defaultValue: '0', comment: '状态（0未支付 1已支付 2已过期 3已退款）' })
+  @Column({
+    defaultValue: '0',
+    comment: '状态（0未支付 1已支付 2已过期 3已退款）',
+  })
   status: string;
 
   @Column({ type: DataType.DATE, comment: '购票时间' })

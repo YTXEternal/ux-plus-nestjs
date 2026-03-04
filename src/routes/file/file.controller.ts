@@ -76,7 +76,7 @@ export class SysFileController {
       url,
     });
 
-    return new ApiResponse(HttpStatus.CREATED, '上传成功', savedFile);
+    return new ApiResponse(HttpStatus.OK, '上传成功', savedFile);
   }
 
   @ApiOperation({ summary: '获取文件列表' })

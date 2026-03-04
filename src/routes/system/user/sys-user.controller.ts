@@ -19,6 +19,7 @@ import { SysUserService } from './sys-user.service';
 import { RequirePermissions } from '@/guards';
 import { ApiResponse } from '@/dto/api-response';
 import { formatPagination } from '@/tools';
+import { filterObjNull } from '@/tools';
 
 import {
   ListUserDto,
@@ -63,6 +64,12 @@ export class SysUserController {
   @Get(':userId')
   async findOne(@Param() params: GetUserParamDto) {
     const { data } = await this.sysUserService.findOne(params.userId);
+    if (data) {
+      // @ts-ignore
+      data.roles = data.roles?.map((role) => role.role_id) || [];
+      // @ts-ignore
+      data.depts = data.depts?.map((dept) => dept.dept_id) || [];
+    }
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
@@ -76,7 +83,7 @@ export class SysUserController {
   @Post()
   async create(@Body() body: CreateUserDto) {
     console.log('body', body);
-    const data = await this.sysUserService.create(body);
+    const data = await this.sysUserService.create(filterObjNull(body));
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
@@ -89,7 +96,7 @@ export class SysUserController {
   @RequirePermissions('system:user:edit')
   @Put()
   async update(@Body() body: UpdateUserDto) {
-    const data = await this.sysUserService.update(body);
+    const data = await this.sysUserService.update(filterObjNull(body));
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 

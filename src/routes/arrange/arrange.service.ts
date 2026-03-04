@@ -109,10 +109,7 @@ export class ArrangeService {
    */
   async findOne(id: number) {
     return this.arrangeModel.findByPk(id, {
-      include: [
-        { model: SysDrama },
-        { model: Shop, attributes: ['name'] },
-      ],
+      include: [{ model: SysDrama }, { model: Shop, attributes: ['name'] }],
     });
   }
 

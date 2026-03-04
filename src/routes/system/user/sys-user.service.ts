@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
 import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
 import { SysDept } from '@/databases/mysql-database/model/sys-dept.model';
 import { UxPasswordService } from '@/modules/ux-password/ux-password.service';
 import { Op } from 'sequelize';
+import { filterObjNull } from '@/tools';
 
 import {
   ListUserDto,
@@ -107,6 +108,17 @@ export class SysUserService {
    * @returns {Promise<SysUser>} 创建后的用户记录
    */
   async create(createUserDto: CreateUserDto) {
+    // 校验用户名唯一性
+    const existUser = await this.sysUserModel.findOne({
+      where: { user_name: createUserDto.user_name, del_flag: '0' },
+    });
+    if (existUser) {
+      throw new HttpException(
+        `用户账号 '${createUserDto.user_name}' 已存在`,
+        HttpStatus.CONFLICT,
+      );
+    }
+
     // 加密密码
     if (createUserDto.password) {
       createUserDto.password = this.uxPasswordService.encryptedPassword(
@@ -128,10 +140,25 @@ export class SysUserService {
    */
   async update(updateUserDto: UpdateUserDto) {
     const { user_id, dept_ids, ...data } = updateUserDto;
-    // 通常不在这里更新密码，使用单独的 API
-    if (data.password) delete data.password;
-    const result = await this.sysUserModel.update(data, { where: { user_id } });
 
+    // 校验用户名唯一性（排除自身）
+    if (data.user_name) {
+      const existUser = await this.sysUserModel.findOne({
+        where: {
+          user_name: data.user_name,
+          del_flag: '0',
+          user_id: { [Op.ne]: user_id },
+        },
+      });
+      if (existUser) {
+        throw new HttpException(
+          `用户账号 '${data.user_name}' 已存在`,
+          HttpStatus.CONFLICT,
+        );
+      }
+    }
+
+    const result = await this.sysUserModel.update(data, { where: { user_id } });
     if (dept_ids) {
       const user = await this.sysUserModel.findByPk(user_id);
       if (user) {

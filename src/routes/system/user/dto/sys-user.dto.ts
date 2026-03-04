@@ -95,11 +95,6 @@ export class CreateUserDto {
   @IsString()
   remark?: string;
 
-  @ApiPropertyOptional({ description: '岗位ID列表', example: [1] })
-  @IsOptional()
-  @IsArray()
-  post_ids?: number[];
-
   @ApiPropertyOptional({ description: '角色ID列表', example: [1] })
   @IsOptional()
   @IsArray()
@@ -111,10 +106,59 @@ export class CreateUserDto {
   dept_ids?: number[];
 }
 
-export class UpdateUserDto extends CreateUserDto {
+export class UpdateUserDto {
   @ApiProperty({ description: '用户ID', example: 1 })
   @IsNumber()
   user_id: number;
+
+  @ApiProperty({ description: '用户名', example: 'test' })
+  @IsString()
+  user_name: string;
+
+  @ApiProperty({ description: '昵称', example: 'Test User' })
+  @IsString()
+  nick_name: string;
+
+  @ApiPropertyOptional({ description: '部门ID', example: 100 })
+  @IsOptional()
+  @IsNumber()
+  dept_id?: number;
+
+  @ApiPropertyOptional({ description: '手机号码', example: '15888888888' })
+  @IsOptional()
+  @IsString()
+  phonenumber?: string;
+
+  @ApiPropertyOptional({ description: '邮箱', example: 'ry@qq.com' })
+  @IsOptional()
+  @IsString()
+  @IsEmail()
+  email?: string;
+
+  @ApiPropertyOptional({ description: '性别', example: '0' })
+  @IsOptional()
+  @IsString()
+  sex?: string;
+
+  @ApiPropertyOptional({ description: '状态', example: '0' })
+  @IsOptional()
+  @IsString()
+  status?: string;
+
+  @ApiPropertyOptional({ description: '备注', example: '管理员' })
+  @IsOptional()
+  @IsString()
+  remark?: string;
+
+  @ApiPropertyOptional({ description: '角色ID列表', example: [1] })
+  @IsOptional()
+  @IsArray()
+  role_ids?: number[];
+
+  @ApiPropertyOptional({ description: '部门ID列表', example: [100] })
+  @IsOptional()
+  @IsArray()
+  dept_ids?: number[];
 }
 
 export class ResetPwdDto {
