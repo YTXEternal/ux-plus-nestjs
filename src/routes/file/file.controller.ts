@@ -21,6 +21,7 @@ import { extname } from 'path';
 import * as fs from 'fs';
 import { ApiResponse } from '@/dto/api-response';
 import { ConfigService } from '@nestjs/config';
+import { RequirePermissions } from '@/guards';
 
 @ApiTags('附件管理')
 @Controller('file')
@@ -43,6 +44,7 @@ export class SysFileController {
       },
     },
   })
+  @RequirePermissions('file:upload')
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -80,6 +82,7 @@ export class SysFileController {
   }
 
   @ApiOperation({ summary: '获取文件列表' })
+  @RequirePermissions('file:list')
   @Get('list')
   async list(@Query() query: ListFileDto) {
     const data = await this.sysFileService.findAll(query);
@@ -87,6 +90,7 @@ export class SysFileController {
   }
 
   @ApiOperation({ summary: '获取文件详情' })
+  @RequirePermissions('file:query')
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const data = await this.sysFileService.findOne(+id);
@@ -94,6 +98,7 @@ export class SysFileController {
   }
 
   @ApiOperation({ summary: '删除文件' })
+  @RequirePermissions('file:remove')
   @Delete()
   async remove(@Body() body: DeleteFileDto) {
     const data = await this.sysFileService.delete(body.file_ids);

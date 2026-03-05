@@ -24,6 +24,7 @@ import {
   ChangeStatusLabelDto,
 } from './dto/label.dto';
 import { formatPagination } from '@/tools';
+import { RequirePermissions } from '@/guards';
 
 @ApiTags('标签管理')
 @Controller({
@@ -39,12 +40,14 @@ export class LabelController {
     description: '新增成功',
     type: ApiResponse,
   })
+  @RequirePermissions('label:add')
   @Post()
   async create(@Body() body: CreateLabelDto) {
     const data = await this.labelService.create(body);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('label:remove')
   @ApiOperation({ summary: '删除标签' })
   @ApiSwaggerResponse({
     status: 200,
@@ -56,7 +59,7 @@ export class LabelController {
     await this.labelService.delete(body.label_ids);
     return new ApiResponse(HttpStatus.OK, '删除成功', null);
   }
-
+  @RequirePermissions('label:edit')
   @ApiOperation({ summary: '修改标签信息' })
   @ApiSwaggerResponse({
     status: 200,
@@ -69,6 +72,7 @@ export class LabelController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('label:edit')
   @ApiOperation({ summary: '修改标签状态' })
   @ApiSwaggerResponse({
     status: 200,
@@ -81,6 +85,7 @@ export class LabelController {
     return new ApiResponse(HttpStatus.OK, '操作成功', null);
   }
 
+  @RequirePermissions('label:list')
   @ApiOperation({ summary: '获取标签列表' })
   @ApiSwaggerResponse({
     status: 200,
@@ -100,6 +105,7 @@ export class LabelController {
     description: '获取成功',
     type: ApiResponse,
   })
+  @RequirePermissions('label:query')
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const data = await this.labelService.findOne(+id);
