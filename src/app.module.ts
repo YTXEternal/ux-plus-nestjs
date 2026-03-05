@@ -55,6 +55,7 @@ import { TicketModule } from './routes/ticket/ticket.module';
 import { TicketRecordModule } from './routes/ticket_record/ticket-record.module';
 
 const staticPath = join(process.cwd(), 'static');
+console.log('staticPath', staticPath);
 
 const useProviders = () => {
   const data = [

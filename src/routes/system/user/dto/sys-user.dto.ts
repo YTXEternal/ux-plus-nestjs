@@ -85,6 +85,14 @@ export class CreateUserDto {
   @IsString()
   sex?: string;
 
+  @ApiPropertyOptional({
+    description: '头像',
+    example: 'http://127.0.0.1:3000/avatar.jpg',
+  })
+  @IsOptional()
+  @IsString()
+  avatar?: string;
+
   @ApiPropertyOptional({ description: '状态', example: '0' })
   @IsOptional()
   @IsString()
@@ -128,6 +136,14 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   phonenumber?: string;
+
+  @ApiPropertyOptional({
+    description: '头像',
+    example: 'http://127.0.0.1:3000/avatar.jpg',
+  })
+  @IsOptional()
+  @IsString()
+  avatar?: string;
 
   @ApiPropertyOptional({ description: '邮箱', example: 'ry@qq.com' })
   @IsOptional()

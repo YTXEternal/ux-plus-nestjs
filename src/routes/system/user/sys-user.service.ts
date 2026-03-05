@@ -4,8 +4,11 @@ import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
 import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
 import { SysDept } from '@/databases/mysql-database/model/sys-dept.model';
 import { UxPasswordService } from '@/modules/ux-password/ux-password.service';
+import { SysUserDept } from '@/databases/mysql-database/model/sys-user-dept.model';
+import { SysUserRole } from '@/databases/mysql-database/model/sys-user-role.model';
 import { Op } from 'sequelize';
 import { filterObjNull } from '@/tools';
+import { Sequelize } from 'sequelize-typescript';
 
 import {
   ListUserDto,
@@ -31,7 +34,6 @@ export class SysUserService {
    *
    * @param {typeof SysUser} sysUserModel 用户模型
    * @param {typeof SysRole} sysRoleModel 角色模型
-   * @param {typeof SysPost} sysPostModel 岗位模型
    * @param {UxPasswordService} uxPasswordService 密码能力服务
    */
   constructor(
@@ -39,7 +41,12 @@ export class SysUserService {
     private readonly sysUserModel: typeof SysUser,
     @InjectModel(SysRole)
     private readonly sysRoleModel: typeof SysRole,
+    @InjectModel(SysUserDept)
+    private readonly sysUserDeptModel: typeof SysUserDept,
+    @InjectModel(SysUserRole)
+    private readonly sysUserRoleModel: typeof SysUserRole,
     private readonly uxPasswordService: UxPasswordService,
+    private sequelize: Sequelize,
   ) {}
 
   /**
@@ -125,10 +132,72 @@ export class SysUserService {
         createUserDto.password,
       );
     }
-    console.log('createUserDto', createUserDto);
+    const { role_ids, dept_ids } = createUserDto;
+    // console.log('createUserDto', createUserDto);
     return this.sysUserModel.create(createUserDto as any);
   }
-
+  /**
+   * 创建用户与角色关联
+   *
+   * @async
+   * @param {number} user_id
+   * @param {CreateUserDto} createUserDto
+   * @returns {unknown}
+   */
+  async createByRoleIds(user_id: number, createUserDto: CreateUserDto) {
+    const { role_ids } = createUserDto;
+    if (!role_ids?.length) return false;
+    const transaction = await this.sequelize.transaction();
+    try {
+      await this.sysUserRoleModel.destroy({
+        where: {
+          user_id,
+        },
+        transaction,
+      });
+      const roleData = role_ids.map((role_id) => ({
+        user_id,
+        role_id,
+      }));
+      // @ts-ignore
+      await this.sysUserRoleModel.bulkCreate(roleData, { transaction });
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+  /**
+   * 创建用户与部门关联
+   *
+   * @async
+   * @param {number} user_id
+   * @param {CreateUserDto} createUserDto
+   * @returns {unknown}
+   */
+  async createByDeptIds(user_id: number, createUserDto: CreateUserDto) {
+    const { dept_ids } = createUserDto;
+    if (!dept_ids?.length) return false;
+    const transaction = await this.sequelize.transaction();
+    try {
+      await this.sysUserDeptModel.destroy({
+        where: {
+          user_id,
+        },
+        transaction,
+      });
+      const deptData = dept_ids.map((dept_id) => ({
+        user_id,
+        dept_id,
+      }));
+      // @ts-ignore
+      await this.sysUserDeptModel.bulkCreate(deptData, { transaction });
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
   /**
    * 更新用户
    *
@@ -140,7 +209,6 @@ export class SysUserService {
    */
   async update(updateUserDto: UpdateUserDto) {
     const { user_id, dept_ids, ...data } = updateUserDto;
-
     // 校验用户名唯一性（排除自身）
     if (data.user_name) {
       const existUser = await this.sysUserModel.findOne({
@@ -165,7 +233,6 @@ export class SysUserService {
         await user.$set('depts', dept_ids);
       }
     }
-
     return result;
   }
 
@@ -177,10 +244,9 @@ export class SysUserService {
    * @returns {Promise<[number, SysUser[]]>} Sequelize 更新结果
    */
   async delete(userIds: string) {
-    const ids = userIds.split(',');
     return this.sysUserModel.update(
       { del_flag: '2' },
-      { where: { user_id: ids } },
+      { where: { user_id: userIds } },
     );
   }
 
@@ -195,7 +261,7 @@ export class SysUserService {
     const { user_id, password } = body;
     const hashedPassword = this.uxPasswordService.encryptedPassword(password);
     return this.sysUserModel.update(
-      { password: hashedPassword },
+      { password: hashedPassword, pwd_update_date: new Date() },
       { where: { user_id } },
     );
   }

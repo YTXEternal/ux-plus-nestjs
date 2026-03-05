@@ -56,3 +56,6 @@ swagger.json
 
 # frontend
 /frontend
+
+# 静态资源
+/static

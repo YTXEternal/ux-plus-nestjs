@@ -50,13 +50,13 @@ export class SysRoleService {
     // 帮我写一个 条件就是role_key 不等于SUPERADMIN
     const where: any = {
       del_flag: '0',
-      role_key: { [Op.ne]: this.configService.get('SUPERADMIN_ROLE_KEY') },
+      // role_key: { [Op.ne]: this.configService.get('SUPERADMIN_ROLE_KEY') },
     };
     if (role_name) where.role_name = { [Op.like]: `%${role_name}%` };
     if (role_key)
       where.role_key = {
         [Op.like]: `%${role_key}%`,
-        [Op.ne]: this.configService.get('SUPERADMIN_ROLE_KEY'),
+        // [Op.ne]: this.configService.get('SUPERADMIN_ROLE_KEY'),
       };
     if (status) where.status = status;
     console.log('where', where);
@@ -81,13 +81,13 @@ export class SysRoleService {
     const { role_name, role_key, status } = query;
     const where: any = {
       del_flag: '0',
-      role_key: { [Op.ne]: this.configService.get('SUPERADMIN_ROLE_KEY') },
+      // role_key: { [Op.ne]: this.configService.get('SUPERADMIN_ROLE_KEY') },
     };
     if (role_name) where.role_name = { [Op.like]: `%${role_name}%` };
     if (role_key)
       where.role_key = {
         [Op.like]: `%${role_key}%`,
-        [Op.ne]: this.configService.get('SUPERADMIN_ROLE_KEY'),
+        // [Op.ne]: this.configService.get('SUPERADMIN_ROLE_KEY'),
       };
     if (status) where.status = status;
 

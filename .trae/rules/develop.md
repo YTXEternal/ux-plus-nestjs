@@ -16,3 +16,7 @@ alwaysApply: true
 ## Services 以及 Modules
 - 所有的Service方法都必须编写对应的JSDoc注释
 - 所有的Module都必须添加注释说明其作用，采用JSDoc规范
+
+# 编写功能完成后
+- 需要编写对应的测试用例到app.e2e-spec.ts中
+- 最后需要通过pnpm lint和pnpm test:e2e测试

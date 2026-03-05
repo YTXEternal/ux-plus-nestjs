@@ -5,6 +5,8 @@ import { SysUserController } from './sys-user.controller';
 import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
 import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
 import { SysDept } from '@/databases/mysql-database/model/sys-dept.model';
+import { SysUserDept } from '@/databases/mysql-database/model/sys-user-dept.model';
+import { SysUserRole } from '@/databases/mysql-database/model/sys-user-role.model';
 import { UxPasswordModule } from '@/modules/ux-password/ux-password.module';
 
 /**
@@ -18,7 +20,13 @@ import { UxPasswordModule } from '@/modules/ux-password/ux-password.module';
  */
 @Module({
   imports: [
-    SequelizeModule.forFeature([SysUser, SysRole, SysDept]),
+    SequelizeModule.forFeature([
+      SysUser,
+      SysRole,
+      SysDept,
+      SysUserDept,
+      SysUserRole,
+    ]),
     UxPasswordModule,
   ],
   controllers: [SysUserController],

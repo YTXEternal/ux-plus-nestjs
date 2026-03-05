@@ -5,6 +5,8 @@ export function uniformResponseHeaderMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  res.setHeader('Content-Type', 'application/json');
+  if (req.url.startsWith('/api')) {
+    res.setHeader('Content-Type', 'application/json');
+  }
   next();
 }

@@ -19,7 +19,6 @@ import { SysUserService } from './sys-user.service';
 import { RequirePermissions } from '@/guards';
 import { ApiResponse } from '@/dto/api-response';
 import { formatPagination } from '@/tools';
-import { filterObjNull } from '@/tools';
 
 import {
   ListUserDto,
@@ -64,13 +63,18 @@ export class SysUserController {
   @Get(':userId')
   async findOne(@Param() params: GetUserParamDto) {
     const { data } = await this.sysUserService.findOne(params.userId);
-    if (data) {
-      // @ts-ignore
-      data.roles = data.roles?.map((role) => role.role_id) || [];
-      // @ts-ignore
-      data.depts = data.depts?.map((dept) => dept.dept_id) || [];
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+    let result: any | null = null;
+    if (data?.dataValues) {
+      result = {
+        ...data.dataValues,
+        // @ts-ignore
+        role_ids: data.dataValues.roles?.map((role) => role.role_id) || [],
+        // @ts-ignore
+        dept_ids: data.dataValues.depts?.map((dept) => dept.dept_id) || [],
+      };
     }
-    return new ApiResponse(HttpStatus.OK, '操作成功', data);
+    return new ApiResponse(HttpStatus.OK, '操作成功', result);
   }
 
   @ApiOperation({ summary: '新增用户' })
@@ -82,8 +86,9 @@ export class SysUserController {
   @RequirePermissions('system:user:add')
   @Post()
   async create(@Body() body: CreateUserDto) {
-    console.log('body', body);
-    const data = await this.sysUserService.create(filterObjNull(body));
+    const data = await this.sysUserService.create(body);
+    await this.sysUserService.createByDeptIds(data.user_id, body);
+    await this.sysUserService.createByRoleIds(data.user_id, body);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
@@ -96,7 +101,9 @@ export class SysUserController {
   @RequirePermissions('system:user:edit')
   @Put()
   async update(@Body() body: UpdateUserDto) {
-    const data = await this.sysUserService.update(filterObjNull(body));
+    const data = await this.sysUserService.update(body);
+    await this.sysUserService.createByDeptIds(body.user_id, body);
+    await this.sysUserService.createByRoleIds(body.user_id, body);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
