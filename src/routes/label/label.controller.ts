@@ -99,6 +99,19 @@ export class LabelController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('label:list')
+  @ApiOperation({ summary: '获取全量标签列表' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
+  @Get('fulldata')
+  async findAllFull() {
+    const data = await this.labelService.findAllFull();
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
+  }
+
   @ApiOperation({ summary: '获取标签详情' })
   @ApiSwaggerResponse({
     status: 200,

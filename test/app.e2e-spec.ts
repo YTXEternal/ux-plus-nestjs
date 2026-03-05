@@ -1928,6 +1928,21 @@ describe('API (e2e)', () => {
       });
     });
 
+    describe('GET /label/fulldata', () => {
+      it('获取全量标签列表成功', async () => {
+        const res = await authed('get', `${apiPrefix}/label/fulldata`).expect(
+          200,
+        );
+        expectOk(res.body as ApiResponseBody<any[]>);
+        const data = (res.body as ApiResponseBody<any[]>).data!;
+        expect(Array.isArray(data)).toBe(true);
+        expect(data.length).toBeGreaterThan(0);
+        const label = data.find((item) => item.label_id === labelId);
+        expect(label).toBeDefined();
+        expect(label.name).toBe(labelName);
+      });
+    });
+
     describe('PUT /label', () => {
       it('修改标签信息成功', async () => {
         const newName = `${labelName}_updated`;

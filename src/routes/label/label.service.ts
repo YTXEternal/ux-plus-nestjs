@@ -63,6 +63,19 @@ export class LabelService {
   }
 
   /**
+   * 获取全量标签列表
+   */
+  async findAllFull() {
+    return this.labelModel.findAll({
+      where: {
+        del_flag: '0',
+        status: '0',
+      },
+      order: [['create_time', 'DESC']],
+    });
+  }
+
+  /**
    * 查询标签详情
    * @param id
    */
