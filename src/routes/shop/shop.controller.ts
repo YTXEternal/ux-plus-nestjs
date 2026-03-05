@@ -23,6 +23,7 @@ import {
   DeleteShopDto,
 } from './dto/shop.dto';
 import { formatPagination } from '@/tools';
+import { RequirePermissions } from '@/guards';
 
 @ApiTags('门店管理')
 @Controller({
@@ -32,6 +33,7 @@ import { formatPagination } from '@/tools';
 export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
+  @RequirePermissions('shop:add')
   @ApiOperation({ summary: '新增门店' })
   @ApiSwaggerResponse({
     status: 200,
@@ -44,6 +46,7 @@ export class ShopController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('shop:remove')
   @ApiOperation({ summary: '删除门店' })
   @ApiSwaggerResponse({
     status: 200,
@@ -56,6 +59,7 @@ export class ShopController {
     return new ApiResponse(HttpStatus.OK, '删除成功', null);
   }
 
+  @RequirePermissions('shop:edit')
   @ApiOperation({ summary: '修改门店信息' })
   @ApiSwaggerResponse({
     status: 200,
@@ -68,6 +72,7 @@ export class ShopController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('shop:list')
   @ApiOperation({ summary: '获取门店列表' })
   @ApiSwaggerResponse({
     status: 200,
@@ -81,6 +86,7 @@ export class ShopController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('shop:fulldata')
   @ApiOperation({ summary: '获取所有门店（不分页）' })
   @ApiSwaggerResponse({
     status: 200,
@@ -93,6 +99,7 @@ export class ShopController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('shop:query')
   @ApiOperation({ summary: '获取门店详情' })
   @ApiSwaggerResponse({
     status: 200,

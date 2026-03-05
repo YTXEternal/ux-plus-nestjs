@@ -2012,8 +2012,6 @@ describe('API (e2e)', () => {
           .send({
             name: dramaName,
             desc: 'E2E测试剧本描述',
-            valid_start_time: '2023-01-01 00:00:00',
-            valid_end_time: '2025-12-31 23:59:59',
             shop_ids: [shopId],
             label_ids: [labelId],
           })
@@ -2210,8 +2208,6 @@ describe('API (e2e)', () => {
         .send({
           name: dramaName,
           desc: 'E2E测试剧本',
-          valid_start_time: '2023-01-01 00:00:00',
-          valid_end_time: '2025-12-31 23:59:59',
           shop_ids: [shopId],
           label_ids: [],
         })
@@ -2321,8 +2317,6 @@ describe('API (e2e)', () => {
         .send({
           name: `e2e_drama_for_arrange_${testRunId}`,
           desc: 'E2E测试剧本',
-          valid_start_time: '2023-01-01 00:00:00',
-          valid_end_time: '2025-12-31 23:59:59',
           shop_ids: [],
           label_ids: [],
         })
@@ -2454,8 +2448,6 @@ describe('API (e2e)', () => {
         .send({
           name: `e2e_drama_ticket_${testRunId}`,
           desc: 'E2E测试剧本',
-          valid_start_time: '2023-01-01 00:00:00',
-          valid_end_time: '2025-12-31 23:59:59',
           shop_ids: [],
           label_ids: [],
         })

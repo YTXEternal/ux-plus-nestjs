@@ -29,11 +29,9 @@ export class DramaService {
    * @param createDramaDto
    */
   async create(createDramaDto: CreateDramaDto) {
-    const { shop_ids, label_ids, valid_start_time, valid_end_time, ...rest } =
+    const { shop_ids, label_ids, ...rest } =
       createDramaDto;
     const data: any = { ...rest };
-    if (valid_start_time) data.valid_start_time = new Date(valid_start_time);
-    if (valid_end_time) data.valid_end_time = new Date(valid_end_time);
 
     const transaction = await this.sequelize.transaction();
     try {
@@ -61,7 +59,6 @@ export class DramaService {
       pageNum = 1,
       pageSize = 10,
       name,
-      valid_status,
       del_flag,
       status,
     } = query;
@@ -75,20 +72,6 @@ export class DramaService {
     }
     if (status) {
       where.status = status;
-    }
-
-    if (valid_status) {
-      const now = new Date();
-      if (valid_status === 1) {
-        // 未过期: valid_end_time >= now OR valid_end_time IS NULL
-        where[Op.or] = [
-          { valid_end_time: { [Op.gte]: now } },
-          { valid_end_time: null },
-        ];
-      } else if (valid_status === 2) {
-        // 已过期: valid_end_time < now
-        where.valid_end_time = { [Op.lt]: now };
-      }
     }
 
     const { rows, count } = await this.dramaModel.findAndCountAll({
@@ -136,13 +119,9 @@ export class DramaService {
       event_id,
       shop_ids,
       label_ids,
-      valid_start_time,
-      valid_end_time,
       ...rest
     } = updateDramaDto;
     const data: any = { ...rest };
-    if (valid_start_time) data.valid_start_time = new Date(valid_start_time);
-    if (valid_end_time) data.valid_end_time = new Date(valid_end_time);
 
     const transaction = await this.sequelize.transaction();
     try {

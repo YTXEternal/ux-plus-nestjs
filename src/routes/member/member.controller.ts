@@ -23,6 +23,7 @@ import {
   DeleteMemberDto,
 } from './dto/member.dto';
 import { formatPagination } from '@/tools';
+import { RequirePermissions } from '@/guards';
 
 @ApiTags('会员管理')
 @Controller({
@@ -38,6 +39,7 @@ export class MemberController {
     description: '新增成功',
     type: ApiResponse,
   })
+  @RequirePermissions('member:add')
   @Post()
   async create(@Body() body: CreateMemberDto) {
     const data = await this.memberService.create(body);
@@ -45,6 +47,7 @@ export class MemberController {
   }
 
   @ApiOperation({ summary: '删除会员' })
+  @RequirePermissions('member:remove')
   @ApiSwaggerResponse({
     status: 200,
     description: '删除成功',
@@ -62,6 +65,7 @@ export class MemberController {
     description: '修改成功',
     type: ApiResponse,
   })
+  @RequirePermissions('member:edit')
   @Put()
   async update(@Body() body: UpdateMemberDto) {
     const data = await this.memberService.update(body);
@@ -74,6 +78,7 @@ export class MemberController {
     description: '获取成功',
     type: ApiResponse,
   })
+  @RequirePermissions('member:list')
   @Get('list')
   async findAll(@Query() query: ListMemberDto) {
     const { rows, total } = await this.memberService.findAll(query);
@@ -87,6 +92,7 @@ export class MemberController {
     description: '获取成功',
     type: ApiResponse,
   })
+  @RequirePermissions('member:query')
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const data = await this.memberService.findOne(+id);

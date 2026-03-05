@@ -24,6 +24,7 @@ import {
   UpdateDramaStatusDto,
 } from './dto/drama.dto';
 import { formatPagination } from '@/tools';
+import { RequirePermissions } from '@/guards';
 
 @ApiTags('剧本管理')
 @Controller({
@@ -33,6 +34,7 @@ import { formatPagination } from '@/tools';
 export class DramaController {
   constructor(private readonly dramaService: DramaService) {}
 
+  @RequirePermissions('drama:add')
   @ApiOperation({ summary: '新增剧本' })
   @ApiSwaggerResponse({
     status: 200,
@@ -45,6 +47,7 @@ export class DramaController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('drama:remove')
   @ApiOperation({ summary: '删除剧本' })
   @ApiSwaggerResponse({
     status: 200,
@@ -57,6 +60,7 @@ export class DramaController {
     return new ApiResponse(HttpStatus.OK, '删除成功', null);
   }
 
+  @RequirePermissions('drama:edit')
   @ApiOperation({ summary: '修改剧本信息' })
   @ApiSwaggerResponse({
     status: 200,
@@ -69,6 +73,7 @@ export class DramaController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('drama:edit')
   @ApiOperation({ summary: '修改剧本状态' })
   @ApiSwaggerResponse({
     status: 200,
@@ -81,6 +86,7 @@ export class DramaController {
     return new ApiResponse(HttpStatus.OK, '操作成功', null);
   }
 
+  @RequirePermissions('drama:list')
   @ApiOperation({ summary: '获取剧本列表' })
   @ApiSwaggerResponse({
     status: 200,
@@ -94,6 +100,7 @@ export class DramaController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('drama:query')
   @ApiOperation({ summary: '获取剧本详情' })
   @ApiSwaggerResponse({
     status: 200,

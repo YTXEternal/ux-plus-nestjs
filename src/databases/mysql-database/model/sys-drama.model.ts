@@ -35,14 +35,6 @@ export class SysDrama extends Model<SysDrama> {
   @Column({ type: DataType.STRING(500), defaultValue: null })
   desc: string;
 
-  @Comment('有效开始时间')
-  @Column(DataType.DATE)
-  valid_start_time: Date;
-
-  @Comment('有效结束时间')
-  @Column(DataType.DATE)
-  valid_end_time: Date;
-
   @Comment('删除标志（0代表存在 2代表删除）')
   @Column({ type: DataType.CHAR(1), defaultValue: '0' })
   del_flag: string;

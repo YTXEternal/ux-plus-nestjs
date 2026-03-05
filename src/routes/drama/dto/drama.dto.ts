@@ -21,22 +21,6 @@ export class CreateDramaDto {
   @IsString()
   desc?: string;
 
-  @ApiPropertyOptional({
-    description: '有效开始时间',
-    example: '2023-01-01 00:00:00',
-  })
-  @IsOptional()
-  @IsDateString()
-  valid_start_time?: string;
-
-  @ApiPropertyOptional({
-    description: '有效结束时间',
-    example: '2023-12-31 23:59:59',
-  })
-  @IsOptional()
-  @IsDateString()
-  valid_end_time?: string;
-
   @ApiPropertyOptional({ description: '关联门店ID列表', example: [1, 2] })
   @IsOptional()
   @IsArray()
@@ -88,15 +72,6 @@ export class ListDramaDto {
   @IsOptional()
   @IsString()
   name?: string;
-
-  @ApiPropertyOptional({
-    description: '有效状态(0搜索全部，1搜索未过期，2搜索已过期)',
-    example: 0,
-  })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  valid_status?: number;
 
   @ApiPropertyOptional({
     description: '删除标志(0正常，2已删除)',
