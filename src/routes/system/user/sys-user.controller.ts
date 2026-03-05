@@ -52,6 +52,19 @@ export class SysUserController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @ApiOperation({ summary: '获取所有用户列表(不分页)' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
+  @RequirePermissions('system:user:list')
+  @Get('fulldata')
+  async findAllData() {
+    const data = await this.sysUserService.findAllData();
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
+  }
+
   @ApiOperation({ summary: '获取用户详情' })
   @ApiSwaggerResponse({
     status: 200,

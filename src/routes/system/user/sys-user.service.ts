@@ -86,6 +86,22 @@ export class SysUserService {
   }
 
   /**
+   * 获取所有用户列表（不分页）
+   *
+   * @async
+   * @returns {Promise<SysUser[]>} 用户列表
+   */
+  async findAllData() {
+    return this.sysUserModel.findAll({
+      where: { del_flag: '0' },
+      attributes: { exclude: ['password'] },
+      include: [
+        { model: SysDept, as: 'dept', attributes: ['dept_name', 'leader'] },
+      ],
+    });
+  }
+
+  /**
    * 获取用户详情
    *
    * @async

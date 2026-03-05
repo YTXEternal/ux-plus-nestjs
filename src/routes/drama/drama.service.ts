@@ -29,8 +29,7 @@ export class DramaService {
    * @param createDramaDto
    */
   async create(createDramaDto: CreateDramaDto) {
-    const { shop_ids, label_ids, ...rest } =
-      createDramaDto;
+    const { shop_ids, label_ids, ...rest } = createDramaDto;
     const data: any = { ...rest };
 
     const transaction = await this.sequelize.transaction();
@@ -55,13 +54,7 @@ export class DramaService {
    * @param query
    */
   async findAll(query: ListDramaDto) {
-    const {
-      pageNum = 1,
-      pageSize = 10,
-      name,
-      del_flag,
-      status,
-    } = query;
+    const { pageNum = 1, pageSize = 10, name, del_flag, status } = query;
     const where: any = {};
 
     if (name) {
@@ -115,12 +108,7 @@ export class DramaService {
    * @param updateDramaDto
    */
   async update(updateDramaDto: UpdateDramaDto) {
-    const {
-      event_id,
-      shop_ids,
-      label_ids,
-      ...rest
-    } = updateDramaDto;
+    const { event_id, shop_ids, label_ids, ...rest } = updateDramaDto;
     const data: any = { ...rest };
 
     const transaction = await this.sequelize.transaction();
