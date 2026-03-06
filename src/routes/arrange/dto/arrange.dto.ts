@@ -60,11 +60,10 @@ export class ListArrangeDto {
   @IsString()
   name?: string;
 
-  @ApiPropertyOptional({ description: '门店ID', example: 1 })
-  @IsOptional()
+  @ApiProperty({ description: '门店ID', example: 1 })
   @IsNumber()
   @Type(() => Number)
-  shop_id?: number;
+  shop_id: number;
 
   @ApiPropertyOptional({
     description: '开场状态(0所有，1已开场，2未开场)',

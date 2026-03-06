@@ -8,11 +8,13 @@ import {
   Put,
   Query,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse as ApiSwaggerResponse,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { ArrangeService } from './arrange.service';
 import {
@@ -59,9 +61,13 @@ export class ArrangeController {
 
   @RequirePermissions('arrange:lr:query')
   @ApiOperation({ summary: '排场详情' })
+  @ApiQuery({ name: 'shop_id', required: true, description: '门店ID' })
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const data = await this.arrangeService.findOne(+id);
+  async findOne(@Param('id') id: string, @Query('shop_id') shop_id: number) {
+    if (!shop_id) {
+      throw new BadRequestException('shop_id is required');
+    }
+    const data = await this.arrangeService.findOne(+id, +shop_id);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 

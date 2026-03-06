@@ -33,14 +33,10 @@ export class ArrangeService {
    */
   async findAll(query: ListArrangeDto) {
     const { pageNum = 1, pageSize = 10, name, status, shop_id } = query;
-    const where: any = { del_flag: '0' };
+    const where: any = { del_flag: '0', shop_id };
 
     if (name) {
       where.name = { [Op.like]: `%${name}%` };
-    }
-
-    if (shop_id) {
-      where.shop_id = shop_id;
     }
 
     if (status) {
@@ -73,14 +69,10 @@ export class ArrangeService {
    */
   async findAllNoPage(query: ListArrangeDto) {
     const { name, status, shop_id } = query;
-    const where: any = { del_flag: '0' };
+    const where: any = { del_flag: '0', shop_id };
 
     if (name) {
       where.name = { [Op.like]: `%${name}%` };
-    }
-
-    if (shop_id) {
-      where.shop_id = shop_id;
     }
 
     if (status) {
@@ -107,10 +99,17 @@ export class ArrangeService {
   /**
    * 查询排场详情
    */
-  async findOne(id: number) {
-    return this.arrangeModel.findByPk(id, {
+  async findOne(id: number, shop_id: number) {
+    const arrange = await this.arrangeModel.findOne({
+      where: { arrange_id: id, shop_id },
       include: [{ model: SysDrama }, { model: Shop, attributes: ['name'] }],
     });
+
+    if (!arrange) {
+      throw new Error('未找到该排场或排场不属于该门店');
+    }
+
+    return arrange;
   }
 
   /**

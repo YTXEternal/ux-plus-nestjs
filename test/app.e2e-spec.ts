@@ -2372,7 +2372,7 @@ describe('API (e2e)', () => {
       it('获取排场详情成功', async () => {
         const res = await authed(
           'get',
-          `${apiPrefix}/arrange/${arrangeId}`,
+          `${apiPrefix}/arrange/${arrangeId}?shop_id=${shopId}`,
         ).expect(200);
         expectOk(res.body as ApiResponseBody<any>);
         const data = (res.body as ApiResponseBody<any>).data;
@@ -2385,7 +2385,7 @@ describe('API (e2e)', () => {
       it('获取排场列表成功', async () => {
         const res = await authed(
           'get',
-          `${apiPrefix}/arrange/list?name=${arrangeName}`,
+          `${apiPrefix}/arrange/list?name=${arrangeName}&shop_id=${shopId}`,
         ).expect(200);
         expectOk(res.body as ApiResponseBody<any>);
         const data = (res.body as ApiResponseBody<any>).data;
@@ -2398,7 +2398,7 @@ describe('API (e2e)', () => {
       it('获取排场全量列表成功', async () => {
         const res = await authed(
           'get',
-          `${apiPrefix}/arrange/all?name=${arrangeName}`,
+          `${apiPrefix}/arrange/all?name=${arrangeName}&shop_id=${shopId}`,
         ).expect(200);
         expectOk(res.body as ApiResponseBody<any>);
         const data = (res.body as ApiResponseBody<any>).data;
@@ -2511,7 +2511,7 @@ describe('API (e2e)', () => {
         // 验证库存减少
         const arrangeDetail = await authed(
           'get',
-          `${apiPrefix}/arrange/${arrangeId}`,
+          `${apiPrefix}/arrange/${arrangeId}?shop_id=${shopId}`,
         ).expect(200);
         const data = (arrangeDetail.body as ApiResponseBody<any>).data;
         expect(data.remaining_tickets).toBe(8);

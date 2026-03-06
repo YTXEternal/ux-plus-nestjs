@@ -25,7 +25,7 @@ export class Arrange extends Model {
   drama: SysDrama;
 
   @ForeignKey(() => Shop)
-  @Column({ type: DataType.BIGINT, comment: '门店ID' })
+  @Column({ type: DataType.BIGINT, comment: '门店ID', allowNull: false })
   shop_id: number;
 
   @BelongsTo(() => Shop)
