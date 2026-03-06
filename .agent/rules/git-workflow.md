@@ -1,0 +1,163 @@
+---
+alwaysApply: false
+description: 描述Git提交和工作流规范
+---
+# Git 提交和工作流规范
+
+## Git Flow 工作流
+
+### 分支结构
+- `master` - 主分支，用于生产环境
+- `develop` - 开发分支，用于集成功能
+- `feature/*` - 功能分支，基于 `develop` 创建
+- `hotfix/*` - 热修复分支，基于 `master` 创建
+- `release/*` - 发布分支，基于 `develop` 创建
+- `chore/*` - 杂务分支，基于 `develop` 创建
+
+## 分支使用规范
+
+### master 分支
+- ❌ **禁止** 直接在此分支修改
+- ❌ **禁止** 直接推送此分支
+- ✅ 只能通过 `hotfix/*` 分支合并修复 BUG
+
+### develop 分支
+- ❌ **禁止** 直接在此分支开发功能
+- ✅ 基于此分支创建 `feature/*` 分支进行开发
+- ✅ 开发前必须先拉取最新代码：
+  ```bash
+  git checkout develop
+  git pull origin develop
+  ```
+
+### feature/* 分支
+- **用途**: 开发新功能
+- **基于**: `develop` 分支
+- **命名**: `feature/功能名称` (如 `feature/getData`, `feature/userProfile`)
+
+**工作流程**:
+```bash
+# 创建功能分支
+git flow feature start getData
+
+# 开发完成后提交
+pnpm commit  # 自动执行 lint 和规范化提交
+git push origin feature/getData
+
+# 等待审核通过后合并
+git flow feature finish getData
+```
+
+### hotfix/* 分支
+- **用途**: 修复生产环境 BUG
+- **基于**: `master` 分支
+- **命名**: `hotfix/版本号` (如 `hotfix/v3.0.2`)
+
+**工作流程**:
+```bash
+# 创建热修复分支
+git flow hotfix start v3.0.2
+
+# 修复完成后
+pnpm commit  # 必须完成测试和单元测试
+git push origin hotfix/v3.0.2
+
+# 等待审核通过后合并
+git flow hotfix finish v3.0.2
+git push origin v3.0.2
+```
+
+### release/* 分支
+- **用途**: 发布新版本
+- **基于**: `develop` 分支
+- **命名**: `release/版本号` (如 `release/v3.0.0`)
+
+**工作流程**:
+```bash
+# 创建发布分支
+git flow release start v3.0.0
+
+# 开发完毕
+git push origin release/v3.0.0
+
+# 等待审核通过后
+git flow release finish v3.0.0
+git push origin v3.0.0
+```
+
+### chore/* 分支
+- **用途**: 文档、依赖、配置等杂务
+- **基于**: `develop` 分支
+- **命名**: `chore/任务名称` (如 `chore/update-docs`, `chore/remove-deps`)
+
+**工作流程**:
+```bash
+# 创建杂务分支
+git checkout -b chore/update-docs
+
+# 完成后
+pnpm commit
+git push origin chore/update-docs
+
+# 审核通过后手动合并
+git checkout develop
+git pull origin develop
+git merge chore/update-docs
+```
+
+## 提交规范
+
+### 使用 Commitizen
+- 提交前必须执行 `pnpm commit`
+- 自动执行 lint 检查
+- 使用规范化提交格式
+
+### 提交格式
+遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+### 提交类型（type）
+- `feat`: 新功能
+- `fix`: 修复 BUG
+- `docs`: 文档更新
+- `style`: 代码格式调整（不影响功能）
+- `refactor`: 代码重构
+- `perf`: 性能优化
+- `test`: 测试相关
+- `chore`: 构建过程或辅助工具的变动
+- `ci`: CI 配置相关
+
+### 提交示例
+```
+feat(auth): 添加用户登录功能
+
+实现了基于 JWT 的用户登录功能，包括：
+- 用户凭证验证
+- Token 生成和返回
+- 错误处理
+
+Closes #123
+```
+
+## 提交前检查清单
+
+### 必须完成
+- [ ] 代码通过 ESLint 检查（`pnpm lint`）
+- [ ] 运行测试并全部通过（`pnpm test`）
+- [ ] 功能分支完成实际测试
+- [ ] 更新相关文档（如有必要）
+- [ ] 使用 `pnpm commit` 进行规范化提交
+
+### 代码质量
+- [ ] 遵循项目代码风格规范
+- [ ] 添加必要的注释和文档
+- [ ] 没有控制台输出和调试代码
+- [ ] 环境变量已正确配置
+- [ ] 敏感信息已妥善处理
