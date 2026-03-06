@@ -20,6 +20,7 @@ import {
   CreateDramaDto,
   UpdateDramaDto,
   ListDramaDto,
+  FullListDramaDto,
   DeleteDramaDto,
   UpdateDramaStatusDto,
 } from './dto/drama.dto';
@@ -84,6 +85,19 @@ export class DramaController {
   async updateStatus(@Body() body: UpdateDramaStatusDto) {
     await this.dramaService.updateStatus(body);
     return new ApiResponse(HttpStatus.OK, '操作成功', null);
+  }
+
+  @RequirePermissions('drama:list')
+  @ApiOperation({ summary: '获取剧本全量列表' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
+  @Get('fulldata')
+  async findFullAll(@Query() query: FullListDramaDto) {
+    const data = await this.dramaService.findFullAll(query);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
   @RequirePermissions('drama:list')

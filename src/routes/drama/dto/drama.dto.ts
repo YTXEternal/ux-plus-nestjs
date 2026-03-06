@@ -86,3 +86,23 @@ export class ListDramaDto {
   @IsString()
   status?: string;
 }
+
+export class FullListDramaDto {
+  @ApiPropertyOptional({ description: '剧本名称', example: '恐怖' })
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiPropertyOptional({
+    description: '删除标志(0正常，2已删除)',
+    example: '0',
+  })
+  @IsOptional()
+  @IsString()
+  del_flag?: string;
+
+  @ApiPropertyOptional({ description: '状态(0启用，1停用)', example: '0' })
+  @IsOptional()
+  @IsString()
+  status?: string;
+}

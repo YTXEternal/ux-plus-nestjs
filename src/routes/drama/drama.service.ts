@@ -7,6 +7,7 @@ import {
   CreateDramaDto,
   UpdateDramaDto,
   ListDramaDto,
+  FullListDramaDto,
   UpdateDramaStatusDto,
 } from './dto/drama.dto';
 import { Op } from 'sequelize';
@@ -88,6 +89,44 @@ export class DramaService {
     });
 
     return { rows, total: count };
+  }
+
+  /**
+   * 查询剧本全量列表
+   * @param query
+   */
+  async findFullAll(query: FullListDramaDto) {
+    const { name, del_flag, status } = query;
+    const where: any = {};
+
+    if (name) {
+      where.name = { [Op.like]: `%${name}%` };
+    }
+    if (del_flag) {
+      where.del_flag = del_flag;
+    }
+    if (status) {
+      where.status = status;
+    }
+
+    const rows = await this.dramaModel.findAll({
+      where,
+      order: [['create_time', 'DESC']],
+      include: [
+        {
+          model: Shop,
+          attributes: ['shop_id', 'name'],
+          through: { attributes: [] },
+        },
+        {
+          model: Label,
+          attributes: ['label_id', 'name'],
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    return rows;
   }
 
   /**

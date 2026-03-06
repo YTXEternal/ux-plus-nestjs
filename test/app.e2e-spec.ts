@@ -2074,6 +2074,21 @@ describe('API (e2e)', () => {
       });
     });
 
+    describe('GET /drama/fulldata', () => {
+      it('获取剧本全量列表成功', async () => {
+        const res = await authed('get', `${apiPrefix}/drama/fulldata`).expect(
+          200,
+        );
+        expectOk(res.body as ApiResponseBody<any[]>);
+        const data = (res.body as ApiResponseBody<any[]>).data!;
+        expect(Array.isArray(data)).toBe(true);
+        expect(data.length).toBeGreaterThan(0);
+        const drama = data.find((item) => item.event_id === dramaId);
+        expect(drama).toBeDefined();
+        expect(drama.name).toBe(dramaName);
+      });
+    });
+
     describe('PUT /drama', () => {
       it('修改剧本信息成功', async () => {
         const newName = `${dramaName}_updated`;
