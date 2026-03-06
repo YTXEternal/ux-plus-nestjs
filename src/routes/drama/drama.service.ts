@@ -11,6 +11,7 @@ import {
 } from './dto/drama.dto';
 import { Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
+import { cloneDeep } from 'sequelize/lib/utils';
 
 @Injectable()
 export class DramaService {
@@ -48,7 +49,6 @@ export class DramaService {
       throw error;
     }
   }
-
   /**
    * 查询剧本列表
    * @param query
@@ -95,12 +95,42 @@ export class DramaService {
    * @param id
    */
   async findOne(id: number) {
-    return this.dramaModel.findByPk(id, {
+    const drama = await this.dramaModel.findByPk(id, {
       include: [
-        { model: Shop, through: { attributes: [] } },
-        { model: Label, through: { attributes: [] } },
+        {
+          model: Shop,
+          attributes: ['shop_id'],
+          // 我希望联表查的时候这个关联的shop项只返回del_flag为0的
+          where: { del_flag: '0' },
+          required: false,
+          through: { attributes: [] },
+        },
+        {
+          model: Label,
+          attributes: ['label_id'],
+          required: false,
+          // 我希望联表查的时候这个关联的Label项只返回del_flag为0的
+          where: { del_flag: '0', status: '0' },
+          through: { attributes: [] },
+        },
       ],
     });
+
+    if (!drama) {
+      return null;
+    }
+    const result = drama.toJSON();
+    const newResult = cloneDeep(result) as SysDrama & {
+      shop_ids: number[];
+      label_ids: number[];
+    };
+    newResult.shop_ids = result.shops?.map((item) => item.shop_id) || [];
+    newResult.label_ids = result.labels?.map((item) => item.label_id) || [];
+    // @ts-ignore
+    delete newResult.shops;
+    // @ts-ignore
+    delete newResult.labels;
+    return newResult;
   }
 
   /**

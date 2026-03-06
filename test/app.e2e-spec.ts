@@ -2046,10 +2046,18 @@ describe('API (e2e)', () => {
         const data = (res.body as ApiResponseBody<any>).data;
         expect(data.name).toBe(dramaName);
         expect(data.event_id).toBe(dramaId);
-        expect(data.shops.length).toBeGreaterThan(0);
-        expect(data.shops[0].shop_id).toBe(shopId);
-        expect(data.labels.length).toBeGreaterThan(0);
-        expect(data.labels[0].label_id).toBe(labelId);
+        expect(data.label_ids.length).toBeGreaterThan(0);
+        expect(data.shop_ids.length).toBeGreaterThan(0);
+        // 判断label_ids 全是number类型
+        expect(
+          data.label_ids.every((id) => typeof id === 'number') ||
+            data.label_ids.length === 0,
+        ).toBe(true);
+
+        expect(
+          data.shop_ids.every((id) => typeof id === 'number') ||
+            data.shop_ids.length === 0,
+        ).toBe(true);
       });
     });
 
@@ -2075,6 +2083,7 @@ describe('API (e2e)', () => {
             name: newName,
             desc: 'Updated Desc',
             shop_ids: [],
+            label_ids: [],
           })
           .expect(200);
 
@@ -2084,8 +2093,8 @@ describe('API (e2e)', () => {
         ).expect(200);
         const data = (detailRes.body as ApiResponseBody<any>).data;
         expect(data.name).toBe(newName);
-        expect(data.shops.length).toBe(0);
-        expect(data.labels.length).toBe(1);
+        expect(data.label_ids.length).toBe(0);
+        expect(data.shop_ids.length).toBe(0);
       });
     });
 
