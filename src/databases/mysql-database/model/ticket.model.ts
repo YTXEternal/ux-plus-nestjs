@@ -40,9 +40,6 @@ export class Ticket extends Model {
   })
   status: string;
 
-  @Column({ type: DataType.DATE, comment: '购票时间' })
-  ticket_time: Date;
-
   @Column({ type: DataType.DATE, comment: '创建时间' })
   create_time: Date;
 

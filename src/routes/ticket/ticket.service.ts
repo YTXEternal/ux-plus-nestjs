@@ -48,7 +48,6 @@ export class TicketService {
           ...createTicketDto,
           pay_amount,
           status: '0', // 未支付
-          ticket_time: new Date(),
           create_time: new Date(),
           update_time: new Date(),
         } as any,
