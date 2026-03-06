@@ -22,6 +22,7 @@ import {
 } from './dto/arrange.dto';
 import { ApiResponse } from '@/dto/api-response';
 import { formatPagination } from '@/tools';
+import { RequirePermissions } from '@/guards';
 
 @ApiTags('排场管理')
 @Controller({
@@ -31,6 +32,7 @@ import { formatPagination } from '@/tools';
 export class ArrangeController {
   constructor(private readonly arrangeService: ArrangeService) {}
 
+  @RequirePermissions('arrange:lr:add')
   @ApiOperation({ summary: '新增排场' })
   @Post()
   async create(@Body() createArrangeDto: CreateArrangeDto) {
@@ -38,6 +40,7 @@ export class ArrangeController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('arrange:lr:list')
   @ApiOperation({ summary: '排场列表' })
   @Get('list')
   async findAll(@Query() query: ListArrangeDto) {
@@ -46,6 +49,7 @@ export class ArrangeController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('arrange:lr:list')
   @ApiOperation({ summary: '排场列表(无分页)' })
   @Get('all')
   async findAllNoPage(@Query() query: ListArrangeDto) {
@@ -53,6 +57,7 @@ export class ArrangeController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('arrange:lr:query')
   @ApiOperation({ summary: '排场详情' })
   @Get(':id')
   async findOne(@Param('id') id: string) {
@@ -60,6 +65,7 @@ export class ArrangeController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('arrange:lr:edit')
   @ApiOperation({ summary: '修改排场' })
   @Put()
   async update(@Body() updateArrangeDto: UpdateArrangeDto) {
@@ -67,6 +73,7 @@ export class ArrangeController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('arrange:lr:remove')
   @ApiOperation({ summary: '删除排场' })
   @Delete(':ids')
   async remove(@Param('ids') ids: string) {

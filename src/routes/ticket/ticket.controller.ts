@@ -12,6 +12,7 @@ import { TicketService } from './ticket.service';
 import { CreateTicketDto, ListTicketDto } from './dto/ticket.dto';
 import { ApiResponse } from '@/dto/api-response';
 import { formatPagination } from '@/tools';
+import { RequirePermissions } from '@/guards';
 
 @ApiTags('购票管理')
 @Controller({
@@ -21,6 +22,7 @@ import { formatPagination } from '@/tools';
 export class TicketController {
   constructor(private readonly ticketService: TicketService) {}
 
+  @RequirePermissions('arrange:ticket:add')
   @ApiOperation({ summary: '新增购票' })
   @Post()
   async create(@Body() createTicketDto: CreateTicketDto) {
@@ -28,6 +30,7 @@ export class TicketController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('arrange:ticket:list')
   @ApiOperation({ summary: '购票列表' })
   @Get('list')
   async findAll(@Query() query: ListTicketDto) {
@@ -36,6 +39,7 @@ export class TicketController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('arrange:ticket:query')
   @ApiOperation({ summary: '购票详情' })
   @Get(':id')
   async findOne(@Param('id') id: string) {
