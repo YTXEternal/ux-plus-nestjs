@@ -9,7 +9,14 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { TicketService } from './ticket.service';
-import { CreateTicketDto, ListTicketDto } from './dto/ticket.dto';
+import {
+  CreateTicketDto,
+  DetailTicketDto,
+  ListTicketDto,
+  TicketPayDto,
+  TicketPayStatusDto,
+  TicketRefundDto,
+} from './dto/ticket.dto';
 import { ApiResponse } from '@/dto/api-response';
 import { formatPagination } from '@/tools';
 import { RequirePermissions } from '@/guards';
@@ -39,11 +46,35 @@ export class TicketController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @RequirePermissions('arrange:ticket:pay')
+  @ApiOperation({ summary: '购票支付' })
+  @Post('pay')
+  async pay(@Body() body: TicketPayDto) {
+    const data = await this.ticketService.pay(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
+  }
+
+  @RequirePermissions('arrange:ticket:query')
+  @ApiOperation({ summary: '查询支付状态' })
+  @Get('pay-status')
+  async queryPayStatus(@Query() query: TicketPayStatusDto) {
+    const data = await this.ticketService.queryPayStatus(query);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
+  }
+
+  @RequirePermissions('arrange:ticket:refund')
+  @ApiOperation({ summary: '购票退款' })
+  @Post('refund')
+  async refund(@Body() body: TicketRefundDto) {
+    const data = await this.ticketService.refund(body);
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
+  }
+
   @RequirePermissions('arrange:ticket:query')
   @ApiOperation({ summary: '购票详情' })
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const data = await this.ticketService.findOne(+id);
+  async findOne(@Param('id') id: string, @Query() query: DetailTicketDto) {
+    const data = await this.ticketService.findOne(+id, query.shop_id);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 }

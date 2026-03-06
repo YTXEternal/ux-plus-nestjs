@@ -8,6 +8,7 @@ import {
 } from 'sequelize-typescript';
 import { Arrange } from './arrange.model';
 import { Member } from './member.model';
+import { Shop } from './shop.model';
 
 @Table({ tableName: 'ticket', timestamps: false })
 export class Ticket extends Model {
@@ -27,6 +28,13 @@ export class Ticket extends Model {
 
   @BelongsTo(() => Arrange)
   arrange: Arrange;
+
+  @ForeignKey(() => Shop)
+  @Column({ type: DataType.BIGINT, allowNull: false, comment: '门店ID' })
+  shop_id: number;
+
+  @BelongsTo(() => Shop)
+  shop: Shop;
 
   @Column({ defaultValue: 1, comment: '购买张数' })
   count: number;

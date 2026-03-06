@@ -2498,6 +2498,7 @@ describe('API (e2e)', () => {
       it('购票成功', async () => {
         const res = await authed('post', `${apiPrefix}/ticket`)
           .send({
+            shop_id: shopId,
             member_id: memberId,
             arrange_id: arrangeId,
             count: 2,
@@ -2519,9 +2520,20 @@ describe('API (e2e)', () => {
       it('库存不足购票失败', async () => {
         await authed('post', `${apiPrefix}/ticket`)
           .send({
+            shop_id: shopId,
             member_id: memberId,
             arrange_id: arrangeId,
             count: 10,
+          })
+          .expect(400);
+      });
+
+      it('缺少门店ID购票失败', async () => {
+        await authed('post', `${apiPrefix}/ticket`)
+          .send({
+            member_id: memberId,
+            arrange_id: arrangeId,
+            count: 1,
           })
           .expect(400);
       });
@@ -2531,7 +2543,7 @@ describe('API (e2e)', () => {
       it('获取购票详情成功', async () => {
         const res = await authed(
           'get',
-          `${apiPrefix}/ticket/${ticketId}`,
+          `${apiPrefix}/ticket/${ticketId}?shop_id=${shopId}`,
         ).expect(200);
         expectOk(res.body as ApiResponseBody<any>);
         const data = (res.body as ApiResponseBody<any>).data;
@@ -2542,7 +2554,10 @@ describe('API (e2e)', () => {
 
     describe('GET /ticket/list', () => {
       it('获取购票列表成功', async () => {
-        const res = await authed('get', `${apiPrefix}/ticket/list`).expect(200);
+        const res = await authed(
+          'get',
+          `${apiPrefix}/ticket/list?shop_id=${shopId}`,
+        ).expect(200);
         expectOk(res.body as ApiResponseBody<any>);
         const data = (res.body as ApiResponseBody<any>).data;
         expect(data.list.length).toBeGreaterThan(0);
