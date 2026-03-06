@@ -22,7 +22,6 @@ import {
   SysDramaPrice,
   Arrange,
   Ticket,
-  TicketRecord,
 } from './model';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfigModule } from '@/modules/env-config/env-config.module';
@@ -94,7 +93,6 @@ export class MysqlDatabaseModule {
                 SysDramaPrice,
                 Arrange,
                 Ticket,
-                TicketRecord,
               ],
               synchronize: true,
               define: {

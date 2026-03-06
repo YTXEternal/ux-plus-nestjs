@@ -19,4 +19,3 @@ export * from './sys-file.model';
 export * from './sys-drama-price.model';
 export * from './arrange.model';
 export * from './ticket.model';
-export * from './ticket-record.model';
