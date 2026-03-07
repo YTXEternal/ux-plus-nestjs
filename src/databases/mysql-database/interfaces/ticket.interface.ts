@@ -3,6 +3,7 @@ export interface TicketInter {
   member_id: number;
   arrange_id: number;
   shop_id: number;
+  order_no: string;
   count: number;
   pay_amount: number;
   trade_no: string;

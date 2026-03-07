@@ -91,10 +91,12 @@ export class TicketService {
       // 3. 计算金额
       const pay_amount = arrange.price * count;
 
-      // 4. 创建购票记录
+      // 4. 生成订单编号并创建购票记录
+      const order_no = this.generateOrderNo(shop_id);
       const ticket = await this.ticketModel.create(
         {
           ...createTicketDto,
+          order_no,
           pay_amount,
           status: TICKET_STATUS_UNPAID,
           create_time: new Date(),
@@ -124,11 +126,16 @@ export class TicketService {
    * 分页查询购票列表
    */
   async findAll(query: ListTicketDto) {
-    const { pageNum = 1, pageSize = 10, shop_id } = query;
+    const { pageNum = 1, pageSize = 10, shop_id, order_no } = query;
     await this.ensureShopExists(shop_id);
 
+    const where: any = { shop_id };
+    if (order_no) {
+      where.order_no = { [Op.like]: `%${order_no}%` };
+    }
+
     const { rows, count } = await this.ticketModel.findAndCountAll({
-      where: { shop_id },
+      where,
       offset: (pageNum - 1) * pageSize,
       limit: pageSize,
       order: [['create_time', 'DESC']],
@@ -182,9 +189,8 @@ export class TicketService {
       throw new BadRequestException('当前订单状态不允许支付');
     }
 
-    const outTradeNo = this.getOutTradeNo(ticket.ticket_id);
-    // 
-    const totalAmount = '1';
+    const outTradeNo = ticket.order_no; // 使用真实生成的订单编号
+    const totalAmount = ticket.pay_amount + '';
 
     // 调用支付宝预下单接口
     const result = await this.alipaySdk.exec('alipay.trade.precreate', {
@@ -245,7 +251,7 @@ export class TicketService {
       };
     }
 
-    const outTradeNo = this.getOutTradeNo(ticket.ticket_id);
+    const outTradeNo = ticket.order_no;
 
     // 调用支付宝查询接口
     const result = await this.alipaySdk.exec('alipay.trade.query', {
@@ -295,34 +301,57 @@ export class TicketService {
   }
 
   async refund(body: TicketRefundDto) {
+    console.log('[Refund] Start:', body);
     const ticket = await this.getTicketOrThrow(body.ticket_id, body.shop_id);
+    console.log('[Refund] Ticket found:', ticket.ticket_id, 'Status:', ticket.status);
+
     if (ticket.status !== TICKET_STATUS_PAID) {
       throw new BadRequestException('当前购票状态不允许退款');
     }
 
-    const outTradeNo = this.getOutTradeNo(ticket.ticket_id);
-    const result = await this.alipaySdk.exec('alipay.trade.refund', {
-      bizContent: {
-        out_trade_no: outTradeNo,
-        refund_amount: Number(ticket.pay_amount).toFixed(2),
-      },
-    });
+    const outTradeNo = ticket.order_no;
+    console.log('[Refund] Requesting Alipay refund for:', outTradeNo, 'Amount:', ticket.pay_amount);
 
-    if (result.code !== '10000') {
-      throw new BadRequestException(result.sub_msg || result.msg || '退款失败');
+    const transaction = await this.sequelize.transaction();
+    try {
+      const result = await this.alipaySdk.exec('alipay.trade.refund', {
+        bizContent: {
+          out_trade_no: outTradeNo,
+          refund_amount: ticket.pay_amount + '',
+        },
+      });
+      console.log('[Refund] Alipay response:', result);
+
+      if (result.code !== '10000' && result.code !== '20000') {
+        throw new BadRequestException(result.subMsg || result.sub_msg || result.msg || '退款失败');
+      }
+
+      await ticket.update({
+        status: TICKET_STATUS_REFUNDED,
+        update_time: new Date(),
+      }, { transaction });
+
+      // 退款成功，回退库存
+      await this.arrangeModel.increment('remaining_tickets', {
+        by: ticket.count,
+        where: { arrange_id: ticket.arrange_id },
+        transaction,
+      });
+
+      await transaction.commit();
+      console.log(`[Refund] Ticket status updated to REFUNDED, remaining_tickets incremented by ${ticket.count}`);
+
+      return {
+        ticket_id: ticket.ticket_id,
+        shop_id: ticket.shop_id,
+        status: TICKET_STATUS_REFUNDED,
+        refund_fee: result.refund_fee,
+      };
+    } catch (error) {
+      await transaction.rollback();
+      console.error('[Refund] Error during refund:', error);
+      throw error;
     }
-
-    await ticket.update({
-      status: TICKET_STATUS_REFUNDED,
-      update_time: new Date(),
-    });
-
-    return {
-      ticket_id: ticket.ticket_id,
-      shop_id: ticket.shop_id,
-      status: TICKET_STATUS_REFUNDED,
-      refund_fee: result.refund_fee,
-    };
   }
 
   /**
@@ -342,14 +371,13 @@ export class TicketService {
     }
 
     const outTradeNo = postData.out_trade_no;
-    if (!outTradeNo || !outTradeNo.startsWith('ticket_')) {
+    if (!outTradeNo || !outTradeNo.startsWith('T')) {
       return;
     }
-    const ticketId = parseInt(outTradeNo.replace('ticket_', ''), 10);
 
     // 3. 查找订单
     const ticket = await this.ticketModel.findOne({
-      where: { ticket_id: ticketId },
+      where: { order_no: outTradeNo },
     });
 
     if (!ticket) {
@@ -383,30 +411,91 @@ export class TicketService {
       update_time: new Date(),
     });
 
-    console.log(`[Alipay Notify] 订单 ${ticketId} 支付回调处理成功`);
+    console.log(`[Alipay Notify] 订单 ${outTradeNo} 支付回调处理成功`);
   }
 
+  /**
+   * 处理超时的购票订单
+   * @returns 
+   */
   async expireUnpaidTickets() {
     const expiredBefore = new Date(Date.now() - 10 * 60 * 1000);
-    const [affectedCount] = await this.ticketModel.update(
-      {
-        status: TICKET_STATUS_EXPIRED,
-        update_time: new Date(),
-      },
-      {
+    const transaction = await this.sequelize.transaction();
+
+    try {
+      // 1. 查找所有需过期的未支付订单
+      const ticketsToExpire = await this.ticketModel.findAll({
         where: {
           status: TICKET_STATUS_UNPAID,
           create_time: {
             [Op.lte]: expiredBefore,
           },
         },
-      },
-    );
-    return affectedCount;
+        transaction,
+      });
+
+      if (ticketsToExpire.length === 0) {
+        await transaction.commit();
+        return 0;
+      }
+
+      // 2. 扣减状态为已过期
+      const ticketIds = ticketsToExpire.map((t) => t.ticket_id);
+      await this.ticketModel.update(
+        {
+          status: TICKET_STATUS_EXPIRED,
+          update_time: new Date(),
+        },
+        {
+          where: { ticket_id: ticketIds },
+          transaction,
+        },
+      );
+
+      // 3. 遍历回退涉及的 arrange_id 库存
+      // 由于可能有多个 ticket 对应同一个 arrange_id，这里分组聚合一下数量再更新
+      const arrangeTicketCountMap = new Map<number, number>();
+      for (const ticket of ticketsToExpire) {
+        const currentCount = arrangeTicketCountMap.get(ticket.arrange_id) || 0;
+        arrangeTicketCountMap.set(ticket.arrange_id, currentCount + ticket.count);
+      }
+
+      for (const [arrange_id, totalCountToReturn] of arrangeTicketCountMap.entries()) {
+        await this.arrangeModel.increment('remaining_tickets', {
+          by: totalCountToReturn,
+          where: { arrange_id },
+          transaction,
+        });
+      }
+
+      await transaction.commit();
+      return ticketIds.length;
+    } catch (error) {
+      await transaction.rollback();
+      console.error('[Expire Task] Error during expireUnpaidTickets:', error);
+      return 0;
+    }
   }
 
-  private getOutTradeNo(ticketId: number) {
-    return `ticket_${ticketId}`;
+  /**
+   * 生成订单编号的逻辑
+   * 格式: T + 年月日时分秒 + 门店ID(补齐4位) + 4位随机数
+   */
+  private generateOrderNo(shopId: number): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    // 门店ID补齐4位
+    const shopCode = String(shopId).padStart(4, '0');
+    // 4位随机数
+    const random = Math.floor(1000 + Math.random() * 9000);
+
+    return `T${year}${month}${day}${hours}${minutes}${seconds}${shopCode}${random}`;
   }
 
   private async ensureShopExists(shop_id: number, transaction?: Transaction) {

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateTicketDto {
@@ -37,6 +37,11 @@ export class ListTicketDto {
   @IsNumber()
   @Type(() => Number)
   pageSize?: number;
+
+  @ApiPropertyOptional({ description: '订单编号', example: 'TICKET20231010123456789' })
+  @IsOptional()
+  @IsString()
+  order_no?: string;
 }
 
 export class DetailTicketDto {
