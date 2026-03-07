@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
+import { PaginationDto } from '@/dto';
 
 export class CreateArrangeDto {
   @ApiProperty({ description: '排场名称', example: '周五晚场' })
@@ -48,19 +49,7 @@ export class RemoveArrangeDto {
   arrange_ids: number[];
 }
 
-export class ListArrangeDto {
-  @ApiPropertyOptional({ description: '页码', example: 1 })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  pageNum?: number;
-
-  @ApiPropertyOptional({ description: '每页数量', example: 10 })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  pageSize?: number;
-
+export class ListArrangeDto extends PaginationDto {
   @ApiPropertyOptional({ description: '排场名称', example: '晚场' })
   @IsOptional()
   @IsString()
@@ -69,7 +58,28 @@ export class ListArrangeDto {
   @ApiProperty({ description: '门店ID', example: 1 })
   @IsNumber()
   @Type(() => Number)
-  shop_id: number;
+  shop_id: number = 0;
+
+  @ApiPropertyOptional({
+    description: '开场状态(0所有，1已开场，2未开场)',
+    example: 0,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  status?: number;
+}
+
+export class FullDataArrangeDto {
+  @ApiPropertyOptional({ description: '排场名称', example: '晚场' })
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiProperty({ description: '门店ID', example: 1 })
+  @IsNumber()
+  @Type(() => Number)
+  shop_id: number = 0;
 
   @ApiPropertyOptional({
     description: '开场状态(0所有，1已开场，2未开场)',

@@ -58,6 +58,7 @@
     "mongoose": "^8.14.2",
     "mysql2": "^3.14.1",
     "nestjs-pino": "^4.5.0",
+    "ngrok": "5.0.0-beta.2",
     "nodemailer": "^7.0.2",
     "pidusage": "^4.0.1",
     "pino-http": "^11.0.0",

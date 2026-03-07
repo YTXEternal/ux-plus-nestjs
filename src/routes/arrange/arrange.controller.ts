@@ -22,6 +22,7 @@ import {
   ListArrangeDto,
   UpdateArrangeDto,
   RemoveArrangeDto,
+  FullDataArrangeDto,
 } from './dto/arrange.dto';
 import { ApiResponse } from '@/dto/api-response';
 import { formatPagination } from '@/tools';
@@ -55,7 +56,7 @@ export class ArrangeController {
   @RequirePermissions('arrange:lr:list')
   @ApiOperation({ summary: '排场列表(无分页)' })
   @Get('all')
-  async findAllNoPage(@Query() query: ListArrangeDto) {
+  async findAllNoPage(@Query() query: FullDataArrangeDto) {
     const data = await this.arrangeService.findAllNoPage(query);
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
