@@ -86,6 +86,19 @@ export class MemberController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
+  @ApiOperation({ summary: '获取所有会员列表(不分页)' })
+  @ApiSwaggerResponse({
+    status: 200,
+    description: '获取成功',
+    type: ApiResponse,
+  })
+  @RequirePermissions('member:list')
+  @Get('fulldata')
+  async findFullData() {
+    const data = await this.memberService.findFullData();
+    return new ApiResponse(HttpStatus.OK, '操作成功', data);
+  }
+
   @ApiOperation({ summary: '获取会员详情' })
   @ApiSwaggerResponse({
     status: 200,

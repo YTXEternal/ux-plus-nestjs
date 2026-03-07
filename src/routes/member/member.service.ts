@@ -53,6 +53,18 @@ export class MemberService {
   }
 
   /**
+   * 查询所有会员列表（不分页）
+   */
+  async findFullData() {
+    return this.memberModel.findAll({
+      where: {
+        del_flag: '0',
+      },
+      order: [['create_time', 'DESC']],
+    });
+  }
+
+  /**
    * 查询会员详情
    * @param id
    */

@@ -1726,6 +1726,21 @@ describe('API (e2e)', () => {
       });
     });
 
+    describe('GET /member/fulldata', () => {
+      it('获取会员全量列表成功', async () => {
+        const res = await authed('get', `${apiPrefix}/member/fulldata`).expect(
+          200,
+        );
+        expectOk(res.body as ApiResponseBody<any[]>);
+        const data = (res.body as ApiResponseBody<any[]>).data!;
+        expect(Array.isArray(data)).toBe(true);
+        expect(data.length).toBeGreaterThan(0);
+        const member = data.find((item) => item.member_id === memberId);
+        expect(member).toBeDefined();
+        expect(member.name).toBe(memberName);
+      });
+    });
+
     describe('PUT /member', () => {
       it('修改会员信息成功', async () => {
         const newName = `${memberName}_updated`;

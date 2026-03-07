@@ -42,6 +42,12 @@ export class UpdateArrangeDto extends CreateArrangeDto {
   arrange_id: number;
 }
 
+export class RemoveArrangeDto {
+  @ApiProperty({ description: '排场ID列表', example: [1, 2, 3] })
+  @IsNumber({}, { each: true })
+  arrange_ids: number[];
+}
+
 export class ListArrangeDto {
   @ApiPropertyOptional({ description: '页码', example: 1 })
   @IsOptional()

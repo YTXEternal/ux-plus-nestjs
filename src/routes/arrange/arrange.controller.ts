@@ -21,6 +21,7 @@ import {
   CreateArrangeDto,
   ListArrangeDto,
   UpdateArrangeDto,
+  RemoveArrangeDto,
 } from './dto/arrange.dto';
 import { ApiResponse } from '@/dto/api-response';
 import { formatPagination } from '@/tools';
@@ -81,9 +82,9 @@ export class ArrangeController {
 
   @RequirePermissions('arrange:lr:remove')
   @ApiOperation({ summary: '删除排场' })
-  @Delete(':ids')
-  async remove(@Param('ids') ids: string) {
-    await this.arrangeService.remove(ids.split(',').map((id) => +id));
+  @Delete()
+  async remove(@Body() body: RemoveArrangeDto) {
+    await this.arrangeService.remove(body.arrange_ids);
     return new ApiResponse(HttpStatus.OK, '删除成功', null);
   }
 }
