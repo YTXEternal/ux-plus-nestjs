@@ -67,6 +67,7 @@ MySQL 是用来存储数据的仓库。
 2. **修改数据库密码**:
    用记事本或者你喜欢的代码编辑器打开 `.env` 文件。
    找到大概第 40 行左右的 `MYSQL` 配置部分：
+   
    ```properties
    # MYSQL
    MYSQL_BOOT_UP=true
@@ -84,8 +85,9 @@ MySQL 是用来存储数据的仓库。
 
 1. **初始化数据库**:
    接着输入：
+
    ```bash
-   pnpm mysql:init
+   pnpm mysql:init --type=latest
    ```
    回车。
    - 如果提示 `SQL 脚本执行成功！`，那就太棒了！
