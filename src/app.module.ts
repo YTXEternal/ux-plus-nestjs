@@ -53,6 +53,7 @@ import { SysFileModule } from './routes/file/file.module';
 import { ArrangeModule } from './routes/arrange/arrange.module';
 import { TicketModule } from './routes/ticket/ticket.module';
 import { HomeModule } from './routes/home/home.module';
+import { UserCenterModule } from './routes/user_center/user_center.module';
 
 const staticPath = join(process.cwd(), 'static');
 console.log('staticPath', staticPath);
@@ -171,6 +172,7 @@ const useProviders = () => {
     ArrangeModule,
     TicketModule,
     HomeModule,
+    UserCenterModule,
   ],
   controllers: [AppController],
   providers: useProviders(),

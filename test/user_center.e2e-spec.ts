@@ -17,7 +17,6 @@ import {
   SysUser,
   SysUserRole,
 } from '@/databases/mysql-database/model';
-import { HomeStatistics } from '@/databases/mysql-database/model/home-statistics.model';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env.test') });
 
@@ -30,7 +29,7 @@ type ApiResponseBody<T> = {
 import { TransformResponseInterceptor } from '@/interceptors';
 import { ConfigService } from '@nestjs/config';
 
-describe('Home API (e2e)', () => {
+describe('User Center API (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let uxPasswordService: UxPasswordService;
@@ -77,7 +76,8 @@ describe('Home API (e2e)', () => {
       const mysqlUser = process.env.MYSQL_USERNAME || 'root';
       const mysqlPassword = process.env.MYSQL_PASSWORD || '123456';
 
-      e2eDatabaseName = `platform_test_home_e2e_${testRunId}`.toLowerCase();
+      e2eDatabaseName =
+        `platform_test_user_center_e2e_${testRunId}`.toLowerCase();
       const dbConn = await mysql.createConnection({
         host: mysqlHost,
         port: mysqlPort,
@@ -131,23 +131,23 @@ describe('Home API (e2e)', () => {
       created.deptId = dept.dept_id;
 
       const adminRole = await SysRole.create({
-        role_name: '超级管理员',
-        role_key: 'SUPERADMIN',
+        role_name: '普通用户',
+        role_key: 'USER',
         role_sort: 1,
         status: '0',
         del_flag: '0',
-        remark: '拥有所有权限的超级管理员',
+        remark: '普通用户角色',
       } as any);
       created.roleId = adminRole.role_id;
 
       const adminUser = await SysUser.create({
-        user_name: 'admin',
-        nick_name: '超级管理员',
-        password: uxPasswordService.encryptedPassword('admin123'),
-        email: `admin_${testRunId}@example.com`,
-        phonenumber: '15888888888',
+        user_name: 'testuser',
+        nick_name: '测试用户',
+        password: uxPasswordService.encryptedPassword('test123456'),
+        email: `test_${testRunId}@example.com`,
+        phonenumber: '13888888888',
         sex: '1',
-        avatar: '',
+        avatar: 'old_avatar.png',
         status: '0',
         del_flag: '0',
         dept_id: created.deptId,
@@ -163,60 +163,12 @@ describe('Home API (e2e)', () => {
       const loginRes = await request(app.getHttpServer())
         .post(`${apiPrefix}/auth/login`)
         .send({
-          user_name: 'admin',
-          password: encryptLoginPassword('admin123'),
+          user_name: 'testuser',
+          password: encryptLoginPassword('test123456'),
         })
         .expect(200);
       authToken = (loginRes.body as ApiResponseBody<{ token: string }>).data!
         .token;
-
-      // 初始化 HomeStatistics 数据
-      try {
-        const shopId = 1001;
-        const HomeStatsModel = app.get(Sequelize).models.HomeStatistics;
-        if (!HomeStatsModel) {
-          throw new Error(
-            'HomeStatistics model not found in Sequelize instance',
-          );
-        }
-
-        // 注意：新逻辑下 stats_time 通常只存日期 'YYYY-MM-DD'
-        // 这里模拟插入几天的数据
-        const today = new Date().toISOString().split('T')[0];
-        const yesterday = new Date(Date.now() - 86400000)
-          .toISOString()
-          .split('T')[0];
-
-        await HomeStatsModel.bulkCreate([
-          {
-            shop_id: shopId,
-            stats_time: yesterday,
-            member_growth: 10,
-            ticket_sales: 1000.0,
-            refund_amount: 0,
-            refund_count: 0,
-          },
-          {
-            shop_id: shopId,
-            stats_time: today,
-            member_growth: 5,
-            ticket_sales: 500.0,
-            refund_amount: 100.0,
-            refund_count: 1,
-          },
-          {
-            shop_id: 1002, // 另一个店铺
-            stats_time: yesterday,
-            member_growth: 2,
-            ticket_sales: 200.0,
-            refund_amount: 0,
-            refund_count: 0,
-          },
-        ] as any);
-      } catch (error) {
-        console.error('Failed to init HomeStatistics data:', error);
-        throw error;
-      }
     } catch (err) {
       console.error('Test setup failed:', err);
       throw err;
@@ -253,57 +205,54 @@ describe('Home API (e2e)', () => {
     }
   });
 
-  describe('Home Statistics', () => {
-    const shopId = 1001;
-
+  describe('User Center profile info', () => {
     it('Sanity check', () => {
       expect(true).toBe(true);
     });
 
-    it('获取统计数据成功 (7天)', async () => {
-      const res = await authed('get', `${apiPrefix}/home/statistics`)
-        .query({
-          shop_id: shopId,
-          days: 7,
-        })
-        .expect(200);
+    it('获取个人信息成功', async () => {
+      const res = await authed('get', `${apiPrefix}/user_center/detail`).expect(
+        200,
+      );
 
       expectOk(res.body as ApiResponseBody<any>);
       const data = (res.body as ApiResponseBody<any>).data;
 
-      expect(data).toHaveProperty('xAxis');
-      expect(data).toHaveProperty('series');
-      // days=7, 应该返回7天的数据
-      expect(data.xAxis.data.length).toBe(7);
-
-      // 验证最后两天的数据（我们只插了两天）
-      const len = data.series[0].data.length;
-      const lastTwoMemberGrowth = data.series[0].data
-        .slice(len - 2)
-        .map(Number);
-      // 昨天 10，今天 5
-      expect(lastTwoMemberGrowth).toEqual([10, 5]);
+      expect(data).toHaveProperty('nick_name', '测试用户');
+      expect(data).toHaveProperty('email', `test_${testRunId}@example.com`);
+      expect(data).toHaveProperty('phonenumber', '13888888888');
+      expect(data).toHaveProperty('sex', '1');
+      expect(data).toHaveProperty('avatar', 'old_avatar.png');
     });
 
-    it('不传 shop_id 应汇总所有店铺数据', async () => {
-      const res = await authed('get', `${apiPrefix}/home/statistics`)
-        .query({
-          days: 7,
-        })
+    it('修改个人信息成功', async () => {
+      const updateData = {
+        nick_name: '更新后的测试用户',
+        email: 'updated@example.com',
+        phonenumber: '15999999999',
+        sex: '0',
+        avatar: 'new_avatar.png',
+      };
+
+      const res = await authed('put', `${apiPrefix}/user_center/update`)
+        .send(updateData)
         .expect(200);
 
       expectOk(res.body as ApiResponseBody<any>);
-      const data = (res.body as ApiResponseBody<any>).data;
 
-      expect(data.xAxis.data.length).toBe(7);
+      // Fetch again to verify updates
+      const fetchRes = await authed(
+        'get',
+        `${apiPrefix}/user_center/detail`,
+      ).expect(200);
 
-      const len = data.series[0].data.length;
-      const lastTwoMemberGrowth = data.series[0].data
-        .slice(len - 2)
-        .map(Number);
-      // 昨天: 10 + 2 = 12
-      // 今天: 5
-      expect(lastTwoMemberGrowth).toEqual([12, 5]);
+      const data = (fetchRes.body as ApiResponseBody<any>).data;
+
+      expect(data).toHaveProperty('nick_name', '更新后的测试用户');
+      expect(data).toHaveProperty('email', 'updated@example.com');
+      expect(data).toHaveProperty('phonenumber', '15999999999');
+      expect(data).toHaveProperty('sex', '0');
+      expect(data).toHaveProperty('avatar', 'new_avatar.png');
     });
   });
 });

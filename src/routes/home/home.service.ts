@@ -355,22 +355,22 @@ export class HomeService implements OnModuleInit {
         {
           name: '会员增长人数',
           type: 'line',
-          data: processedData.map((item) => item.member_growth),
+          data: processedData.map((item) => Number(item.member_growth)),
         },
         {
           name: '卖票营业额',
           type: 'line',
-          data: processedData.map((item) => item.ticket_sales),
+          data: processedData.map((item) => Number(item.ticket_sales)),
         },
         {
           name: '退款金额',
           type: 'line',
-          data: processedData.map((item) => item.refund_amount),
+          data: processedData.map((item) => Number(item.refund_amount)),
         },
         {
           name: '退款单数',
           type: 'line',
-          data: processedData.map((item) => item.refund_count),
+          data: processedData.map((item) => Number(item.refund_count)),
         },
       ],
     };
