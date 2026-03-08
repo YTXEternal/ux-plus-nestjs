@@ -179,13 +179,11 @@ describe('Home API (e2e)', () => {
             'HomeStatistics model not found in Sequelize instance',
           );
         }
-
+        
         // 注意：新逻辑下 stats_time 通常只存日期 'YYYY-MM-DD'
         // 这里模拟插入几天的数据
         const today = new Date().toISOString().split('T')[0];
-        const yesterday = new Date(Date.now() - 86400000)
-          .toISOString()
-          .split('T')[0];
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
         await HomeStatsModel.bulkCreate([
           {
@@ -264,7 +262,7 @@ describe('Home API (e2e)', () => {
       const res = await authed('get', `${apiPrefix}/home/statistics`)
         .query({
           shop_id: shopId,
-          days: 7,
+          days: 7
         })
         .expect(200);
 
@@ -275,12 +273,10 @@ describe('Home API (e2e)', () => {
       expect(data).toHaveProperty('series');
       // days=7, 应该返回7天的数据
       expect(data.xAxis.data.length).toBe(7);
-
+      
       // 验证最后两天的数据（我们只插了两天）
       const len = data.series[0].data.length;
-      const lastTwoMemberGrowth = data.series[0].data
-        .slice(len - 2)
-        .map(Number);
+      const lastTwoMemberGrowth = data.series[0].data.slice(len - 2).map(Number);
       // 昨天 10，今天 5
       expect(lastTwoMemberGrowth).toEqual([10, 5]);
     });
@@ -288,7 +284,7 @@ describe('Home API (e2e)', () => {
     it('不传 shop_id 应汇总所有店铺数据', async () => {
       const res = await authed('get', `${apiPrefix}/home/statistics`)
         .query({
-          days: 7,
+          days: 7
         })
         .expect(200);
 
@@ -298,9 +294,7 @@ describe('Home API (e2e)', () => {
       expect(data.xAxis.data.length).toBe(7);
 
       const len = data.series[0].data.length;
-      const lastTwoMemberGrowth = data.series[0].data
-        .slice(len - 2)
-        .map(Number);
+      const lastTwoMemberGrowth = data.series[0].data.slice(len - 2).map(Number);
       // 昨天: 10 + 2 = 12
       // 今天: 5
       expect(lastTwoMemberGrowth).toEqual([12, 5]);
