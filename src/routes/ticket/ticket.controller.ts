@@ -30,7 +30,7 @@ import { Request, Response } from 'express';
   version: '1',
 })
 export class TicketController {
-  constructor(private readonly ticketService: TicketService) { }
+  constructor(private readonly ticketService: TicketService) {}
 
   @RequirePermissions('arrange:ticket:add')
   @ApiOperation({ summary: '新增购票' })

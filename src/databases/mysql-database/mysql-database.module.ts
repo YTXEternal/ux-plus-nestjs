@@ -19,7 +19,6 @@ import {
   SysDramaShop,
   SysDramaLabel,
   SysFile,
-  SysDramaPrice,
   Arrange,
   Ticket,
 } from './model';
@@ -90,7 +89,7 @@ export class MysqlDatabaseModule {
                 SysDramaShop,
                 SysDramaLabel,
                 SysFile,
-                SysDramaPrice,
+
                 Arrange,
                 Ticket,
               ],

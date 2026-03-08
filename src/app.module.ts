@@ -48,7 +48,7 @@ import { MemberModule } from './routes/member/member.module';
 import { ShopModule } from './routes/shop/shop.module';
 import { LabelModule } from './routes/label/label.module';
 import { DramaModule } from './routes/drama/drama.module';
-import { DramaPriceModule } from './routes/drama-price/drama-price.module';
+
 import { SysFileModule } from './routes/file/file.module';
 import { ArrangeModule } from './routes/arrange/arrange.module';
 import { TicketModule } from './routes/ticket/ticket.module';
@@ -165,7 +165,7 @@ const useProviders = () => {
     ShopModule,
     LabelModule,
     DramaModule,
-    DramaPriceModule,
+
     SysFileModule,
     ArrangeModule,
     TicketModule,

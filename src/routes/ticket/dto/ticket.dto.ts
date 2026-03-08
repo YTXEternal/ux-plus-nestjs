@@ -38,7 +38,10 @@ export class ListTicketDto {
   @Type(() => Number)
   pageSize?: number;
 
-  @ApiPropertyOptional({ description: '订单编号', example: 'TICKET20231010123456789' })
+  @ApiPropertyOptional({
+    description: '订单编号',
+    example: 'TICKET20231010123456789',
+  })
   @IsOptional()
   @IsString()
   order_no?: string;

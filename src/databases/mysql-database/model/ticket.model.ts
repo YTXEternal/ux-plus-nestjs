@@ -36,7 +36,12 @@ export class Ticket extends Model {
   @BelongsTo(() => Shop)
   shop: Shop;
 
-  @Column({ type: DataType.STRING, allowNull: true, comment: '订单编号', unique: true })
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    comment: '订单编号',
+    unique: true,
+  })
   order_no: string;
 
   @Column({ defaultValue: 1, comment: '购买张数' })

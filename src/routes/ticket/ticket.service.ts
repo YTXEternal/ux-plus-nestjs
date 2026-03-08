@@ -213,7 +213,7 @@ export class TicketService {
       );
     }
 
-    console.log('响应', JSON.stringify(result, null, 2))
+    console.log('响应', JSON.stringify(result, null, 2));
 
     return {
       ticket_id: ticket.ticket_id,
@@ -303,14 +303,24 @@ export class TicketService {
   async refund(body: TicketRefundDto) {
     console.log('[Refund] Start:', body);
     const ticket = await this.getTicketOrThrow(body.ticket_id, body.shop_id);
-    console.log('[Refund] Ticket found:', ticket.ticket_id, 'Status:', ticket.status);
+    console.log(
+      '[Refund] Ticket found:',
+      ticket.ticket_id,
+      'Status:',
+      ticket.status,
+    );
 
     if (ticket.status !== TICKET_STATUS_PAID) {
       throw new BadRequestException('当前购票状态不允许退款');
     }
 
     const outTradeNo = ticket.order_no;
-    console.log('[Refund] Requesting Alipay refund for:', outTradeNo, 'Amount:', ticket.pay_amount);
+    console.log(
+      '[Refund] Requesting Alipay refund for:',
+      outTradeNo,
+      'Amount:',
+      ticket.pay_amount,
+    );
 
     const transaction = await this.sequelize.transaction();
     try {
@@ -323,13 +333,18 @@ export class TicketService {
       console.log('[Refund] Alipay response:', result);
 
       if (result.code !== '10000' && result.code !== '20000') {
-        throw new BadRequestException(result.subMsg || result.sub_msg || result.msg || '退款失败');
+        throw new BadRequestException(
+          result.subMsg || result.sub_msg || result.msg || '退款失败',
+        );
       }
 
-      await ticket.update({
-        status: TICKET_STATUS_REFUNDED,
-        update_time: new Date(),
-      }, { transaction });
+      await ticket.update(
+        {
+          status: TICKET_STATUS_REFUNDED,
+          update_time: new Date(),
+        },
+        { transaction },
+      );
 
       // 退款成功，回退库存
       await this.arrangeModel.increment('remaining_tickets', {
@@ -339,7 +354,9 @@ export class TicketService {
       });
 
       await transaction.commit();
-      console.log(`[Refund] Ticket status updated to REFUNDED, remaining_tickets incremented by ${ticket.count}`);
+      console.log(
+        `[Refund] Ticket status updated to REFUNDED, remaining_tickets incremented by ${ticket.count}`,
+      );
 
       return {
         ticket_id: ticket.ticket_id,
@@ -389,8 +406,11 @@ export class TicketService {
     const notifyAmount = parseFloat(postData.total_amount);
     const orderAmount = parseFloat(ticket.pay_amount + '');
     // 这里如果你们测试修改了硬编码为1，可能会导致金额不匹配，根据实际业务判断。如果是在开发阶段，可以暂时先不强校验金额
-    if (notifyAmount !== orderAmount && orderAmount !== 1) { // 兼容之前硬编码测试的 1
-      console.warn(`[Alipay Notify] 订单金额不匹配: ${outTradeNo}, 通知金额: ${notifyAmount}, 数据库金额: ${orderAmount}`);
+    if (notifyAmount !== orderAmount && orderAmount !== 1) {
+      // 兼容之前硬编码测试的 1
+      console.warn(
+        `[Alipay Notify] 订单金额不匹配: ${outTradeNo}, 通知金额: ${notifyAmount}, 数据库金额: ${orderAmount}`,
+      );
       // throw new BadRequestException(`订单金额不匹配: ${outTradeNo}`);
     }
 
@@ -407,7 +427,9 @@ export class TicketService {
     await ticket.update({
       status: TICKET_STATUS_PAID,
       trade_no: postData.trade_no, // 支付宝交易号
-      pay_time: postData.gmt_payment ? new Date(postData.gmt_payment) : new Date(),
+      pay_time: postData.gmt_payment
+        ? new Date(postData.gmt_payment)
+        : new Date(),
       update_time: new Date(),
     });
 
@@ -416,7 +438,7 @@ export class TicketService {
 
   /**
    * 处理超时的购票订单
-   * @returns 
+   * @returns
    */
   async expireUnpaidTickets() {
     const expiredBefore = new Date(Date.now() - 10 * 60 * 1000);
@@ -457,10 +479,16 @@ export class TicketService {
       const arrangeTicketCountMap = new Map<number, number>();
       for (const ticket of ticketsToExpire) {
         const currentCount = arrangeTicketCountMap.get(ticket.arrange_id) || 0;
-        arrangeTicketCountMap.set(ticket.arrange_id, currentCount + ticket.count);
+        arrangeTicketCountMap.set(
+          ticket.arrange_id,
+          currentCount + ticket.count,
+        );
       }
 
-      for (const [arrange_id, totalCountToReturn] of arrangeTicketCountMap.entries()) {
+      for (const [
+        arrange_id,
+        totalCountToReturn,
+      ] of arrangeTicketCountMap.entries()) {
         await this.arrangeModel.increment('remaining_tickets', {
           by: totalCountToReturn,
           where: { arrange_id },

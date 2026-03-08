@@ -16,6 +16,6 @@ export * from './sys-drama.model';
 export * from './sys-drama-shop.model';
 export * from './sys-drama-label.model';
 export * from './sys-file.model';
-export * from './sys-drama-price.model';
+
 export * from './arrange.model';
 export * from './ticket.model';
