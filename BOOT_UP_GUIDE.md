@@ -50,6 +50,7 @@ MySQL 是用来存储数据的仓库。
    
 2. **输入安装命令**:
    在弹出的黑框框里输入：
+   
    ```bash
    pnpm install
    ```
@@ -96,7 +97,38 @@ MySQL 是用来存储数据的仓库。
 
 ---
 
-## 第五步：启动项目！🎉
+## 第五步：安装ngrok
+
+
+
+```
+npm install -g ngrok
+```
+
+
+
+## 第六步：配置支付宝沙箱
+
+找到根目录下的.env文件
+
+跳转这个支付宝沙箱平台复制粘贴下面需要填写的配置
+
+[沙箱应用 - 开放平台](https://open.alipay.com/develop/sandbox/app)
+
+```
+# 支付宝沙箱配置
+## APPID
+ALIPAY_SENDBOX_APPID=null
+## 支付宝沙箱公钥
+ALIPAY_SENDBOX_PUBLIC_KEY=null
+ALIPAY_SENDBOX_PRIVATE_KEY=null
+## 支付宝沙箱网关地址
+ALIPAY_SENDBOX_GATEWAY_URL=null
+```
+
+
+
+## 第七步：启动项目！🎉
 
 终于到了最激动人心的时刻了。
 
@@ -113,6 +145,12 @@ MySQL 是用来存储数据的仓库。
 3. **验证一下**:
    打开浏览器，访问：[http://localhost:3000](http://localhost:3000)
    如果你能看到一个 Swagger 文档页面 (接口文档)，那么恭喜你，你已经成功把这个后端项目跑起来了！👏
+
+4. **还需要额外启动**ngrok，另开一个终端输入下面的命令回车，挂着
+
+   ```
+   ngrok http 3000
+   ```
 
 ---
 
