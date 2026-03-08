@@ -4,4 +4,5 @@ export interface MemberInter {
   phone: string;
   email: string;
   del_flag: string;
+  shop_id: number;
 }

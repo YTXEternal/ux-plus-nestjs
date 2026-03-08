@@ -19,3 +19,4 @@ export * from './sys-file.model';
 
 export * from './arrange.model';
 export * from './ticket.model';
+export * from './home-statistics.model';

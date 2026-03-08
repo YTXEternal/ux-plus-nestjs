@@ -2238,8 +2238,6 @@ describe('API (e2e)', () => {
     });
   });
 
-
-
   describe('Arrange Management', () => {
     let dramaId: number;
     let shopId: number;
@@ -2351,10 +2349,7 @@ describe('API (e2e)', () => {
 
     describe('DELETE /arrange', () => {
       it('删除排场成功', async () => {
-        const res = await authed(
-          'delete',
-          `${apiPrefix}/arrange`,
-        )
+        const res = await authed('delete', `${apiPrefix}/arrange`)
           .send({
             arrange_ids: [arrangeId],
           })

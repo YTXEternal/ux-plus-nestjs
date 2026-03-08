@@ -37,4 +37,11 @@ export class Member extends Model<Member> {
   @Comment('删除标志（0代表存在 2代表删除）')
   @Column({ type: DataType.CHAR(1), defaultValue: '0' })
   del_flag: string;
+
+  @Comment('所属店铺ID')
+  @Column({
+    type: DataType.BIGINT,
+    allowNull: true,
+  })
+  shop_id: number;
 }

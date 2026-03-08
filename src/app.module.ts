@@ -52,6 +52,7 @@ import { DramaModule } from './routes/drama/drama.module';
 import { SysFileModule } from './routes/file/file.module';
 import { ArrangeModule } from './routes/arrange/arrange.module';
 import { TicketModule } from './routes/ticket/ticket.module';
+import { HomeModule } from './routes/home/home.module';
 
 const staticPath = join(process.cwd(), 'static');
 console.log('staticPath', staticPath);
@@ -169,6 +170,7 @@ const useProviders = () => {
     SysFileModule,
     ArrangeModule,
     TicketModule,
+    HomeModule,
   ],
   controllers: [AppController],
   providers: useProviders(),

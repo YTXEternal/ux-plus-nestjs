@@ -21,6 +21,7 @@ import {
   SysFile,
   Arrange,
   Ticket,
+  HomeStatistics,
 } from './model';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfigModule } from '@/modules/env-config/env-config.module';
@@ -92,6 +93,7 @@ export class MysqlDatabaseModule {
 
                 Arrange,
                 Ticket,
+                HomeStatistics,
               ],
               synchronize: true,
               define: {
