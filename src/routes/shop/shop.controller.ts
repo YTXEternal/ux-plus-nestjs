@@ -31,7 +31,7 @@ import { RequirePermissions } from '@/guards';
   version: '1',
 })
 export class ShopController {
-  constructor(private readonly shopService: ShopService) {}
+  constructor(private readonly shopService: ShopService) { }
 
   @RequirePermissions('shop:add')
   @ApiOperation({ summary: '新增门店' })
@@ -86,7 +86,7 @@ export class ShopController {
     return new ApiResponse(HttpStatus.OK, '操作成功', data);
   }
 
-  @RequirePermissions('shop:fulldata')
+  @RequirePermissions('shop:list')
   @ApiOperation({ summary: '获取所有门店（不分页）' })
   @ApiSwaggerResponse({
     status: 200,

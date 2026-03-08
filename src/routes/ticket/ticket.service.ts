@@ -127,7 +127,11 @@ export class TicketService {
    */
   async findAll(query: ListTicketDto) {
     const { pageNum = 1, pageSize = 10, shop_id, order_no } = query;
-    await this.ensureShopExists(shop_id);
+    try {
+      await this.ensureShopExists(shop_id);
+    } catch (err) {
+      return { rows: [], total: 10 };
+    }
 
     const where: any = { shop_id };
     if (order_no) {
