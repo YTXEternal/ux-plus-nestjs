@@ -9,14 +9,4 @@ export * from './sys-logininfor.model';
 export * from './sys-user-role.model';
 export * from './sys-role-menu.model';
 export * from './sys-user-dept.model';
-export * from './member.model';
-export * from './shop.model';
-export * from './label.model';
-export * from './sys-drama.model';
-export * from './sys-drama-shop.model';
-export * from './sys-drama-label.model';
 export * from './sys-file.model';
-
-export * from './arrange.model';
-export * from './ticket.model';
-export * from './home-statistics.model';

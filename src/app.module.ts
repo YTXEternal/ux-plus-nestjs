@@ -44,15 +44,7 @@ import { SysOperLogModule } from './routes/monitor/operlog/sys-oper-log.module';
 import { SysLogininforModule } from './routes/monitor/logininfor/sys-logininfor.module';
 import { SysOnlineModule } from './routes/monitor/online/sys-online.module';
 import { RouteModule } from './routes/route/route.module';
-import { MemberModule } from './routes/member/member.module';
-import { ShopModule } from './routes/shop/shop.module';
-import { LabelModule } from './routes/label/label.module';
-import { DramaModule } from './routes/drama/drama.module';
-
 import { SysFileModule } from './routes/file/file.module';
-import { ArrangeModule } from './routes/arrange/arrange.module';
-import { TicketModule } from './routes/ticket/ticket.module';
-import { HomeModule } from './routes/home/home.module';
 import { UserCenterModule } from './routes/user_center/user_center.module';
 
 const staticPath = join(process.cwd(), 'static');
@@ -163,15 +155,7 @@ const useProviders = () => {
     SysLogininforModule,
     SysOnlineModule,
     RouteModule,
-    MemberModule,
-    ShopModule,
-    LabelModule,
-    DramaModule,
-
     SysFileModule,
-    ArrangeModule,
-    TicketModule,
-    HomeModule,
     UserCenterModule,
   ],
   controllers: [AppController],
