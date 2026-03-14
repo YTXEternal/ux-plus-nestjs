@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { SysMenuService } from './sys-menu.service';
 import { SysMenuController } from './sys-menu.controller';
-import { SysMenu } from '@/databases/mysql-database/model/sys-menu.model';
-import { SysRoleMenu } from '@/databases/mysql-database/model/sys-role-menu.model';
+import { Menu } from '@/databases/mysql-database/model/menu.model';
+import { RoleMenu } from '@/databases/mysql-database/model/role-menu.model';
 
 /**
  * 系统-菜单模块
@@ -15,7 +15,7 @@ import { SysRoleMenu } from '@/databases/mysql-database/model/sys-role-menu.mode
  * @typedef {SysMenuModule}
  */
 @Module({
-  imports: [SequelizeModule.forFeature([SysMenu, SysRoleMenu])],
+  imports: [SequelizeModule.forFeature([Menu, RoleMenu])],
   controllers: [SysMenuController],
   providers: [SysMenuService],
   exports: [SysMenuService],

@@ -1,11 +1,11 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
-import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
-import { SysDept } from '@/databases/mysql-database/model/sys-dept.model';
+import { User } from '@/databases/mysql-database/model/user.model';
+import { Role } from '@/databases/mysql-database/model/role.model';
+import { Dept } from '@/databases/mysql-database/model/dept.model';
 import { UxPasswordService } from '@/modules/ux-password/ux-password.service';
-import { SysUserDept } from '@/databases/mysql-database/model/sys-user-dept.model';
-import { SysUserRole } from '@/databases/mysql-database/model/sys-user-role.model';
+import { UserDept } from '@/databases/mysql-database/model/user-dept.model';
+import { UserRole } from '@/databases/mysql-database/model/user-role.model';
 import { Op } from 'sequelize';
 import { filterObjNull } from '@/tools';
 import { Sequelize } from 'sequelize-typescript';
@@ -32,19 +32,19 @@ export class SysUserService {
   /**
    * 构造函数
    *
-   * @param {typeof SysUser} sysUserModel 用户模型
-   * @param {typeof SysRole} sysRoleModel 角色模型
+   * @param {typeof User} sysUserModel 用户模型
+   * @param {typeof Role} sysRoleModel 角色模型
    * @param {UxPasswordService} uxPasswordService 密码能力服务
    */
   constructor(
-    @InjectModel(SysUser)
-    private readonly sysUserModel: typeof SysUser,
-    @InjectModel(SysRole)
-    private readonly sysRoleModel: typeof SysRole,
-    @InjectModel(SysUserDept)
-    private readonly sysUserDeptModel: typeof SysUserDept,
-    @InjectModel(SysUserRole)
-    private readonly sysUserRoleModel: typeof SysUserRole,
+    @InjectModel(User)
+    private readonly sysUserModel: typeof User,
+    @InjectModel(Role)
+    private readonly sysRoleModel: typeof Role,
+    @InjectModel(UserDept)
+    private readonly sysUserDeptModel: typeof UserDept,
+    @InjectModel(UserRole)
+    private readonly sysUserRoleModel: typeof UserRole,
     private readonly uxPasswordService: UxPasswordService,
     private sequelize: Sequelize,
   ) {}
@@ -54,7 +54,7 @@ export class SysUserService {
    *
    * @async
    * @param {ListUserDto} query 查询参数
-   * @returns {Promise<{ rows: SysUser[]; total: number }>} 分页结果
+   * @returns {Promise<{ rows: User[]; total: number }>} 分页结果
    */
   async findAll(query: ListUserDto) {
     const {
@@ -78,7 +78,7 @@ export class SysUserService {
       offset: (pageNum - 1) * pageSize,
       limit: +pageSize,
       include: [
-        { model: SysDept, as: 'dept', attributes: ['dept_name', 'leader'] },
+        { model: Dept, as: 'dept', attributes: ['dept_name', 'leader'] },
       ],
     });
 
@@ -89,14 +89,14 @@ export class SysUserService {
    * 获取所有用户列表（不分页）
    *
    * @async
-   * @returns {Promise<SysUser[]>} 用户列表
+   * @returns {Promise<User[]>} 用户列表
    */
   async findAllData() {
     return this.sysUserModel.findAll({
       where: { del_flag: '0' },
       attributes: { exclude: ['password'] },
       include: [
-        { model: SysDept, as: 'dept', attributes: ['dept_name', 'leader'] },
+        { model: Dept, as: 'dept', attributes: ['dept_name', 'leader'] },
       ],
     });
   }
@@ -106,15 +106,15 @@ export class SysUserService {
    *
    * @async
    * @param {number} userId 用户ID
-   * @returns {Promise<{ data: SysUser | null }>} 用户详情
+   * @returns {Promise<{ data: User | null }>} 用户详情
    */
   async findOne(userId: number) {
     const user = await this.sysUserModel.findByPk(userId, {
       attributes: { exclude: ['password'] },
       include: [
-        { model: SysDept, as: 'dept' },
-        { model: SysRole },
-        { model: SysDept, as: 'depts' },
+        { model: Dept, as: 'dept' },
+        { model: Role },
+        { model: Dept, as: 'depts' },
       ],
     });
     // TODO: 获取所有角色和岗位以标记为选中
@@ -128,7 +128,7 @@ export class SysUserService {
    *
    * @async
    * @param {CreateUserDto} createUserDto 创建参数
-   * @returns {Promise<SysUser>} 创建后的用户记录
+   * @returns {Promise<User>} 创建后的用户记录
    */
   async create(createUserDto: CreateUserDto) {
     // 校验用户名唯一性
@@ -221,7 +221,7 @@ export class SysUserService {
    *
    * @async
    * @param {UpdateUserDto} updateUserDto 更新参数
-   * @returns {Promise<[number, SysUser[]]>} Sequelize 更新结果
+   * @returns {Promise<[number, User[]]>} Sequelize 更新结果
    */
   async update(updateUserDto: UpdateUserDto) {
     const { user_id, dept_ids, ...data } = updateUserDto;
@@ -257,7 +257,7 @@ export class SysUserService {
    *
    * @async
    * @param {string} userIds 用户ID列表（逗号分隔）
-   * @returns {Promise<[number, SysUser[]]>} Sequelize 更新结果
+   * @returns {Promise<[number, User[]]>} Sequelize 更新结果
    */
   async delete(userIds: string) {
     return this.sysUserModel.update(
@@ -271,7 +271,7 @@ export class SysUserService {
    *
    * @async
    * @param {ResetPwdDto} body 重置参数
-   * @returns {Promise<[number, SysUser[]]>} Sequelize 更新结果
+   * @returns {Promise<[number, User[]]>} Sequelize 更新结果
    */
   async resetPwd(body: ResetPwdDto) {
     const { user_id, password } = body;
@@ -287,7 +287,7 @@ export class SysUserService {
    *
    * @async
    * @param {ChangeStatusDto} body 状态变更参数
-   * @returns {Promise<[number, SysUser[]]>} Sequelize 更新结果
+   * @returns {Promise<[number, User[]]>} Sequelize 更新结果
    */
   async changeStatus(body: ChangeStatusDto) {
     const { user_id, status } = body;
@@ -299,12 +299,12 @@ export class SysUserService {
    *
    * @async
    * @param {string} userName 用户名
-   * @returns {Promise<SysUser | null>} 用户记录（包含角色关联）
+   * @returns {Promise<User | null>} 用户记录（包含角色关联）
    */
   async findByUserName(userName: string) {
     return this.sysUserModel.findOne({
       where: { user_name: userName, del_flag: '0' },
-      include: [{ model: SysRole }],
+      include: [{ model: Role }],
     });
   }
 }

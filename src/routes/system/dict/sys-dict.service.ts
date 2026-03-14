@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { SysDictType } from '@/databases/mysql-database/model/sys-dict-type.model';
-import { SysDictData } from '@/databases/mysql-database/model/sys-dict-data.model';
+import { DictType } from '@/databases/mysql-database/model/dict-type.model';
+import { DictData } from '@/databases/mysql-database/model/dict-data.model';
 import { RedisService } from '@/modules/redis/redis.service';
 import { Op } from 'sequelize';
 
@@ -28,15 +28,15 @@ export class SysDictService {
   /**
    * 构造函数
    *
-   * @param {typeof SysDictType} sysDictTypeModel 字典类型模型
-   * @param {typeof SysDictData} sysDictDataModel 字典数据模型
+   * @param {typeof DictType} sysDictTypeModel 字典类型模型
+   * @param {typeof DictData} sysDictDataModel 字典数据模型
    * @param {RedisService} redisService Redis 缓存服务
    */
   constructor(
-    @InjectModel(SysDictType)
-    private readonly sysDictTypeModel: typeof SysDictType,
-    @InjectModel(SysDictData)
-    private readonly sysDictDataModel: typeof SysDictData,
+    @InjectModel(DictType)
+    private readonly sysDictTypeModel: typeof DictType,
+    @InjectModel(DictData)
+    private readonly sysDictDataModel: typeof DictData,
     private readonly redisService: RedisService,
   ) {}
 
@@ -46,7 +46,7 @@ export class SysDictService {
    *
    * @async
    * @param {ListDictTypeDto} query 查询参数
-   * @returns {Promise<{ rows: SysDictType[]; total: number }>} 分页结果
+   * @returns {Promise<{ rows: DictType[]; total: number }>} 分页结果
    */
   async findAllType(query: ListDictTypeDto) {
     const { pageNum = 1, pageSize = 20, dict_name, dict_type, status } = query;
@@ -71,7 +71,7 @@ export class SysDictService {
    *
    * @async
    * @param {number} dictId 字典类型ID
-   * @returns {Promise<SysDictType | null>} 字典类型记录
+   * @returns {Promise<DictType | null>} 字典类型记录
    */
   async findType(dictId: number) {
     return this.sysDictTypeModel.findByPk(dictId);
@@ -82,7 +82,7 @@ export class SysDictService {
    *
    * @async
    * @param {CreateDictTypeDto} createDictTypeDto 创建参数
-   * @returns {Promise<SysDictType>} 创建后的字典类型记录
+   * @returns {Promise<DictType>} 创建后的字典类型记录
    */
   async createType(createDictTypeDto: CreateDictTypeDto) {
     return this.sysDictTypeModel.create(createDictTypeDto as any);
@@ -93,7 +93,7 @@ export class SysDictService {
    *
    * @async
    * @param {UpdateDictTypeDto} updateDictTypeDto 更新参数
-   * @returns {Promise<[number, SysDictType[]]>} Sequelize 更新结果
+   * @returns {Promise<[number, DictType[]]>} Sequelize 更新结果
    */
   async updateType(updateDictTypeDto: UpdateDictTypeDto) {
     const { dict_id, ...data } = updateDictTypeDto;
@@ -105,7 +105,7 @@ export class SysDictService {
    *
    * @async
    * @param {string} dictIds 字典类型ID列表（逗号分隔）
-   * @returns {Promise<[number, SysDictType[]]>} Sequelize 更新结果
+   * @returns {Promise<[number, DictType[]]>} Sequelize 更新结果
    */
   async deleteType(dictIds: string) {
     const ids = dictIds.split(',');
@@ -121,7 +121,7 @@ export class SysDictService {
    *
    * @async
    * @param {ListDictDataDto} query 查询参数
-   * @returns {Promise<{ rows: SysDictData[]; total: number }>} 分页结果
+   * @returns {Promise<{ rows: DictData[]; total: number }>} 分页结果
    */
   async findAllData(query: ListDictDataDto) {
     const { pageNum = 1, pageSize = 20, dict_type, dict_label, status } = query;
@@ -146,7 +146,7 @@ export class SysDictService {
    *
    * @async
    * @param {number} dictCode 字典数据编码
-   * @returns {Promise<SysDictData | null>} 字典数据记录
+   * @returns {Promise<DictData | null>} 字典数据记录
    */
   async findData(dictCode: number) {
     return this.sysDictDataModel.findByPk(dictCode);
@@ -157,7 +157,7 @@ export class SysDictService {
    *
    * @async
    * @param {string} dictType 字典类型
-   * @returns {Promise<SysDictData[]>} 字典数据列表
+   * @returns {Promise<DictData[]>} 字典数据列表
    */
   async findDataByType(dictType: string) {
     return this.sysDictDataModel.findAll({
@@ -171,7 +171,7 @@ export class SysDictService {
    *
    * @async
    * @param {CreateDictDataDto} createDictDataDto 创建参数
-   * @returns {Promise<SysDictData>} 创建后的字典数据记录
+   * @returns {Promise<DictData>} 创建后的字典数据记录
    */
   async createData(createDictDataDto: CreateDictDataDto) {
     return this.sysDictDataModel.create(createDictDataDto as any);
@@ -182,7 +182,7 @@ export class SysDictService {
    *
    * @async
    * @param {UpdateDictDataDto} updateDictDataDto 更新参数
-   * @returns {Promise<[number, SysDictData[]]>} Sequelize 更新结果
+   * @returns {Promise<[number, DictData[]]>} Sequelize 更新结果
    */
   async updateData(updateDictDataDto: UpdateDictDataDto) {
     const { dict_code, ...data } = updateDictDataDto;
@@ -194,7 +194,7 @@ export class SysDictService {
    *
    * @async
    * @param {string} dictCodes 字典数据编码列表（逗号分隔）
-   * @returns {Promise<[number, SysDictData[]]>} Sequelize 更新结果
+   * @returns {Promise<[number, DictData[]]>} Sequelize 更新结果
    */
   async deleteData(dictCodes: string) {
     const codes = dictCodes.split(',');

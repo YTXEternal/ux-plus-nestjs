@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { SysUserService } from './sys-user.service';
 import { SysUserController } from './sys-user.controller';
-import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
-import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
-import { SysDept } from '@/databases/mysql-database/model/sys-dept.model';
-import { SysUserDept } from '@/databases/mysql-database/model/sys-user-dept.model';
-import { SysUserRole } from '@/databases/mysql-database/model/sys-user-role.model';
+import { User } from '@/databases/mysql-database/model/user.model';
+import { Role } from '@/databases/mysql-database/model/role.model';
+import { Dept } from '@/databases/mysql-database/model/dept.model';
+import { UserDept } from '@/databases/mysql-database/model/user-dept.model';
+import { UserRole } from '@/databases/mysql-database/model/user-role.model';
 import { UxPasswordModule } from '@/modules/ux-password/ux-password.module';
 
 /**
@@ -21,11 +21,11 @@ import { UxPasswordModule } from '@/modules/ux-password/ux-password.module';
 @Module({
   imports: [
     SequelizeModule.forFeature([
-      SysUser,
-      SysRole,
-      SysDept,
-      SysUserDept,
-      SysUserRole,
+      User,
+      Role,
+      Dept,
+      UserDept,
+      UserRole,
     ]),
     UxPasswordModule,
   ],

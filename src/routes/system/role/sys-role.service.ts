@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
+import { Role } from '@/databases/mysql-database/model/role.model';
 import { SysRoleInter } from '@/databases/mysql-database/interfaces/sys-role.interface';
-import { SysRoleMenu } from '@/databases/mysql-database/model/sys-role-menu.model';
+import { RoleMenu } from '@/databases/mysql-database/model/role-menu.model';
 import { Op, where } from 'sequelize';
 
 import {
@@ -28,14 +28,14 @@ export class SysRoleService {
   /**
    * 构造函数
    *
-   * @param {typeof SysRole} sysRoleModel 角色模型
-   * @param {typeof SysRoleMenu} sysRoleMenuModel 角色-菜单关联模型
+   * @param {typeof Role} sysRoleModel 角色模型
+   * @param {typeof RoleMenu} sysRoleMenuModel 角色-菜单关联模型
    */
   constructor(
-    @InjectModel(SysRole)
-    private readonly sysRoleModel: typeof SysRole,
-    @InjectModel(SysRoleMenu)
-    private readonly sysRoleMenuModel: typeof SysRoleMenu,
+    @InjectModel(Role)
+    private readonly sysRoleModel: typeof Role,
+    @InjectModel(RoleMenu)
+    private readonly sysRoleMenuModel: typeof RoleMenu,
     private readonly configService: ConfigService,
   ) {}
   /**
@@ -43,7 +43,7 @@ export class SysRoleService {
    *
    * @async
    * @param {ListRoleDto} query 查询参数
-   * @returns {Promise<{ rows: SysRole[]; total: number }>} 分页结果
+   * @returns {Promise<{ rows: Role[]; total: number }>} 分页结果
    */
   async findAll(query: ListRoleDto) {
     const { pageNum = 1, pageSize = 20, role_name, role_key, status } = query;
@@ -75,7 +75,7 @@ export class SysRoleService {
    *
    * @async
    * @param {ListRoleDto} query 查询参数
-   * @returns {Promise<SysRole[]>} 角色列表
+   * @returns {Promise<Role[]>} 角色列表
    */
   async findFullData(query: ListRoleDto) {
     const { role_name, role_key, status } = query;
@@ -102,15 +102,15 @@ export class SysRoleService {
    *
    * @async
    * @param {number} roleId 角色ID
-   * @returns {Promise<SysRole | null>} 角色记录
+   * @returns {Promise<Role | null>} 角色记录
    */
   async findOne(roleId: number) {
-    const roleDetail = await this.sysRoleModel.findOne<SysRole>({
+    const roleDetail = await this.sysRoleModel.findOne<Role>({
       where: { role_id: roleId },
     });
     if (!roleDetail) return null;
     const { role_id } = roleDetail;
-    const menuRow = await this.sysRoleMenuModel.findAll<SysRoleMenu>({
+    const menuRow = await this.sysRoleMenuModel.findAll<RoleMenu>({
       where: {
         role_id,
       },
@@ -125,7 +125,7 @@ export class SysRoleService {
    *
    * @async
    * @param {CreateRoleDto} createRoleDto 创建参数
-   * @returns {Promise<SysRole>} 创建后的角色记录
+   * @returns {Promise<Role>} 创建后的角色记录
    */
   async create(createRoleDto: CreateRoleDto) {
     const role = await this.sysRoleModel.create(createRoleDto as any);
@@ -176,7 +176,7 @@ export class SysRoleService {
    *
    * @async
    * @param {string} roleIds 角色ID列表（逗号分隔）
-   * @returns {Promise<[number, SysRole[]]>} Sequelize 更新结果
+   * @returns {Promise<[number, Role[]]>} Sequelize 更新结果
    */
   async delete(roleIds: string) {
     const ids = roleIds.split(',');
@@ -191,7 +191,7 @@ export class SysRoleService {
    *
    * @async
    * @param {ChangeRoleStatusDto} body 状态变更参数
-   * @returns {Promise<[number, SysRole[]]>} Sequelize 更新结果
+   * @returns {Promise<[number, Role[]]>} Sequelize 更新结果
    */
   async changeStatus(body: ChangeRoleStatusDto) {
     const { role_id, status } = body;

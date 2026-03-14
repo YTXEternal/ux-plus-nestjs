@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { SysOperLogService } from './sys-oper-log.service';
 import { SysOperLogController } from './sys-oper-log.controller';
-import { SysOperLog } from '@/databases/mysql-database/model/sys-oper-log.model';
+import { OperLog } from '@/databases/mysql-database/model/oper-log.model';
 
 /**
  * 监控-操作日志模块
@@ -14,7 +14,7 @@ import { SysOperLog } from '@/databases/mysql-database/model/sys-oper-log.model'
  * @typedef {SysOperLogModule}
  */
 @Module({
-  imports: [SequelizeModule.forFeature([SysOperLog])],
+  imports: [SequelizeModule.forFeature([OperLog])],
   controllers: [SysOperLogController],
   providers: [SysOperLogService],
 })

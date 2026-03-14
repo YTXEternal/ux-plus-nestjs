@@ -13,15 +13,15 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as fs from 'fs';
 import {
-  SysDept,
-  SysDictData,
-  SysDictType,
-  SysLogininfor,
-  SysMenu,
-  SysOperLog,
-  SysRole,
-  SysUser,
-  SysUserRole,
+  Dept,
+  DictData,
+  DictType,
+  Logininfor,
+  Menu,
+  OperLog,
+  Role,
+  User,
+  UserRole,
 } from '@/databases/mysql-database/model';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env.test') });
@@ -181,9 +181,9 @@ describe('API (e2e)', () => {
 
     await sequelize.sync({ force: true });
 
-    let dept: SysDept;
+    let dept: Dept;
     try {
-      dept = await SysDept.create({
+      dept = await Dept.create({
         dept_name: `E2E_${testRunId}`,
         order_num: 1,
         status: '0',
@@ -196,15 +196,15 @@ describe('API (e2e)', () => {
         err?.original?.message ||
         err?.message ||
         String(err);
-      throw new Error(`SysDept.create 失败：${msg}`);
+      throw new Error(`Dept.create 失败：${msg}`);
     }
     created.deptId = dept.dept_id;
 
     const adminRole =
-      (await SysRole.findOne({
+      (await Role.findOne({
         where: { role_key: 'SUPERADMIN' } as any,
       })) ||
-      (await SysRole.create({
+      (await Role.create({
         role_name: '超级管理员',
         role_key: 'SUPERADMIN',
         role_sort: 1,
@@ -215,10 +215,10 @@ describe('API (e2e)', () => {
     created.roleId = adminRole.role_id;
 
     const adminUser =
-      (await SysUser.findOne({
+      (await User.findOne({
         where: { user_name: 'admin' } as any,
       })) ||
-      (await SysUser.create({
+      (await User.create({
         user_name: 'admin',
         nick_name: '超级管理员',
         password: uxPasswordService.encryptedPassword('admin123'),
@@ -232,11 +232,11 @@ describe('API (e2e)', () => {
       } as any));
     created.adminUserId = adminUser.user_id;
 
-    const linkExists = await SysUserRole.findOne({
+    const linkExists = await UserRole.findOne({
       where: { user_id: created.adminUserId, role_id: created.roleId } as any,
     });
     if (!linkExists) {
-      await SysUserRole.create({
+      await UserRole.create({
         user_id: created.adminUserId,
         role_id: created.roleId,
       } as any);
@@ -414,7 +414,7 @@ describe('API (e2e)', () => {
 
       it('普通用户访问成功', async () => {
         // 创建普通角色
-        const normalRole = await SysRole.create({
+        const normalRole = await Role.create({
           role_name: '普通角色',
           role_key: 'NORMAL',
           role_sort: 2,
@@ -423,7 +423,7 @@ describe('API (e2e)', () => {
         } as any);
 
         // 创建普通用户
-        const normalUser = await SysUser.create({
+        const normalUser = await User.create({
           user_name: 'normal_user',
           nick_name: '普通用户',
           password: uxPasswordService.encryptedPassword('123456'),
@@ -432,7 +432,7 @@ describe('API (e2e)', () => {
         } as any);
 
         // 关联角色
-        await SysUserRole.create({
+        await UserRole.create({
           user_id: normalUser.user_id,
           role_id: normalRole.role_id,
         } as any);
@@ -575,8 +575,8 @@ describe('API (e2e)', () => {
             status: '0',
           })
           .expect(201);
-        expectOk(res.body as ApiResponseBody<SysDept>);
-        deptCrudId = (res.body as ApiResponseBody<SysDept>).data!.dept_id;
+        expectOk(res.body as ApiResponseBody<Dept>);
+        deptCrudId = (res.body as ApiResponseBody<Dept>).data!.dept_id;
       });
 
       it('部门名称重复返回 409', async () => {
@@ -665,7 +665,7 @@ describe('API (e2e)', () => {
           'get',
           `${apiPrefix}/system/dept/${deptCrudId}`,
         ).expect(200);
-        expectOk(res.body as ApiResponseBody<SysDept>);
+        expectOk(res.body as ApiResponseBody<Dept>);
       });
     });
 
@@ -702,8 +702,7 @@ describe('API (e2e)', () => {
             status: '0',
           })
           .expect(201);
-        const otherDeptId = (res.body as ApiResponseBody<SysDept>).data!
-          .dept_id;
+        const otherDeptId = (res.body as ApiResponseBody<Dept>).data!.dept_id;
 
         // 尝试将 deptCrudId 改名为 otherDeptName
         await authed('put', `${apiPrefix}/system/dept`)
@@ -774,8 +773,8 @@ describe('API (e2e)', () => {
             is_cache: 0,
           })
           .expect(201);
-        expectOk(res.body as ApiResponseBody<SysMenu>);
-        created.menuId = (res.body as ApiResponseBody<SysMenu>).data!.menu_id;
+        expectOk(res.body as ApiResponseBody<Menu>);
+        created.menuId = (res.body as ApiResponseBody<Menu>).data!.menu_id;
       });
     });
 
@@ -809,7 +808,7 @@ describe('API (e2e)', () => {
           'get',
           `${apiPrefix}/system/menu/${created.menuId}`,
         ).expect(200);
-        expectOk(res.body as ApiResponseBody<SysMenu>);
+        expectOk(res.body as ApiResponseBody<Menu>);
       });
     });
 
@@ -892,9 +891,9 @@ describe('API (e2e)', () => {
               remark: 'e2e',
             })
             .expect(201);
-          expectOk(res.body as ApiResponseBody<SysDictType>);
+          expectOk(res.body as ApiResponseBody<DictType>);
           created.dictTypeId = (
-            res.body as ApiResponseBody<SysDictType>
+            res.body as ApiResponseBody<DictType>
           ).data!.dict_id;
         });
       });
@@ -929,7 +928,7 @@ describe('API (e2e)', () => {
             'get',
             `${apiPrefix}/system/dict/type/${created.dictTypeId}`,
           ).expect(200);
-          expectOk(res.body as ApiResponseBody<SysDictType>);
+          expectOk(res.body as ApiResponseBody<DictType>);
         });
       });
 
@@ -996,8 +995,8 @@ describe('API (e2e)', () => {
               remark: 'e2e',
             })
             .expect(201);
-          expectOk(res.body as ApiResponseBody<SysDictType>);
-          dictTypeId = (res.body as ApiResponseBody<SysDictType>).data!.dict_id;
+          expectOk(res.body as ApiResponseBody<DictType>);
+          dictTypeId = (res.body as ApiResponseBody<DictType>).data!.dict_id;
         });
       });
 
@@ -1025,9 +1024,9 @@ describe('API (e2e)', () => {
               remark: 'e2e',
             })
             .expect(201);
-          expectOk(res.body as ApiResponseBody<SysDictData>);
+          expectOk(res.body as ApiResponseBody<DictData>);
           created.dictDataCode = (
-            res.body as ApiResponseBody<SysDictData>
+            res.body as ApiResponseBody<DictData>
           ).data!.dict_code;
         });
       });
@@ -1062,7 +1061,7 @@ describe('API (e2e)', () => {
             'get',
             `${apiPrefix}/system/dict/data/${created.dictDataCode}`,
           ).expect(200);
-          expectOk(res.body as ApiResponseBody<SysDictData>);
+          expectOk(res.body as ApiResponseBody<DictData>);
         });
       });
 
@@ -1168,9 +1167,9 @@ describe('API (e2e)', () => {
             remark: 'e2e',
           })
           .expect(201);
-        expectOk(res.body as ApiResponseBody<SysRole>);
+        expectOk(res.body as ApiResponseBody<Role>);
         created.roleCrudId = (
-          res.body as ApiResponseBody<SysRole>
+          res.body as ApiResponseBody<Role>
         ).data!.role_id;
       });
     });
@@ -1223,7 +1222,7 @@ describe('API (e2e)', () => {
           'get',
           `${apiPrefix}/system/role/${created.roleCrudId}`,
         ).expect(200);
-        expectOk(res.body as ApiResponseBody<SysRole>);
+        expectOk(res.body as ApiResponseBody<Role>);
       });
     });
 
@@ -1344,9 +1343,9 @@ describe('API (e2e)', () => {
             remark: 'e2e',
           })
           .expect(201);
-        expectOk(res.body as ApiResponseBody<SysUser>);
+        expectOk(res.body as ApiResponseBody<User>);
         created.userCrudId = (
-          res.body as ApiResponseBody<SysUser>
+          res.body as ApiResponseBody<User>
         ).data!.user_id;
       });
 
@@ -1379,7 +1378,7 @@ describe('API (e2e)', () => {
           'get',
           `${apiPrefix}/system/user/${created.userCrudId}`,
         ).expect(200);
-        expectOk(res.body as ApiResponseBody<SysUser>);
+        expectOk(res.body as ApiResponseBody<User>);
       });
     });
 
@@ -1532,7 +1531,7 @@ describe('API (e2e)', () => {
 
   describe('Monitor - OperLog', () => {
     beforeAll(async () => {
-      const oper = await SysOperLog.create({
+      const oper = await OperLog.create({
         title: `E2E_${testRunId}`,
         oper_name: 'admin',
         status: 0,
@@ -1598,7 +1597,7 @@ describe('API (e2e)', () => {
 
   describe('Monitor - Logininfor', () => {
     beforeAll(async () => {
-      const info = await SysLogininfor.create({
+      const info = await Logininfor.create({
         user_name: `e2e_admin_${testRunId}`,
         ipaddr: '127.0.0.1',
         status: '0',

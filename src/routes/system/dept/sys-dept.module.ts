@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { SysDeptService } from './sys-dept.service';
 import { SysDeptController } from './sys-dept.controller';
-import { SysDept } from '@/databases/mysql-database/model/sys-dept.model';
+import { Dept } from '@/databases/mysql-database/model/dept.model';
 
 /**
  * 系统-部门模块
@@ -14,7 +14,7 @@ import { SysDept } from '@/databases/mysql-database/model/sys-dept.model';
  * @typedef {SysDeptModule}
  */
 @Module({
-  imports: [SequelizeModule.forFeature([SysDept])],
+  imports: [SequelizeModule.forFeature([Dept])],
   controllers: [SysDeptController],
   providers: [SysDeptService],
 })

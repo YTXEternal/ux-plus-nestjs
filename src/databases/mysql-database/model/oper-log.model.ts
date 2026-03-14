@@ -11,11 +11,11 @@ import {
 } from 'sequelize-typescript';
 
 @Table({
-  tableName: 'sys_oper_log',
+  tableName: 'oper_log',
   timestamps: false, // Only has oper_time, handled manually or mapped? design says oper_time
   comment: '操作日志记录',
 })
-export class SysOperLog extends Model<SysOperLog> {
+export class OperLog extends Model<OperLog> {
   @PrimaryKey
   @AutoIncrement
   @Comment('日志主键')

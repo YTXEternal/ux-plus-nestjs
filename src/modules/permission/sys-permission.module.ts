@@ -1,9 +1,9 @@
 import { Module, Global } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { SysPermissionService } from './sys-permission.service';
-import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
-import { SysMenu } from '@/databases/mysql-database/model/sys-menu.model';
-import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
+import { Role } from '@/databases/mysql-database/model/role.model';
+import { Menu } from '@/databases/mysql-database/model/menu.model';
+import { User } from '@/databases/mysql-database/model/user.model';
 
 @Global()
 /**
@@ -16,7 +16,7 @@ import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
  * @typedef {SysPermissionModule}
  */
 @Module({
-  imports: [SequelizeModule.forFeature([SysRole, SysMenu, SysUser])],
+  imports: [SequelizeModule.forFeature([Role, Menu, User])],
   providers: [SysPermissionService],
   exports: [SysPermissionService],
 })

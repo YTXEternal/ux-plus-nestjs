@@ -12,10 +12,10 @@ import * as mysql from 'mysql2/promise';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import {
-  SysDept,
-  SysRole,
-  SysUser,
-  SysUserRole,
+  Dept,
+  Role,
+  User,
+  UserRole,
 } from '@/databases/mysql-database/model';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env.test') });
@@ -122,7 +122,7 @@ describe('User Center API (e2e)', () => {
       await sequelize.sync({ force: true });
 
       // 初始化基础数据
-      const dept = await SysDept.create({
+      const dept = await Dept.create({
         dept_name: `E2E_${testRunId}`,
         order_num: 1,
         status: '0',
@@ -130,7 +130,7 @@ describe('User Center API (e2e)', () => {
       } as any);
       created.deptId = dept.dept_id;
 
-      const adminRole = await SysRole.create({
+      const adminRole = await Role.create({
         role_name: '普通用户',
         role_key: 'USER',
         role_sort: 1,
@@ -140,7 +140,7 @@ describe('User Center API (e2e)', () => {
       } as any);
       created.roleId = adminRole.role_id;
 
-      const adminUser = await SysUser.create({
+      const adminUser = await User.create({
         user_name: 'testuser',
         nick_name: '测试用户',
         password: uxPasswordService.encryptedPassword('test123456'),
@@ -154,7 +154,7 @@ describe('User Center API (e2e)', () => {
       } as any);
       created.adminUserId = adminUser.user_id;
 
-      await SysUserRole.create({
+      await UserRole.create({
         user_id: created.adminUserId,
         role_id: created.roleId,
       } as any);

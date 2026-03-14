@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { SysRole } from '@/databases/mysql-database/model/sys-role.model';
-import { SysMenu } from '@/databases/mysql-database/model/sys-menu.model';
-import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
+import { Role } from '@/databases/mysql-database/model/role.model';
+import { Menu } from '@/databases/mysql-database/model/menu.model';
+import { User } from '@/databases/mysql-database/model/user.model';
 
 /**
  * 系统-权限服务
@@ -19,24 +19,24 @@ export class SysPermissionService {
   /**
    * 构造函数
    *
-   * @param {typeof SysRole} roleModel 角色模型
-   * @param {typeof SysMenu} menuModel 菜单模型
-   * @param {typeof SysUser} userModel 用户模型
+   * @param {typeof Role} roleModel 角色模型
+   * @param {typeof Menu} menuModel 菜单模型
+   * @param {typeof User} userModel 用户模型
    */
   constructor(
-    @InjectModel(SysRole) private readonly roleModel: typeof SysRole,
-    @InjectModel(SysMenu) private readonly menuModel: typeof SysMenu,
-    @InjectModel(SysUser) private readonly userModel: typeof SysUser,
+    @InjectModel(Role) private readonly roleModel: typeof Role,
+    @InjectModel(Menu) private readonly menuModel: typeof Menu,
+    @InjectModel(User) private readonly userModel: typeof User,
   ) {}
 
   /**
    * 获取用户角色权限
    *
    * @async
-   * @param {(SysUser | any)} user 用户信息（至少包含 user_id / isAdmin）
+   * @param {(User | any)} user 用户信息（至少包含 user_id / isAdmin）
    * @returns {Promise<Set<string>>} 角色集合（role_key）
    */
-  async getRolePermission(user: SysUser | any): Promise<Set<string>> {
+  async getRolePermission(user: User | any): Promise<Set<string>> {
     const roles = new Set<string>();
     // 查询用户角色
     // 注意：这里我们重新查询数据库以确保数据的实时性
@@ -44,7 +44,7 @@ export class SysPermissionService {
       where: { user_id: user.user_id },
       include: [
         {
-          model: SysRole,
+          model: Role,
           attributes: ['role_key'],
         },
       ],
@@ -62,10 +62,10 @@ export class SysPermissionService {
    * 获取用户菜单权限
    *
    * @async
-   * @param {(SysUser | any)} user 用户信息（至少包含 user_id / isAdmin）
+   * @param {(User | any)} user 用户信息（至少包含 user_id / isAdmin）
    * @returns {Promise<Set<string>>} 权限标识集合（perms）
    */
-  async getMenuPermission(user: SysUser | any): Promise<Set<string>> {
+  async getMenuPermission(user: User | any): Promise<Set<string>> {
     const perms = new Set<string>();
 
     // 获取角色
@@ -82,7 +82,7 @@ export class SysPermissionService {
           where: { role_key: roleKeys },
           include: [
             {
-              model: SysMenu,
+              model: Menu,
               attributes: ['perms'],
             },
           ],

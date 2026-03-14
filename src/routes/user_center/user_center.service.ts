@@ -1,13 +1,13 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { SysUserService } from '@/routes/system/user/sys-user.service';
 import { UpdateUserProfileDto } from './dto/user_center.dto';
-import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
+import { User } from '@/databases/mysql-database/model/user.model';
 
 @Injectable()
 export class UserCenterService {
   constructor(private readonly sysUserService: SysUserService) {}
 
-  async getProfile(userId: number): Promise<Partial<SysUser>> {
+  async getProfile(userId: number): Promise<Partial<User>> {
     const { data: user } = await this.sysUserService.findOne(userId);
     if (!user) {
       throw new HttpException('用户不存在', HttpStatus.NOT_FOUND);

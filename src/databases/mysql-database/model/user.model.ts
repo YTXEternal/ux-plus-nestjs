@@ -11,19 +11,19 @@ import {
   BelongsTo,
   BelongsToMany,
 } from 'sequelize-typescript';
-import { SysDept } from './sys-dept.model';
-import { SysRole } from './sys-role.model';
-import { SysUserRole } from './sys-user-role.model';
-import { SysUserDept } from './sys-user-dept.model';
+import { Dept } from './dept.model';
+import { Role } from './role.model';
+import { UserRole } from './user-role.model';
+import { UserDept } from './user-dept.model';
 
 @Table({
-  tableName: 'sys_user',
+  tableName: 'user',
   timestamps: true,
   createdAt: 'create_time',
   updatedAt: 'update_time',
   comment: '用户信息表',
 })
-export class SysUser extends Model<SysUser> {
+export class User extends Model<User> {
   @PrimaryKey
   @AutoIncrement
   @Comment('用户ID')
@@ -98,12 +98,12 @@ export class SysUser extends Model<SysUser> {
   @Column({ type: DataType.STRING(500), defaultValue: null })
   remark: string;
 
-  @BelongsTo(() => SysDept, { foreignKey: 'dept_id', targetKey: 'dept_id' })
-  dept: SysDept;
+  @BelongsTo(() => Dept, { foreignKey: 'dept_id', targetKey: 'dept_id' })
+  dept: Dept;
 
-  @BelongsToMany(() => SysDept, { through: () => SysUserDept, as: 'depts' })
-  depts: SysDept[];
+  @BelongsToMany(() => Dept, { through: () => UserDept, as: 'depts' })
+  depts: Dept[];
 
-  @BelongsToMany(() => SysRole, () => SysUserRole)
-  roles: SysRole[];
+  @BelongsToMany(() => Role, () => UserRole)
+  roles: Role[];
 }

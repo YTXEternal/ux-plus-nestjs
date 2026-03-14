@@ -10,20 +10,20 @@ import {
   UpdatedAt,
   BelongsToMany,
 } from 'sequelize-typescript';
-import { SysUser } from './sys-user.model';
-import { SysUserRole } from './sys-user-role.model';
-import { SysMenu } from './sys-menu.model';
-import { SysRoleMenu } from './sys-role-menu.model';
-import { SysDept } from './sys-dept.model';
+import { User } from './user.model';
+import { UserRole } from './user-role.model';
+import { Menu } from './menu.model';
+import { RoleMenu } from './role-menu.model';
+import { Dept } from './dept.model';
 
 @Table({
-  tableName: 'sys_role',
+  tableName: 'role',
   timestamps: true,
   createdAt: 'create_time',
   updatedAt: 'update_time',
   comment: '角色信息表',
 })
-export class SysRole extends Model<SysRole> {
+export class Role extends Model<Role> {
   @PrimaryKey
   @AutoIncrement
   @Comment('角色ID')
@@ -76,9 +76,9 @@ export class SysRole extends Model<SysRole> {
   @Column({ type: DataType.STRING(500), defaultValue: null })
   remark: string;
 
-  @BelongsToMany(() => SysUser, () => SysUserRole)
-  users: SysUser[];
+  @BelongsToMany(() => User, () => UserRole)
+  users: User[];
 
-  @BelongsToMany(() => SysMenu, () => SysRoleMenu)
-  menus: SysMenu[];
+  @BelongsToMany(() => Menu, () => RoleMenu)
+  menus: Menu[];
 }

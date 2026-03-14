@@ -13,16 +13,16 @@ import { SysFileInter } from '../interfaces/sys-file.interface';
 
 /**
  * 文件管理表
- * @class SysFile
+ * @class File
  */
 @Table({
-  tableName: 'sys_file',
+  tableName: 'file',
   timestamps: true,
   createdAt: 'create_time',
   updatedAt: 'update_time',
   comment: '文件管理表',
 })
-export class SysFile extends Model<SysFile> implements SysFileInter {
+export class File extends Model<File> implements SysFileInter {
   @PrimaryKey
   @AutoIncrement
   @Comment('文件主键ID')

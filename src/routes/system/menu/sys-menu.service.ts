@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { SysMenu } from '@/databases/mysql-database/model/sys-menu.model';
-import { SysRoleMenu } from '@/databases/mysql-database/model/sys-role-menu.model';
+import { Menu } from '@/databases/mysql-database/model/menu.model';
+import { RoleMenu } from '@/databases/mysql-database/model/role-menu.model';
 import { Op } from 'sequelize';
 import { ListMenuDto, CreateMenuDto, UpdateMenuDto } from './dto/sys-menu.dto';
 import type { SysMenuTree } from './types';
 import { SysMenuInter } from '@/databases/mysql-database/interfaces/sys-menu.interface';
 import { filterObj, isNull, isUndefined } from '@/tools';
-// export type SysMenuTree = SysMenu & { children?: SysMenuTree[] };
+// export type SysMenuTree = Menu & { children?: SysMenuTree[] };
 
 /**
  * 系统-菜单服务
@@ -23,14 +23,14 @@ export class SysMenuService {
   /**
    * 构造函数
    *
-   * @param {typeof SysMenu} sysMenuModel 菜单模型
-   * @param {typeof SysRoleMenu} sysRoleMenuModel 角色-菜单关联模型
+   * @param {typeof Menu} sysMenuModel 菜单模型
+   * @param {typeof RoleMenu} sysRoleMenuModel 角色-菜单关联模型
    */
   constructor(
-    @InjectModel(SysMenu)
-    private readonly sysMenuModel: typeof SysMenu,
-    @InjectModel(SysRoleMenu)
-    private readonly sysRoleMenuModel: typeof SysRoleMenu,
+    @InjectModel(Menu)
+    private readonly sysMenuModel: typeof Menu,
+    @InjectModel(RoleMenu)
+    private readonly sysRoleMenuModel: typeof RoleMenu,
   ) {}
 
   /**
@@ -38,7 +38,7 @@ export class SysMenuService {
    *
    * @async
    * @param {ListMenuDto} query 查询参数
-   * @returns {Promise<SysMenu[]>} 菜单列表
+   * @returns {Promise<Menu[]>} 菜单列表
    */
   async findAll(query: ListMenuDto) {
     const { menu_name, status } = query;
@@ -59,7 +59,7 @@ export class SysMenuService {
    *
    * @async
    * @param {number} menuId 菜单ID
-   * @returns {Promise<SysMenu | null>} 菜单记录
+   * @returns {Promise<Menu | null>} 菜单记录
    */
   async findOne(menuId: number) {
     return this.sysMenuModel.findByPk(menuId);
@@ -70,7 +70,7 @@ export class SysMenuService {
    *
    * @async
    * @param {CreateMenuDto} createMenuDto 创建参数
-   * @returns {Promise<SysMenu>} 创建后的菜单记录
+   * @returns {Promise<Menu>} 创建后的菜单记录
    */
   async create(createMenuDto: CreateMenuDto) {
     // @ts-ignore
@@ -82,7 +82,7 @@ export class SysMenuService {
    *
    * @async
    * @param {UpdateMenuDto} updateMenuDto 更新参数
-   * @returns {Promise<[number, SysMenu[]]>} Sequelize 更新结果
+   * @returns {Promise<[number, Menu[]]>} Sequelize 更新结果
    */
   async update(updateMenuDto: UpdateMenuDto) {
     const { menu_id, ...data } = updateMenuDto;
@@ -121,7 +121,7 @@ export class SysMenuService {
     roleIds: number[],
     isAdmin: boolean = false,
   ): Promise<SysMenuTree[]> {
-    let menus: SysMenu[] = [];
+    let menus: Menu[] = [];
     const menu_type = ['M', 'C'];
     if (isAdmin) {
       menus = await this.sysMenuModel.findAll({
@@ -137,7 +137,7 @@ export class SysMenuService {
       menus = await this.sysMenuModel.findAll({
         include: [
           {
-            model: SysRoleMenu,
+            model: RoleMenu,
             where: { role_id: roleIds },
             attributes: [], // 不返回关联表数据
           },
@@ -153,10 +153,10 @@ export class SysMenuService {
   /**
    * 构建菜单树
    *
-   * @param {SysMenu[]} menus 菜单列表
+   * @param {Menu[]} menus 菜单列表
    * @returns {SysMenuTree[]} 树形结构
    */
-  buildMenuTree(menus: SysMenu[]): SysMenuTree[] {
+  buildMenuTree(menus: Menu[]): SysMenuTree[] {
     const menuMap = new Map<number, SysMenuTree>();
     const tree: SysMenuTree[] = [];
 
@@ -198,7 +198,7 @@ export class SysMenuService {
    * @param isAdmin
    */
   async selectPermsByRoleIds(roleIds: number[], isAdmin: boolean = false) {
-    let menus: SysMenu[] = [];
+    let menus: Menu[] = [];
     if (isAdmin) {
       menus = await this.sysMenuModel.findAll({
         where: { status: '0' },
@@ -208,7 +208,7 @@ export class SysMenuService {
       menus = await this.sysMenuModel.findAll({
         include: [
           {
-            model: SysRoleMenu,
+            model: RoleMenu,
             where: { role_id: roleIds },
             attributes: [],
           },
@@ -238,7 +238,7 @@ export class SysMenuService {
     roleIds: number[],
     isAdmin: boolean = false,
   ): Promise<string[]> {
-    let menus: SysMenu[] = [];
+    let menus: Menu[] = [];
     const menu_type = ['M', 'C'];
     const attributes = ['route_name'];
 
@@ -253,7 +253,7 @@ export class SysMenuService {
         attributes,
         include: [
           {
-            model: SysRoleMenu,
+            model: RoleMenu,
             where: { role_id: roleIds },
             attributes: [],
           },

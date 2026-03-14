@@ -5,7 +5,7 @@ import { UxJwtModule } from '@/modules/ux-jwt/ux-jwt.module';
 import { UxPasswordModule } from '@/modules/ux-password/ux-password.module';
 import { UxCryptoRsaService } from '@/services/ux-crypto-rsa/ux-crypto-rsa.service';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { SysUser } from '@/databases/mysql-database/model/sys-user.model';
+import { User } from '@/databases/mysql-database/model/user.model';
 import { RedisModule } from '@/modules/redis/redis.module';
 import { SysMenuModule } from '@/routes/system/menu/sys-menu.module';
 import { SysUserService } from '@/routes/system/user/sys-user.service';
@@ -24,7 +24,7 @@ import { SysUserModule } from '@/routes/system/user/sys-user.module';
   imports: [
     UxJwtModule,
     UxPasswordModule,
-    SequelizeModule.forFeature([SysUser]),
+    SequelizeModule.forFeature([User]),
     RedisModule,
     SysMenuModule,
     SysUserModule,

@@ -8,31 +8,49 @@ import {
   Comment,
   CreatedAt,
   UpdatedAt,
-  Unique,
 } from 'sequelize-typescript';
 
 @Table({
-  tableName: 'sys_dict_type',
+  tableName: 'dict_data',
   timestamps: true,
   createdAt: 'create_time',
   updatedAt: 'update_time',
-  comment: '字典类型表',
+  comment: '字典数据表',
 })
-export class SysDictType extends Model<SysDictType> {
+export class DictData extends Model<DictData> {
   @PrimaryKey
   @AutoIncrement
-  @Comment('字典主键')
+  @Comment('字典编码')
   @Column(DataType.BIGINT)
-  dict_id: number;
+  dict_code: number;
 
-  @Comment('字典名称')
+  @Comment('字典排序')
+  @Column({ type: DataType.INTEGER, defaultValue: 0 })
+  dict_sort: number;
+
+  @Comment('字典标签')
   @Column({ type: DataType.STRING(100), defaultValue: '' })
-  dict_name: string;
+  dict_label: string;
 
-  @Unique
+  @Comment('字典键值')
+  @Column({ type: DataType.STRING(100), defaultValue: '' })
+  dict_value: string;
+
   @Comment('字典类型')
   @Column({ type: DataType.STRING(100), defaultValue: '' })
   dict_type: string;
+
+  @Comment('样式属性（其他样式扩展）')
+  @Column({ type: DataType.STRING(100), defaultValue: null })
+  css_class: string;
+
+  @Comment('表格回显样式')
+  @Column({ type: DataType.STRING(100), defaultValue: null })
+  list_class: string;
+
+  @Comment('是否默认（Y是 N否）')
+  @Column({ type: DataType.CHAR(1), defaultValue: 'N' })
+  is_default: string;
 
   @Comment('状态（0正常 1停用）')
   @Column({ type: DataType.CHAR(1), defaultValue: '0' })

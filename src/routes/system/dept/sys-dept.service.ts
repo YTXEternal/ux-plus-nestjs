@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { SysDept } from '@/databases/mysql-database/model/sys-dept.model';
+import { Dept } from '@/databases/mysql-database/model/dept.model';
 import { Op } from 'sequelize';
 import { SysDeptTree } from './types';
 
@@ -20,11 +20,11 @@ export class SysDeptService {
   /**
    * 构造函数
    *
-   * @param {typeof SysDept} sysDeptModel 部门模型
+   * @param {typeof Dept} sysDeptModel 部门模型
    */
   constructor(
-    @InjectModel(SysDept)
-    private readonly sysDeptModel: typeof SysDept,
+    @InjectModel(Dept)
+    private readonly sysDeptModel: typeof Dept,
   ) {}
 
   /**
@@ -51,10 +51,10 @@ export class SysDeptService {
   /**
    * 构建部门树
    *
-   * @param {SysDept[]} depts 部门列表
+   * @param {Dept[]} depts 部门列表
    * @returns {SysDeptTree[]} 树形结构
    */
-  buildDeptTree(depts: SysDept[]): SysDeptTree[] {
+  buildDeptTree(depts: Dept[]): SysDeptTree[] {
     const deptMap = new Map<number, SysDeptTree>();
     const tree: SysDeptTree[] = [];
 
@@ -93,7 +93,7 @@ export class SysDeptService {
    *
    * @async
    * @param {number} deptId 部门ID
-   * @returns {Promise<SysDept | null>} 部门记录
+   * @returns {Promise<Dept | null>} 部门记录
    */
   async findOne(deptId: number) {
     return this.sysDeptModel.findByPk(deptId);
@@ -104,7 +104,7 @@ export class SysDeptService {
    *
    * @async
    * @param {CreateDeptDto} createDeptDto 创建参数
-   * @returns {Promise<SysDept>} 创建后的部门记录
+   * @returns {Promise<Dept>} 创建后的部门记录
    */
   async create(createDeptDto: CreateDeptDto) {
     const exist = await this.sysDeptModel.findOne({
@@ -124,7 +124,7 @@ export class SysDeptService {
    *
    * @async
    * @param {UpdateDeptDto} updateDeptDto 更新参数
-   * @returns {Promise<[number, SysDept[]]>} Sequelize 更新结果
+   * @returns {Promise<[number, Dept[]]>} Sequelize 更新结果
    */
   async update(updateDeptDto: UpdateDeptDto) {
     const { dept_id, ...data } = updateDeptDto;
@@ -154,7 +154,7 @@ export class SysDeptService {
    *
    * @async
    * @param {number} deptId 部门ID
-   * @returns {Promise<[number, SysDept[]]>} Sequelize 更新结果
+   * @returns {Promise<[number, Dept[]]>} Sequelize 更新结果
    */
   async delete(deptId: number) {
     return this.sysDeptModel.update(

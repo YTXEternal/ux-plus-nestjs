@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { SysLogininforService } from './sys-logininfor.service';
 import { SysLogininforController } from './sys-logininfor.controller';
-import { SysLogininfor } from '@/databases/mysql-database/model/sys-logininfor.model';
+import { Logininfor } from '@/databases/mysql-database/model/logininfor.model';
 
 /**
  * 监控-登录日志模块
@@ -14,7 +14,7 @@ import { SysLogininfor } from '@/databases/mysql-database/model/sys-logininfor.m
  * @typedef {SysLogininforModule}
  */
 @Module({
-  imports: [SequelizeModule.forFeature([SysLogininfor])],
+  imports: [SequelizeModule.forFeature([Logininfor])],
   controllers: [SysLogininforController],
   providers: [SysLogininforService],
 })

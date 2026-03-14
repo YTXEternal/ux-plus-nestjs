@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { SysFile } from '@/databases/mysql-database/model/sys-file.model';
+import { File } from '@/databases/mysql-database/model/file.model';
 import { Op } from 'sequelize';
 import { ListFileDto } from './dto/file.dto';
 import { formatPagination } from '@/tools/pagination';
@@ -12,8 +12,8 @@ import { formatPagination } from '@/tools/pagination';
 @Injectable()
 export class SysFileService {
   constructor(
-    @InjectModel(SysFile)
-    private readonly sysFileModel: typeof SysFile,
+    @InjectModel(File)
+    private readonly sysFileModel: typeof File,
   ) {}
 
   /**

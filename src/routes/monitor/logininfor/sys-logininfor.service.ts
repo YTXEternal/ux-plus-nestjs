@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { SysLogininfor } from '@/databases/mysql-database/model/sys-logininfor.model';
+import { Logininfor } from '@/databases/mysql-database/model/logininfor.model';
 import { RedisService } from '@/modules/redis/redis.service';
 import { Op } from 'sequelize';
 
@@ -20,12 +20,12 @@ export class SysLogininforService {
   /**
    * 构造函数
    *
-   * @param {typeof SysLogininfor} sysLogininforModel 登录日志模型
+   * @param {typeof Logininfor} sysLogininforModel 登录日志模型
    * @param {RedisService} redisService Redis 缓存服务（用于解锁等扩展能力）
    */
   constructor(
-    @InjectModel(SysLogininfor)
-    private readonly sysLogininforModel: typeof SysLogininfor,
+    @InjectModel(Logininfor)
+    private readonly sysLogininforModel: typeof Logininfor,
     private readonly redisService: RedisService,
   ) {}
 
@@ -34,7 +34,7 @@ export class SysLogininforService {
    *
    * @async
    * @param {ListLogininforDto} query 查询参数
-   * @returns {Promise<{ rows: SysLogininfor[]; total: number }>} 分页结果
+   * @returns {Promise<{ rows: Logininfor[]; total: number }>} 分页结果
    */
   async findAll(query: ListLogininforDto) {
     const { pageNum = 1, pageSize = 20, ipaddr, user_name, status } = query;

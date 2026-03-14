@@ -8,30 +8,30 @@ import {
   ForeignKey,
   BelongsTo,
 } from 'sequelize-typescript';
-import { SysRole } from './sys-role.model';
-import { SysMenu } from './sys-menu.model';
+import { Role } from './role.model';
+import { Menu } from './menu.model';
 
 @Table({
-  tableName: 'sys_role_menu',
+  tableName: 'role_menu',
   timestamps: false,
   comment: '角色和菜单关联表',
 })
-export class SysRoleMenu extends Model<SysRoleMenu> {
+export class RoleMenu extends Model<RoleMenu> {
   @PrimaryKey
-  @ForeignKey(() => SysRole)
+  @ForeignKey(() => Role)
   @Comment('角色ID')
   @Column(DataType.BIGINT)
   role_id: number;
 
   @PrimaryKey
-  @ForeignKey(() => SysMenu)
+  @ForeignKey(() => Menu)
   @Comment('菜单ID')
   @Column(DataType.BIGINT)
   menu_id: number;
 
-  @BelongsTo(() => SysMenu)
-  sysMenu: SysMenu;
+  @BelongsTo(() => Menu)
+  sysMenu: Menu;
 
-  @BelongsTo(() => SysRole)
-  sysRole: SysRole;
+  @BelongsTo(() => Role)
+  sysRole: Role;
 }

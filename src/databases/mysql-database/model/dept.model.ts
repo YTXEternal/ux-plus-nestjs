@@ -10,18 +10,18 @@ import {
   UpdatedAt,
   BelongsToMany,
 } from 'sequelize-typescript';
-import { SysUser } from './sys-user.model';
-import { SysUserDept } from './sys-user-dept.model';
-import { SysRole } from './sys-role.model';
+import { User } from './user.model';
+import { UserDept } from './user-dept.model';
+import { Role } from './role.model';
 
 @Table({
-  tableName: 'sys_dept',
+  tableName: 'dept',
   timestamps: true,
   createdAt: 'create_time',
   updatedAt: 'update_time',
   comment: '部门表',
 })
-export class SysDept extends Model<SysDept> {
+export class Dept extends Model<Dept> {
   @PrimaryKey
   @AutoIncrement
   @Comment('部门id')
@@ -72,6 +72,6 @@ export class SysDept extends Model<SysDept> {
   @Column({ type: DataType.STRING(64), defaultValue: '' })
   update_by: string;
 
-  @BelongsToMany(() => SysUser, () => SysUserDept)
-  users: SysUser[];
+  @BelongsToMany(() => User, () => UserDept)
+  users: User[];
 }

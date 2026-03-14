@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { SysOperLog } from '@/databases/mysql-database/model/sys-oper-log.model';
+import { OperLog } from '@/databases/mysql-database/model/oper-log.model';
 import { Op } from 'sequelize';
 
 import { ListOperLogDto } from './dto/sys-oper-log.dto';
@@ -19,11 +19,11 @@ export class SysOperLogService {
   /**
    * 构造函数
    *
-   * @param {typeof SysOperLog} sysOperLogModel 操作日志模型
+   * @param {typeof OperLog} sysOperLogModel 操作日志模型
    */
   constructor(
-    @InjectModel(SysOperLog)
-    private readonly sysOperLogModel: typeof SysOperLog,
+    @InjectModel(OperLog)
+    private readonly sysOperLogModel: typeof OperLog,
   ) {}
 
   /**
@@ -31,7 +31,7 @@ export class SysOperLogService {
    *
    * @async
    * @param {ListOperLogDto} query 查询参数
-   * @returns {Promise<{ rows: SysOperLog[]; total: number }>} 分页结果
+   * @returns {Promise<{ rows: OperLog[]; total: number }>} 分页结果
    */
   async findAll(query: ListOperLogDto) {
     const {

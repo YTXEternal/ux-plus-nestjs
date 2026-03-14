@@ -10,16 +10,16 @@ import {
   UpdatedAt,
   HasMany,
 } from 'sequelize-typescript';
-import { SysRoleMenu } from './sys-role-menu.model';
+import { RoleMenu } from './role-menu.model';
 
 @Table({
-  tableName: 'sys_menu',
+  tableName: 'menu',
   timestamps: true,
   createdAt: 'create_time',
   updatedAt: 'update_time',
   comment: '菜单权限表',
 })
-export class SysMenu extends Model<SysMenu> {
+export class Menu extends Model<Menu> {
   @PrimaryKey
   @AutoIncrement
   @Comment('菜单ID')
@@ -98,6 +98,6 @@ export class SysMenu extends Model<SysMenu> {
   @Column({ type: DataType.TINYINT, defaultValue: 0 })
   constant: boolean;
 
-  @HasMany(() => SysRoleMenu)
-  sysRoleMenus: SysRoleMenu[];
+  @HasMany(() => RoleMenu)
+  sysRoleMenus: RoleMenu[];
 }

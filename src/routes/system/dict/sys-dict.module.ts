@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { SysDictService } from './sys-dict.service';
 import { SysDictController } from './sys-dict.controller';
-import { SysDictType } from '@/databases/mysql-database/model/sys-dict-type.model';
-import { SysDictData } from '@/databases/mysql-database/model/sys-dict-data.model';
+import { DictType } from '@/databases/mysql-database/model/dict-type.model';
+import { DictData } from '@/databases/mysql-database/model/dict-data.model';
 
 /**
  * 系统-字典模块
@@ -15,7 +15,7 @@ import { SysDictData } from '@/databases/mysql-database/model/sys-dict-data.mode
  * @typedef {SysDictModule}
  */
 @Module({
-  imports: [SequelizeModule.forFeature([SysDictType, SysDictData])],
+  imports: [SequelizeModule.forFeature([DictType, DictData])],
   controllers: [SysDictController],
   providers: [SysDictService],
 })

@@ -9,11 +9,11 @@ import {
 } from 'sequelize-typescript';
 
 @Table({
-  tableName: 'sys_logininfor',
+  tableName: 'logininfor',
   timestamps: false,
   comment: '系统访问记录',
 })
-export class SysLogininfor extends Model<SysLogininfor> {
+export class Logininfor extends Model<Logininfor> {
   @PrimaryKey
   @AutoIncrement
   @Comment('访问ID')
