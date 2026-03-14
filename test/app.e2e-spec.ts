@@ -23,6 +23,7 @@ import {
   User,
   UserRole,
 } from '@/databases/mysql-database/model';
+import { ChatSession } from '@/databases/mysql-database/model/chat-session.model';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env.test') });
 
@@ -68,6 +69,7 @@ describe('API (e2e)', () => {
     userCrudId: 0,
     operId: 0,
     loginInfoId: 0,
+    chatSessionId: '',
   };
 
   /**
@@ -1767,7 +1769,10 @@ describe('API (e2e)', () => {
       });
 
       it('获取个人信息成功', async () => {
-        const res = await authed('get', `${apiPrefix}/user_center/detail`).expect(200);
+        const res = await authed(
+          'get',
+          `${apiPrefix}/user_center/detail`,
+        ).expect(200);
         expectOk(res.body as ApiResponseBody<any>);
         const data = (res.body as ApiResponseBody<any>).data;
         expect(data).toHaveProperty('nick_name');
@@ -1781,7 +1786,9 @@ describe('API (e2e)', () => {
 
     describe('PUT /user_center/update', () => {
       it('未携带 token 返回 401', async () => {
-        await unauthed('put', `${apiPrefix}/user_center/update`).send({}).expect(401);
+        await unauthed('put', `${apiPrefix}/user_center/update`)
+          .send({})
+          .expect(401);
       });
 
       it('修改个人信息成功（包含 apikey）', async () => {
@@ -1792,10 +1799,17 @@ describe('API (e2e)', () => {
         expectOk(res.body as ApiResponseBody<any>);
 
         // 验证是否修改成功
-        const detailRes = await authed('get', `${apiPrefix}/user_center/detail`).expect(200);
+        const detailRes = await authed(
+          'get',
+          `${apiPrefix}/user_center/detail`,
+        ).expect(200);
         const data = (detailRes.body as ApiResponseBody<any>).data;
         expect(data.apikey).toBe(testApiKey);
       });
     });
+  });
+
+  describe('Chat', () => {
+    // Chat tests moved to chat.e2e-spec.ts
   });
 });

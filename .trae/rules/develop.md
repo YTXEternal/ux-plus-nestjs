@@ -17,6 +17,6 @@ alwaysApply: true
 - 所有的Service方法都必须编写对应的JSDoc注释
 - 所有的Module都必须添加注释说明其作用，采用JSDoc规范
 
-# 编写功能完成后
-- 需要编写对应的测试用例到app.e2e-spec.ts中
+## 编写功能完成后（核心规则必须遵守）
+- 当你对src/routes下新增或者修改了路由时需要编写对应的端到端测试用例到根目录test/[name].e2e-spec.ts中
 - 最后需要通过pnpm lint和pnpm test:e2e测试

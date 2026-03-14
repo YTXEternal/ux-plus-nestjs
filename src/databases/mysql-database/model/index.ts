@@ -10,3 +10,4 @@ export * from './user-role.model';
 export * from './role-menu.model';
 export * from './user-dept.model';
 export * from './file.model';
+export * from './chat-session.model';

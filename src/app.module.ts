@@ -46,6 +46,7 @@ import { SysOnlineModule } from './routes/monitor/online/sys-online.module';
 import { RouteModule } from './routes/route/route.module';
 import { SysFileModule } from './routes/file/file.module';
 import { UserCenterModule } from './routes/user_center/user_center.module';
+import { ChatModule } from './routes/chat/chat.module';
 
 const staticPath = join(process.cwd(), 'static');
 console.log('staticPath', staticPath);
@@ -157,6 +158,7 @@ const useProviders = () => {
     RouteModule,
     SysFileModule,
     UserCenterModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: useProviders(),

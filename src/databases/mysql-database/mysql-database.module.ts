@@ -13,6 +13,7 @@ import {
   RoleMenu,
   UserDept,
   File,
+  ChatSession,
 } from './model';
 import { ConfigService } from '@nestjs/config';
 import { EnvConfigModule } from '@/modules/env-config/env-config.module';
@@ -75,6 +76,7 @@ export class MysqlDatabaseModule {
                 RoleMenu,
                 UserDept,
                 File,
+                ChatSession,
               ],
               synchronize: true,
               define: {
