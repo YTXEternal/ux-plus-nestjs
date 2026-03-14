@@ -134,6 +134,7 @@ export class AuthController {
     return new ApiResponse(HttpStatus.OK, 'Login successful', {
       token,
       refreshToken,
+      apikey: user.apikey,
     });
   }
 

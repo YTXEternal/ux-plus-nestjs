@@ -20,13 +20,7 @@ import { UxPasswordModule } from '@/modules/ux-password/ux-password.module';
  */
 @Module({
   imports: [
-    SequelizeModule.forFeature([
-      User,
-      Role,
-      Dept,
-      UserDept,
-      UserRole,
-    ]),
+    SequelizeModule.forFeature([User, Role, Dept, UserDept, UserRole]),
     UxPasswordModule,
   ],
   controllers: [SysUserController],

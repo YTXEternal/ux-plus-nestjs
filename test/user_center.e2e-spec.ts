@@ -11,12 +11,7 @@ import { UxJwtService } from '@/modules/ux-jwt/ux-jwt.service';
 import * as mysql from 'mysql2/promise';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
-import {
-  Dept,
-  Role,
-  User,
-  UserRole,
-} from '@/databases/mysql-database/model';
+import { Dept, Role, User, UserRole } from '@/databases/mysql-database/model';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env.test') });
 

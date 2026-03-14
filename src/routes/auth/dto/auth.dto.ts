@@ -20,6 +20,9 @@ export class LoginResponseDto {
 
   @ApiProperty({ description: '刷新令牌' })
   refreshToken: string;
+
+  @ApiPropertyOptional({ description: 'API Key' })
+  apikey?: string;
 }
 
 export class RefreshTokenDto {
@@ -74,6 +77,9 @@ export class UserResponseDto {
 
   @ApiPropertyOptional({ description: '备注' })
   remark?: string;
+
+  @ApiPropertyOptional({ description: 'API Key' })
+  apikey?: string;
 }
 
 export class UserInfoResponseDto {

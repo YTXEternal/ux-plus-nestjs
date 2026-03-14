@@ -34,4 +34,9 @@ export class UpdateUserProfileDto {
   @IsOptional()
   @IsString({ message: '头像地址必须是字符串' })
   avatar?: string;
+
+  @ApiPropertyOptional({ description: 'API Key' })
+  @IsOptional()
+  @IsString({ message: 'API Key必须是字符串' })
+  apikey?: string;
 }

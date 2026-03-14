@@ -20,6 +20,7 @@ export class UserCenterService {
       phonenumber: user.phonenumber,
       sex: user.sex,
       avatar: user.avatar,
+      apikey: user.apikey,
     };
   }
 
@@ -40,6 +41,7 @@ export class UserCenterService {
       phonenumber: dto.phonenumber ?? currentInfo.phonenumber,
       sex: dto.sex ?? currentInfo.sex,
       avatar: dto.avatar ?? currentInfo.avatar,
+      apikey: dto.apikey ?? currentInfo.apikey,
     });
   }
 }

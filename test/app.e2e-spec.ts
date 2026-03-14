@@ -333,16 +333,19 @@ describe('API (e2e)', () => {
           response.body as ApiResponseBody<{
             token: string;
             refreshToken: string;
+            apikey?: string;
           }>,
         );
         const data = (
           response.body as ApiResponseBody<{
             token: string;
             refreshToken: string;
+            apikey?: string;
           }>
         ).data!;
         expect(typeof data.token).toBe('string');
         expect(typeof data.refreshToken).toBe('string');
+        expect(data).toHaveProperty('apikey');
       });
     });
 
@@ -1168,9 +1171,7 @@ describe('API (e2e)', () => {
           })
           .expect(201);
         expectOk(res.body as ApiResponseBody<Role>);
-        created.roleCrudId = (
-          res.body as ApiResponseBody<Role>
-        ).data!.role_id;
+        created.roleCrudId = (res.body as ApiResponseBody<Role>).data!.role_id;
       });
     });
 
@@ -1344,9 +1345,7 @@ describe('API (e2e)', () => {
           })
           .expect(201);
         expectOk(res.body as ApiResponseBody<User>);
-        created.userCrudId = (
-          res.body as ApiResponseBody<User>
-        ).data!.user_id;
+        created.userCrudId = (res.body as ApiResponseBody<User>).data!.user_id;
       });
 
       it('用户账号已存在返回 409', async () => {
@@ -1757,6 +1756,45 @@ describe('API (e2e)', () => {
         const data = (detailRes.body as ApiResponseBody<any>).data;
         expect(data.del_flag).toBe('2');
         expect(data.url).toBe('');
+      });
+    });
+  });
+
+  describe('User Center', () => {
+    describe('GET /user_center/detail', () => {
+      it('未携带 token 返回 401', async () => {
+        await unauthed('get', `${apiPrefix}/user_center/detail`).expect(401);
+      });
+
+      it('获取个人信息成功', async () => {
+        const res = await authed('get', `${apiPrefix}/user_center/detail`).expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+        const data = (res.body as ApiResponseBody<any>).data;
+        expect(data).toHaveProperty('nick_name');
+        expect(data).toHaveProperty('email');
+        expect(data).toHaveProperty('phonenumber');
+        expect(data).toHaveProperty('sex');
+        expect(data).toHaveProperty('avatar');
+        expect(data).toHaveProperty('apikey');
+      });
+    });
+
+    describe('PUT /user_center/update', () => {
+      it('未携带 token 返回 401', async () => {
+        await unauthed('put', `${apiPrefix}/user_center/update`).send({}).expect(401);
+      });
+
+      it('修改个人信息成功（包含 apikey）', async () => {
+        const testApiKey = `test_api_key_${testRunId}`;
+        const res = await authed('put', `${apiPrefix}/user_center/update`)
+          .send({ apikey: testApiKey })
+          .expect(200);
+        expectOk(res.body as ApiResponseBody<any>);
+
+        // 验证是否修改成功
+        const detailRes = await authed('get', `${apiPrefix}/user_center/detail`).expect(200);
+        const data = (detailRes.body as ApiResponseBody<any>).data;
+        expect(data.apikey).toBe(testApiKey);
       });
     });
   });

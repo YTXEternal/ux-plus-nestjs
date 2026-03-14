@@ -98,6 +98,10 @@ export class User extends Model<User> {
   @Column({ type: DataType.STRING(500), defaultValue: null })
   remark: string;
 
+  @Comment('API Key')
+  @Column({ type: DataType.STRING(255), defaultValue: null })
+  apikey: string;
+
   @BelongsTo(() => Dept, { foreignKey: 'dept_id', targetKey: 'dept_id' })
   dept: Dept;
 

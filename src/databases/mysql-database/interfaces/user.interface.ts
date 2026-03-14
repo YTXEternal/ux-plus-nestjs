@@ -17,4 +17,5 @@ export interface UserInter {
   create_by: string;
   update_by: string;
   remark: string;
+  apikey: string;
 }
