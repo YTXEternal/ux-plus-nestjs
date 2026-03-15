@@ -58,8 +58,7 @@ describe('SpeechGateway (e2e)', () => {
       const mysqlUser = process.env.MYSQL_USERNAME || 'root';
       const mysqlPassword = process.env.MYSQL_PASSWORD || '123456';
 
-      e2eDatabaseName =
-        `platform_test_speech_e2e_${testRunId}`.toLowerCase();
+      e2eDatabaseName = `platform_test_speech_e2e_${testRunId}`.toLowerCase();
       const dbConn = await mysql.createConnection({
         host: mysqlHost,
         port: mysqlPort,
@@ -161,7 +160,7 @@ describe('SpeechGateway (e2e)', () => {
 
   afterAll(async () => {
     if (socket) {
-        socket.disconnect();
+      socket.disconnect();
     }
     try {
       if (app) {
@@ -204,64 +203,64 @@ describe('SpeechGateway (e2e)', () => {
     });
 
     socket.on('connect_error', (err) => {
-        done(err);
+      done(err);
     });
   });
 
   it('should receive recognition result (mock data)', (done) => {
     if (!socket || !socket.connected) {
-         // Reconnect if needed, or fail
-         socket = io(`http://localhost:${port}/speech`, {
-            auth: { token: authToken },
-            transports: ['websocket'],
-          });
+      // Reconnect if needed, or fail
+      socket = io(`http://localhost:${port}/speech`, {
+        auth: { token: authToken },
+        transports: ['websocket'],
+      });
     }
 
     // 创建一个模拟的 PCM buffer (例如 1秒钟的静音)
-    const buffer = Buffer.alloc(32000); 
+    const buffer = Buffer.alloc(32000);
 
     socket.emit('audio-stream', buffer);
 
     // 监听部分结果或最终结果
     // 由于是静音，Vosk 可能什么都不返回，或者返回空字符串
     // 我们主要验证连接没有断开，且服务器处理了请求
-    
+
     // 我们可以设置一个超时，如果没有报错断开，就认为通过
     setTimeout(() => {
-        expect(socket.connected).toBe(true);
-        done();
+      expect(socket.connected).toBe(true);
+      done();
     }, 1000);
   });
 
   it('should disconnect when token is invalid', (done) => {
-     const badSocket = io(`http://localhost:${port}/speech`, {
+    const badSocket = io(`http://localhost:${port}/speech`, {
       auth: { token: 'invalid-token' },
       transports: ['websocket'],
     });
-    
+
     // 如果 token 无效，socket.io 服务端会调用 client.disconnect()
     // 客户端会收到 disconnect 事件
-    
+
     // 但在测试中，有时候 connect_error 也会触发，或者连接根本不会建立成功
-    
+
     badSocket.on('connect', () => {
-        // 连接建立后，服务端鉴权失败会断开
+      // 连接建立后，服务端鉴权失败会断开
     });
 
     badSocket.on('disconnect', (reason) => {
-        // 服务端断开
-        expect(reason).toBeDefined();
-        badSocket.close();
-        done();
+      // 服务端断开
+      expect(reason).toBeDefined();
+      badSocket.close();
+      done();
     });
-    
+
     // 如果长时间没有反应，可能是鉴权没通过但连接也没断（不符合预期）
     // 或者根本没连上
     badSocket.on('connect_error', (err) => {
-         // 连接层面的错误
-         expect(err).toBeDefined();
-         badSocket.close();
-         done();
+      // 连接层面的错误
+      expect(err).toBeDefined();
+      badSocket.close();
+      done();
     });
   });
 });
