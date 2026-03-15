@@ -5,14 +5,22 @@ import { Model } from 'mongoose';
 import { Observable, Subject } from 'rxjs';
 import OpenAI from 'openai';
 import { v4 as uuidv4 } from 'uuid';
+import * as fs from 'fs';
+import * as path from 'path';
+import { PDFParse } from 'pdf-parse';
+
 import { ChatRequestDto } from './dto/chat.dto';
 import { SysUserService } from '@/routes/system/user/sys-user.service';
 import { ChatSession } from '@/databases/mysql-database/model/chat-session.model';
+import { File } from '@/databases/mysql-database/model/file.model';
 import {
   ChatMessage,
   ChatMessageDocument,
 } from '@/databases/mongodb/schemas/chat-message.schema';
-
+const promptPath = path.join(
+  process.cwd(),
+  './src/routes/chat/prompt/面试设定.md',
+);
 interface ChatResponse {
   data: {
     content: string;
@@ -29,9 +37,98 @@ export class ChatService {
     private readonly sysUserService: SysUserService,
     @InjectSequelizeModel(ChatSession)
     private readonly chatSessionModel: typeof ChatSession,
+    @InjectSequelizeModel(File)
+    private readonly fileModel: typeof File,
     @InjectMongooseModel(ChatMessage.name)
     private readonly chatMessageModel: Model<ChatMessageDocument>,
   ) {}
+
+  // 辅助函数
+  private generateTitle(content: string): string {
+    return content.slice(0, 10) + (content.length > 10 ? '...' : '');
+  }
+
+  private async extractFileContent(file: File): Promise<string> {
+    const filePath = path.join(process.cwd(), 'static/uploads', file.name);
+    if (!fs.existsSync(filePath)) {
+      return '';
+    }
+
+    const ext = path.extname(file.name).toLowerCase();
+    try {
+      if (ext === '.txt' || ext === '.md') {
+        return fs.readFileSync(filePath, 'utf-8');
+      } else if (ext === '.pdf') {
+        const dataBuffer = fs.readFileSync(filePath);
+        const parser = new PDFParse({ data: dataBuffer });
+        const data = await parser.getText();
+        await parser.destroy();
+        return data.text;
+      }
+    } catch (error) {
+      console.error(`Error reading file ${file.name}:`, error);
+    }
+    return '';
+  }
+
+  private async appendFileContext(
+    messages: any[],
+    fileIds: string[] | undefined,
+  ) {
+    if (!fileIds || fileIds.length === 0) {
+      return;
+    }
+
+    const validFileIds = fileIds
+      .map((id) => Number(id))
+      .filter((id) => !isNaN(id));
+
+    if (validFileIds.length === 0) {
+      return;
+    }
+
+    const files = await this.fileModel.findAll({
+      where: {
+        file_id: validFileIds,
+        del_flag: '0',
+      },
+    });
+
+    const fileContents: { name: string; type: string; content: string }[] = [];
+    for (const file of files) {
+      const content = await this.extractFileContent(file);
+      if (content) {
+        fileContents.push({
+          name: file.name,
+          type: file.type,
+          content: content.slice(0, 10000), // 限制长度防止超 token
+        });
+      }
+    }
+
+    if (fileContents.length > 0) {
+      const systemPrompt = `当前会话上传文件：${JSON.stringify(fileContents)}`;
+      messages.unshift({
+        role: 'system',
+        content: systemPrompt,
+      });
+    }
+  }
+
+  private async appendSystemPrompt(messages: any[]) {
+    try {
+      console.log('promptPath', promptPath, fs.existsSync(promptPath));
+      if (fs.existsSync(promptPath)) {
+        const content = fs.readFileSync(promptPath, 'utf-8');
+        messages.unshift({
+          role: 'system',
+          content: content,
+        });
+      }
+    } catch (error) {
+      console.error('Error reading system prompt:', error);
+    }
+  }
 
   /**
    * 生成流式对话响应
@@ -67,7 +164,7 @@ export class ChatService {
       await this.chatSessionModel.create({
         session_id: sessionId,
         user_id: userId,
-        title: dto.query.slice(0, 50), // 使用用户第一句话的前50个字符作为标题
+        title: this.generateTitle(dto.query),
         create_time: new Date(),
         update_time: new Date(),
         del_flag: '0',
@@ -83,8 +180,13 @@ export class ChatService {
           HttpStatus.FORBIDDEN,
         );
       }
-      // 更新会话时间
-      await session.update({ update_time: new Date() });
+
+      // 更新会话时间，如果标题是"新增会话"，则更新标题
+      const updateData: any = { update_time: new Date() };
+      if (session.title === '新增会话') {
+        updateData.title = this.generateTitle(dto.query);
+      }
+      await session.update(updateData);
     }
 
     // 2. 保存用户消息到 MongoDB
@@ -92,6 +194,7 @@ export class ChatService {
       session_id: sessionId,
       role: 'user',
       content: dto.query,
+      file_ids: dto.file_ids || [],
       create_time: new Date(),
     });
 
@@ -103,10 +206,16 @@ export class ChatService {
       .limit(20) // 限制最近 20 条
       .exec();
 
-    const messages = historyMessages.map((msg) => ({
+    const messages: any[] = historyMessages.map((msg) => ({
       role: msg.role,
       content: msg.content,
     }));
+
+    // 处理文件内容
+    await this.appendFileContext(messages, dto.file_ids);
+
+    // 处理固定设定
+    await this.appendSystemPrompt(messages);
 
     // 4. 创建 Subject 用于推送数据流
     const subject = new Subject<ChatResponse>();
@@ -120,7 +229,7 @@ export class ChatService {
         subject,
         messages, // 传入包含历史记录的完整消息列表
         apiKey,
-        dto.model || 'gpt-3.5-turbo',
+        dto.model || 'deepseek-ai/DeepSeek-R1',
         sessionId,
         isNewSession,
       );
@@ -163,7 +272,7 @@ export class ChatService {
   /**
    * 获取指定会话的消息记录
    */
-  async getSessionMessages(userId: number, sessionId: string) {
+  async getSessionMessages(userId: number, sessionId: string): Promise<any[]> {
     // 验证会话权限
     const session = await this.chatSessionModel.findOne({
       where: { session_id: sessionId, user_id: userId, del_flag: '0' },
@@ -175,10 +284,50 @@ export class ChatService {
       );
     }
 
-    return this.chatMessageModel
+    const messages = await this.chatMessageModel
       .find({ session_id: sessionId })
       .sort({ create_time: 1 })
+      .lean()
       .exec();
+
+    // 收集所有涉及的 file_ids
+    const allFileIds = new Set<string>();
+    messages.forEach((msg: any) => {
+      if (msg.file_ids && Array.isArray(msg.file_ids)) {
+        msg.file_ids.forEach((id: string) => allFileIds.add(id));
+      }
+    });
+
+    // 批量查询文件信息
+    let fileMap = new Map<number, File>();
+    if (allFileIds.size > 0) {
+      const fileIdArray = Array.from(allFileIds).map((id) => Number(id));
+      const files = await this.fileModel.findAll({
+        where: {
+          file_id: fileIdArray,
+          del_flag: '0',
+        },
+      });
+      fileMap = new Map(files.map((f) => [f.file_id, f]));
+    }
+
+    // 组装返回数据
+    return messages.map((msg: any) => {
+      const fileObjects: File[] = [];
+      if (msg.file_ids && Array.isArray(msg.file_ids)) {
+        msg.file_ids.forEach((id: string) => {
+          const file = fileMap.get(Number(id));
+          if (file) {
+            fileObjects.push(file);
+          }
+        });
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return {
+        ...msg,
+        files: fileObjects,
+      };
+    });
   }
 
   /**
@@ -203,6 +352,36 @@ export class ChatService {
   }
 
   /**
+   * 撤回（删除）单条消息
+   * @param userId 用户ID
+   * @param messageId 消息ID
+   */
+  async deleteMessage(userId: number, messageId: string) {
+    // 1. 查找消息
+    const message = await this.chatMessageModel.findById(messageId);
+    if (!message) {
+      throw new HttpException('Message not found', HttpStatus.NOT_FOUND);
+    }
+
+    // 2. 查找所属会话并验证权限
+    const session = await this.chatSessionModel.findOne({
+      where: { session_id: message.session_id, user_id: userId, del_flag: '0' },
+    });
+
+    if (!session) {
+      throw new HttpException(
+        'Session not found or access denied',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    // 3. 物理删除消息
+    await this.chatMessageModel.deleteOne({ _id: messageId });
+
+    return { success: true };
+  }
+
+  /**
    * 调用 OpenAI 真实接口并流式返回
    */
   private async realStreamResponse(
@@ -217,6 +396,13 @@ export class ChatService {
     try {
       const openai = new OpenAI({
         apiKey: apiKey,
+        baseURL: 'https://api.siliconflow.cn/v1',
+      });
+
+      console.log('opt', {
+        model: model,
+        messages: messages,
+        stream: true,
       });
 
       const stream = await openai.chat.completions.create({

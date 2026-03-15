@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { ApiResponse } from '@/dto/api-response';
 
 export class AuthLoginDto {
@@ -82,9 +82,16 @@ export class UserResponseDto {
   apikey?: string;
 }
 
+export class UserBasicDto extends PickType(UserResponseDto, [
+  'nick_name',
+  'user_name',
+  'avatar',
+  'sex',
+] as const) {}
+
 export class UserInfoResponseDto {
-  @ApiProperty({ description: '用户信息', type: UserResponseDto })
-  user: UserResponseDto;
+  @ApiProperty({ description: '用户信息', type: UserBasicDto })
+  user: UserBasicDto;
 
   @ApiProperty({ description: '角色标识列表', example: ['admin'] })
   roles: string[];

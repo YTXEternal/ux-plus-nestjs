@@ -231,7 +231,7 @@ export class MyChatProvider extends AbstractChatProvider<MyMessage, MyInput, MyO
     return {
       query: requestParams.query || '',
       context: requestParams.context,
-      model: 'gpt-3.5-turbo', // 根据你的API调整
+      model: 'deepseek-ai/DeepSeek-R1', // 根据你的API调整
       stream: true,
       ...(options?.params || {}),
     };
@@ -312,7 +312,7 @@ const request = XRequest('https://your-api.com/chat', {
 
   // 默认参数
   params: {
-    model: 'gpt-3.5-turbo',
+    model: 'deepseek-ai/DeepSeek-R1',
     max_tokens: 1000,
     temperature: 0.7,
   },

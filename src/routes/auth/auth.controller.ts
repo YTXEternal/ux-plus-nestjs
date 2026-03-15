@@ -199,8 +199,15 @@ export class AuthController {
       isAdmin,
     );
 
+    const userBasicInfo = {
+      nick_name: user.dataValues.nick_name,
+      user_name: user.dataValues.user_name,
+      avatar: user.dataValues.avatar,
+      sex: user.dataValues.sex,
+    };
+    console.log('userBasicInfo', userBasicInfo);
     return new ApiResponse(HttpStatus.OK, 'Get user info successful', {
-      user,
+      user: userBasicInfo,
       roles: user.roles?.map((r) => r.role_key) || [],
       permissions,
     });

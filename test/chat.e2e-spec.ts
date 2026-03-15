@@ -11,6 +11,7 @@ import { UxJwtService } from '@/modules/ux-jwt/ux-jwt.service';
 import * as mysql from 'mysql2/promise';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import * as fs from 'fs';
 import { Dept, Role, User, UserRole } from '@/databases/mysql-database/model';
 import { ChatSession } from '@/databases/mysql-database/model/chat-session.model';
 
@@ -368,6 +369,32 @@ describe('Chat API (e2e)', () => {
         expect(messages.length).toBeGreaterThanOrEqual(2);
       });
 
+      it('撤回消息', async () => {
+        // 先获取当前消息列表
+        let res = await authed(
+          'get',
+          `${apiPrefix}/chat/session/${sessionId}/messages`,
+        ).expect(200);
+        let messages = (res.body as ApiResponseBody<any[]>).data!;
+        const messageToDelete = messages[0];
+        const initialCount = messages.length;
+
+        // 删除第一条消息
+        await authed('delete', `${apiPrefix}/chat/message`)
+          .send({ messageId: messageToDelete._id })
+          .expect(200);
+
+        // 再次获取列表验证数量减少
+        res = await authed(
+          'get',
+          `${apiPrefix}/chat/session/${sessionId}/messages`,
+        ).expect(200);
+        messages = (res.body as ApiResponseBody<any[]>).data!;
+        expect(messages.length).toBe(initialCount - 1);
+        const deletedMsg = messages.find((m) => m._id === messageToDelete._id);
+        expect(deletedMsg).toBeUndefined();
+      });
+
       it('删除会话', async () => {
         await authed('delete', `${apiPrefix}/chat/session`)
           .send({ sessionId })
@@ -380,6 +407,50 @@ describe('Chat API (e2e)', () => {
         const sessions = (res.body as ApiResponseBody<any[]>).data!;
         const targetSession = sessions.find((s) => s.session_id === sessionId);
         expect(targetSession).toBeUndefined();
+      });
+    });
+
+    describe('File Context', () => {
+      let fileId: number;
+      const fileName = `chat_context_test.txt`;
+      const tempDir = path.join(__dirname, 'temp_chat');
+      const filePath = path.join(tempDir, fileName);
+
+      beforeAll(() => {
+        if (!fs.existsSync(tempDir)) {
+          fs.mkdirSync(tempDir);
+        }
+        fs.writeFileSync(
+          filePath,
+          'This is a test file content for chat context.',
+        );
+      });
+
+      afterAll(() => {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+        if (fs.existsSync(tempDir)) {
+          fs.rmdirSync(tempDir);
+        }
+      });
+
+      it('上传文件并携带文件ID进行对话', async () => {
+        // 1. 上传文件
+        const uploadRes = await authed('post', `${apiPrefix}/file/upload`)
+          .attach('file', filePath)
+          .expect(201);
+
+        const uploadData = (uploadRes.body as ApiResponseBody<any>).data;
+        fileId = uploadData.file_id;
+
+        // 2. 发起对话携带 file_ids
+        await authed('post', `${apiPrefix}/chat/stream`)
+          .send({
+            query: 'Analyze this file',
+            file_ids: [String(fileId)],
+          })
+          .expect(201);
       });
     });
   });

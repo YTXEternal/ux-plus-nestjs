@@ -64,6 +64,7 @@
     "ngrok": "5.0.0-beta.2",
     "nodemailer": "^7.0.2",
     "openai": "^6.29.0",
+    "pdf-parse": "^2.4.5",
     "pidusage": "^4.0.1",
     "pino-http": "^11.0.0",
     "reflect-metadata": "^0.2.2",

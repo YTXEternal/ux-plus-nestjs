@@ -8,6 +8,7 @@ import { UxJwtModule } from '@/modules/ux-jwt/ux-jwt.module';
 import { RedisModule } from '@/modules/redis/redis.module';
 import { EnvConfigModule } from '@/modules/env-config/env-config.module';
 import { ChatSession } from '@/databases/mysql-database/model/chat-session.model';
+import { File } from '@/databases/mysql-database/model/file.model';
 import {
   ChatMessage,
   ChatMessageSchema,
@@ -19,7 +20,7 @@ import {
     UxJwtModule,
     RedisModule,
     EnvConfigModule,
-    SequelizeModule.forFeature([ChatSession]),
+    SequelizeModule.forFeature([ChatSession, File]),
     MongooseModule.forFeature([
       { name: ChatMessage.name, schema: ChatMessageSchema },
     ]),

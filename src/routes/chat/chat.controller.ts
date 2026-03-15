@@ -61,6 +61,17 @@ export class ChatController {
     return new ApiResponse(200, 'success');
   }
 
+  @Delete('message')
+  @ApiOperation({ summary: '撤回（删除）消息' })
+  @ApiBody({
+    schema: { type: 'object', properties: { messageId: { type: 'string' } } },
+  })
+  async deleteMessage(@Req() req, @Body('messageId') messageId: string) {
+    const userId = req.user.user_id;
+    await this.chatService.deleteMessage(userId, messageId);
+    return new ApiResponse(200, 'success');
+  }
+
   @Post('stream')
   @ApiOperation({ summary: '流式对话接口' })
   @ApiBody({ type: ChatRequestDto })

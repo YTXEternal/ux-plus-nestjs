@@ -8,7 +8,7 @@ const openAIRequest = XRequest('https://api.example-openai.com/v1/chat/completio
     Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, // Node.js 环境变量
   },
   params: {
-    model: 'gpt-3.5-turbo',
+    model: 'deepseek-ai/DeepSeek-R1',
     messages: [{ role: 'user', content: '你好' }],
     stream: true,
   },
@@ -28,7 +28,7 @@ const openAIRequest = XRequest('https://api.example-openai.com/v1/chat/completio
 // ✅ 安全：通过同域代理
 const openAIRequest = XRequest('/api/proxy/openai', {
   params: {
-    model: 'gpt-3.5-turbo',
+    model: 'deepseek-ai/DeepSeek-R1',
     messages: [{ role: 'user', content: '你好' }],
     stream: true,
   },

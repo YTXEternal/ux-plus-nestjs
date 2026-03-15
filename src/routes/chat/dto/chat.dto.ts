@@ -11,8 +11,17 @@ export class ChatRequestDto {
   @IsString()
   sessionId?: string;
 
-  @ApiPropertyOptional({ description: '模型名称', default: 'gpt-3.5-turbo' })
+  @ApiPropertyOptional({
+    description: '模型名称',
+    default: 'deepseek-ai/DeepSeek-R1',
+  })
   @IsOptional()
   @IsString()
   model?: string;
+
+  @ApiPropertyOptional({
+    description: '上次的文件id',
+  })
+  @IsOptional()
+  file_ids?: string[];
 }

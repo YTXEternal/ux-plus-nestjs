@@ -6,6 +6,8 @@ export class Info {
   @Expose({ name: 'permissions' })
   buttons: string[];
   @Expose({ name: 'user' })
+  user: any;
+  @Expose({ name: 'user' })
   @Transform(({ obj }: { obj: { user: SysUserInter } }) => obj.user.user_id)
   userId: string;
   @Expose({ name: 'user' })

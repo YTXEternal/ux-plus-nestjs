@@ -236,7 +236,7 @@ const unsafeRequest = XRequest('https://api.openai.com/v1/chat/completions', {
 // 前端安全配置：使用代理服务
 const safeRequest = XRequest('/api/proxy/openai', {
   params: {
-    model: 'gpt-3.5-turbo',
+    model: 'deepseek-ai/DeepSeek-R1',
     stream: true,
   },
   manual: true,

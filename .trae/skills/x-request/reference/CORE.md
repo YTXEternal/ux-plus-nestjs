@@ -80,7 +80,7 @@ const request = XRequest('https://your-api.com/chat', {
 const request = XRequest('https://your-api.com/chat', {
   method: 'GET',
   params: {
-    model: 'gpt-3.5-turbo',
+    model: 'deepseek-ai/DeepSeek-R1',
     max_tokens: 1000,
   },
 });
@@ -95,7 +95,7 @@ const request = XRequest('https://your-api.com/chat', {
 const streamConfig = {
   params: {
     stream: true, // 启用流式响应
-    model: 'gpt-3.5-turbo',
+    model: 'deepseek-ai/DeepSeek-R1',
     max_tokens: 1000,
   },
   manual: true, // 手动控制请求

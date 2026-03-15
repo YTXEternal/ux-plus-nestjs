@@ -14,6 +14,9 @@ export class ChatMessage {
   @Prop({ required: true })
   content: string;
 
+  @Prop({ type: [String], default: [] })
+  file_ids: string[];
+
   @Prop({ default: Date.now })
   create_time: Date;
 }
