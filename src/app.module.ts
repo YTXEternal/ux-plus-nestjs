@@ -47,6 +47,7 @@ import { RouteModule } from './routes/route/route.module';
 import { SysFileModule } from './routes/file/file.module';
 import { UserCenterModule } from './routes/user_center/user_center.module';
 import { ChatModule } from './routes/chat/chat.module';
+import { SpeechModule } from './routes/speech/speech.module';
 
 const staticPath = join(process.cwd(), 'static');
 console.log('staticPath', staticPath);
@@ -159,6 +160,7 @@ const useProviders = () => {
     SysFileModule,
     UserCenterModule,
     ChatModule,
+    SpeechModule,
   ],
   controllers: [AppController],
   providers: useProviders(),

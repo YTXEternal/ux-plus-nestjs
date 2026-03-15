@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时语音转文字测试</title>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        #result { border: 1px solid #ccc; padding: 10px; min-height: 100px; margin-top: 10px; white-space: pre-wrap; }
+        .controls { margin-bottom: 20px; }
+        input { width: 300px; padding: 5px; }
+        button { padding: 5px 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>实时语音转文字测试 (Vosk)</h1>
+    
+    <div class="controls">
+        <label>Token: <input type="text" id="token" placeholder="请输入登录 Token"></label>
+        <br><br>
+        <button id="startBtn">开始录音</button>
+        <button id="stopBtn" disabled>停止录音</button>
+        <span id="status">未连接</span>
+    </div>
+
+    <div id="result">等待识别...</div>
+
+    <script>
+        let socket;
+        let audioContext;
+        let processor;
+        let input;
+        let globalStream;
+
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const statusSpan = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
+        const tokenInput = document.getElementById('token');
+
+        // 音频转换工具函数
+        function floatTo16BitPCM(output, offset, input) {
+            for (let i = 0; i < input.length; i++, offset += 2) {
+                let s = Math.max(-1, Math.min(1, input[i]));
+                s = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                output.setInt16(offset, s, true);
+            }
+        }
+
+        function downsampleBuffer(buffer, sampleRate, outSampleRate) {
+            if (outSampleRate == sampleRate) {
+                return buffer;
+            }
+            if (outSampleRate > sampleRate) {
+                throw "downsampling rate show be smaller than original sample rate";
+            }
+            const sampleRateRatio = sampleRate / outSampleRate;
+            const newLength = Math.round(buffer.length / sampleRateRatio);
+            const result = new Float32Array(newLength);
+            let offsetResult = 0;
+            let offsetBuffer = 0;
+            while (offsetResult < result.length) {
+                const nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+                let accum = 0, count = 0;
+                for (let i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
+                    accum += buffer[i];
+                    count++;
+                }
+                result[offsetResult] = accum / count;
+                offsetResult++;
+                offsetBuffer = nextOffsetBuffer;
+            }
+            return result;
+        }
+
+        startBtn.onclick = async () => {
+            const token = tokenInput.value.trim();
+            if (!token) {
+                alert('请先输入 Token');
+                return;
+            }
+
+            try {
+                // 连接 WebSocket
+                socket = io('http://localhost:3000/speech', {
+                    auth: { token },
+                    transports: ['websocket']
+                });
+
+                socket.on('connect', () => {
+                    statusSpan.textContent = '已连接';
+                    statusSpan.style.color = 'green';
+                    startRecording();
+                });
+
+                socket.on('disconnect', () => {
+                    statusSpan.textContent = '已断开';
+                    statusSpan.style.color = 'red';
+                    stopRecordingUI();
+                });
+
+                socket.on('connect_error', (err) => {
+                    console.error('连接错误:', err);
+                    statusSpan.textContent = '连接失败: ' + err.message;
+                    statusSpan.style.color = 'red';
+                });
+
+                let finalTranscript = '';
+
+                socket.on('recognition-result', (data) => {
+                    console.log('Result:', data);
+                    if (data.text) {
+                        finalTranscript += data.text + ' ';
+                        resultDiv.textContent = finalTranscript;
+                    }
+                });
+
+                socket.on('recognition-partial', (data) => {
+                    // console.log('Partial:', data);
+                    if (data.partial) {
+                        resultDiv.textContent = finalTranscript + data.partial;
+                    }
+                });
+
+            } catch (err) {
+                console.error(err);
+                alert('启动失败: ' + err.message);
+            }
+        };
+
+        stopBtn.onclick = () => {
+            if (socket) {
+                socket.emit('stop');
+                socket.disconnect();
+            }
+            stopRecording();
+        };
+
+        async function startRecording() {
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            tokenInput.disabled = true;
+
+            try {
+                globalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                audioContext = new AudioContext();
+                input = audioContext.createMediaStreamSource(globalStream);
+                
+                // 缓冲区大小，只能是 256, 512, 1024, 2048, 4096, 8192, 16384
+                const bufferSize = 4096;
+                processor = audioContext.createScriptProcessor(bufferSize, 1, 1);
+
+                input.connect(processor);
+                processor.connect(audioContext.destination);
+
+                processor.onaudioprocess = (e) => {
+                    if (!socket || !socket.connected) return;
+
+                    const left = e.inputBuffer.getChannelData(0);
+                    // 降采样到 16000
+                    const downsampledBuffer = downsampleBuffer(left, audioContext.sampleRate, 16000);
+                    
+                    // 转换为 16-bit PCM
+                    const buffer = new ArrayBuffer(downsampledBuffer.length * 2);
+                    const view = new DataView(buffer);
+                    floatTo16BitPCM(view, 0, downsampledBuffer);
+                    
+                    socket.emit('audio-stream', buffer);
+                };
+
+            } catch (err) {
+                console.error('录音失败:', err);
+                stopRecording();
+                alert('无法访问麦克风');
+            }
+        }
+
+        function stopRecording() {
+            if (processor && input) {
+                input.disconnect(processor);
+                processor.disconnect(audioContext.destination);
+            }
+            if (audioContext) {
+                audioContext.close();
+            }
+            if (globalStream) {
+                globalStream.getTracks().forEach(track => track.stop());
+            }
+            stopRecordingUI();
+        }
+
+        function stopRecordingUI() {
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            tokenInput.disabled = false;
+        }
+    </script>
+</body>
+</html>
