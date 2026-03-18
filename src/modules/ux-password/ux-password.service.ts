@@ -42,6 +42,7 @@ export class UxPasswordService {
   verifyPassword(dbPwd: string, pwd: string) {
     const p1 = this.uxCryptoRsaService.decrypt(dbPwd);
     const p2 = this.uxCryptoRsaService.decrypt(pwd);
+    console.log('verifyPassword', p1, p2);
     return p1 === p2;
   }
 }
